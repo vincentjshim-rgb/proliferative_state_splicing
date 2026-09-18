@@ -1,0 +1,1 @@
+Collecting package metadata (repodata.json): ...working... ./setup_runner_env.sh: 줄 30: 2406314 세그멘테이션 오류 (코어 덤프됨) conda env create -p "${runner_prefix}" -f "${environment_file}"

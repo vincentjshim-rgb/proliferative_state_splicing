@@ -1,0 +1,144 @@
+srr	disease	prefix	instr	sex
+SRR7093809	Normal	AG	NextSeq 500	male
+SRR7093810	Normal	AG	NextSeq 500	male
+SRR7093811	Normal	AG	NextSeq 500	female
+SRR7093812	Normal	AG	NextSeq 500	male
+SRR7093813	Normal	AG	NextSeq 500	female
+SRR7093814	Normal	AG	NextSeq 500	male
+SRR7093815	Normal	AG	NextSeq 500	female
+SRR7093816	Normal	AG	NextSeq 500	male
+SRR7093817	Normal	AG	NextSeq 500	male
+SRR7093818	Normal	AG	NextSeq 500	male
+SRR7093819	Normal	AG	NextSeq 500	male
+SRR7093820	Normal	AG	Illumina HiSeq 2500	female
+SRR7093821	Normal	AG	Illumina HiSeq 2500	male
+SRR7093822	Normal	AG	Illumina HiSeq 2500	male
+SRR7093823	Normal	AG	Illumina HiSeq 2500	female
+SRR7093824	Normal	AG	Illumina HiSeq 2500	male
+SRR7093825	Normal	AG	Illumina HiSeq 2500	male
+SRR7093826	Normal	AG	Illumina HiSeq 2500	male
+SRR7093827	Normal	AG	Illumina HiSeq 2500	female
+SRR7093828	Normal	AG	Illumina HiSeq 2500	male
+SRR7093829	Normal	AG	Illumina HiSeq 2500	male
+SRR7093830	Normal	AG	Illumina HiSeq 2500	female
+SRR7093831	Normal	AG	Illumina HiSeq 2500	male
+SRR7093832	Normal	AG	Illumina HiSeq 2500	female
+SRR7093833	Normal	AG	NextSeq 500	male
+SRR7093834	Normal	AG	NextSeq 500	male
+SRR7093835	Normal	AG	NextSeq 500	male
+SRR7093836	Normal	AG	NextSeq 500	male
+SRR7093837	Normal	AG	NextSeq 500	male
+SRR7093838	Normal	AG	NextSeq 500	male
+SRR7093839	Normal	AG	NextSeq 500	male
+SRR7093840	Normal	AG	NextSeq 500	female
+SRR7093841	Normal	AG	NextSeq 500	female
+SRR7093842	Normal	AG	NextSeq 500	male
+SRR7093843	Normal	AG	NextSeq 500	male
+SRR7093844	Normal	AG	NextSeq 500	male
+SRR7093845	Normal	AG	NextSeq 500	male
+SRR7093846	Normal	AG	NextSeq 500	male
+SRR7093847	Normal	AG	NextSeq 500	male
+SRR7093848	Normal	AG	NextSeq 500	male
+SRR7093849	Normal	AG	NextSeq 500	male
+SRR7093850	Normal	AG	NextSeq 500	female
+SRR7093851	Normal	AG	NextSeq 500	male
+SRR7093852	Normal	AG	NextSeq 500	male
+SRR7093853	Normal	AG	NextSeq 500	male
+SRR7093854	Normal	AG	NextSeq 500	female
+SRR7093855	Normal	AG	NextSeq 500	male
+SRR7093856	Normal	AG	NextSeq 500	female
+SRR7093857	Normal	AG	NextSeq 500	male
+SRR7093858	Normal	AG	NextSeq 500	male
+SRR7093859	Normal	AG	NextSeq 500	male
+SRR7093860	Normal	AG	NextSeq 500	male
+SRR7093861	Normal	AG	NextSeq 500	male
+SRR7093862	Normal	AG	NextSeq 500	male
+SRR7093863	Normal	AG	NextSeq 500	male
+SRR7093864	Normal	AG	NextSeq 500	female
+SRR7093865	Normal	AG	NextSeq 500	male
+SRR7093866	Normal	AG	NextSeq 500	male
+SRR7093867	Normal	AG	NextSeq 500	male
+SRR7093868	Normal	AG	NextSeq 500	male
+SRR7093869	Normal	AG	NextSeq 500	male
+SRR7093870	Normal	AG	NextSeq 500	male
+SRR7093871	Normal	AG	NextSeq 500	male
+SRR7093872	Normal	AG	NextSeq 500	female
+SRR7093873	Normal	AG	NextSeq 500	male
+SRR7093874	Normal	GM	NextSeq 500	male
+SRR7093875	Normal	GM	NextSeq 500	female
+SRR7093876	Normal	GM	NextSeq 500	male
+SRR7093877	Normal	GM	NextSeq 500	male
+SRR7093878	Normal	GM	NextSeq 500	male
+SRR7093879	Normal	GM	NextSeq 500	male
+SRR7093880	Normal	GM	NextSeq 500	male
+SRR7093881	Normal	GM	NextSeq 500	male
+SRR7093882	Normal	GM	NextSeq 500	male
+SRR7093883	Normal	GM	NextSeq 500	male
+SRR7093884	Normal	GM	NextSeq 500	female
+SRR7093885	Normal	GM	NextSeq 500	male
+SRR7093886	Normal	GM	NextSeq 500	male
+SRR7093887	Normal	GM	NextSeq 500	female
+SRR7093888	Normal	GM	NextSeq 500	female
+SRR7093889	Normal	GM	NextSeq 500	male
+SRR7093890	Normal	GM	NextSeq 500	male
+SRR7093891	Normal	GM	NextSeq 500	female
+SRR7093892	Normal	GM	NextSeq 500	male
+SRR7093893	Normal	GM	NextSeq 500	male
+SRR7093894	Normal	GM	NextSeq 500	female
+SRR7093895	Normal	GM	NextSeq 500	male
+SRR7093896	Normal	GM	NextSeq 500	male
+SRR7093897	Normal	GM	NextSeq 500	male
+SRR7093898	Normal	GM	NextSeq 500	male
+SRR7093899	Normal	GM	NextSeq 500	female
+SRR7093900	Normal	GM	NextSeq 500	female
+SRR7093901	Normal	GM	NextSeq 500	female
+SRR7093902	Normal	GM	NextSeq 500	male
+SRR7093903	Normal	GM	NextSeq 500	female
+SRR7093904	Normal	GM	NextSeq 500	male
+SRR7093905	Normal	GM	NextSeq 500	male
+SRR7093906	Normal	GM	NextSeq 500	female
+SRR7093907	Normal	GM	NextSeq 500	female
+SRR7093908	Normal	GM	NextSeq 500	male
+SRR7093909	Normal	GM	NextSeq 500	male
+SRR7093910	Normal	GM	NextSeq 500	male
+SRR7093911	Normal	GM	NextSeq 500	male
+SRR7093912	Normal	GM	NextSeq 500	male
+SRR7093913	Normal	GM	NextSeq 500	male
+SRR7093914	Normal	GM	NextSeq 500	male
+SRR7093915	Normal	GM	NextSeq 500	female
+SRR7093916	Normal	GM	NextSeq 500	male
+SRR7093917	Normal	GM	NextSeq 500	male
+SRR7093918	Normal	GM	NextSeq 500	female
+SRR7093919	Normal	AG	NextSeq 500	male
+SRR7093920	Normal	AG	NextSeq 500	male
+SRR7093921	Normal	AG	NextSeq 500	male
+SRR7093922	Normal	AG	NextSeq 500	male
+SRR7093923	Normal	AG	NextSeq 500	male
+SRR7093924	Normal	AG	NextSeq 500	male
+SRR7093925	Normal	AG	NextSeq 500	male
+SRR7093926	Normal	AG	NextSeq 500	male
+SRR7093927	Normal	GM	NextSeq 500	male
+SRR7093928	Normal	GM	NextSeq 500	female
+SRR7093929	Normal	GM	NextSeq 500	male
+SRR7093930	Normal	GM	NextSeq 500	male
+SRR7093931	Normal	GM	NextSeq 500	male
+SRR7093932	Normal	GM	NextSeq 500	female
+SRR7093933	Normal	GM	NextSeq 500	male
+SRR7093934	Normal	GM	NextSeq 500	female
+SRR7093935	Normal	AG	NextSeq 500	female
+SRR7093936	Normal	AG	NextSeq 500	male
+SRR7093937	Normal	GM	NextSeq 500	female
+SRR7093938	Normal	GM	NextSeq 500	male
+SRR7093939	Normal	GM	NextSeq 500	male
+SRR7093940	Normal	GM	NextSeq 500	male
+SRR7093941	Normal	AG	NextSeq 500	male
+SRR7093942	HGPS	AG	NextSeq 500	female
+SRR7093943	HGPS	PRF	NextSeq 500	male
+SRR7093944	HGPS	HGADFN	NextSeq 500	female
+SRR7093945	HGPS	HGADFN	NextSeq 500	female
+SRR7093946	HGPS	HGADFN	NextSeq 500	female
+SRR7093947	HGPS	HGADFN	NextSeq 500	male
+SRR7093948	HGPS	HGADFN	NextSeq 500	female
+SRR7093949	HGPS	HGADFN	NextSeq 500	female
+SRR7093950	HGPS	HGADFN	NextSeq 500	male
+SRR7093951	HGPS	HGADFN	NextSeq 500	female

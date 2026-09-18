@@ -1,0 +1,10 @@
+.runner_env/
+.snakemake/
+resources/gencode_v50/*.fa
+resources/gencode_v50/*.gtf
+resources/gencode_v50/*.gz
+resources/gencode_v50/star_index/
+results/
+.test_tmp/
+__pycache__/
+*.py[cod]

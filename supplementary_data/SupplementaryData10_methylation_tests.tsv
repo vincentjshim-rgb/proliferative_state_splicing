@@ -1,0 +1,5 @@
+test	rho	p	n	FDR	supported
+M1 DNAm age vs cumulative doublings (untreated healthy)	0.356063965281381	0.000766344569844951	86	0.0015326891396899	TRUE
+M2 clock acceleration vs measured division rate	-0.0141908750386915	0.758710119255801	471	0.758710119255801	FALSE
+M3 proliferation score vs DNAm age (paired cultures)	0.161523491798721	0.0933568044044688	109	0.124475739205958	FALSE
+M4 splicing vs DNAm age, division rate held constant	-0.338115095913261	0.000323352774953171	109	0.00129341109981269	FALSE

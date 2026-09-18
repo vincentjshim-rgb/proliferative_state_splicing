@@ -1,0 +1,46 @@
+project_name: repro_cm_splicing_discovery
+
+samples: config/samples.tsv
+contrasts: config/contrasts.tsv
+results_dir: results
+
+reference:
+  name: GENCODE_v50_GRCh38_primary
+  release: 50
+  fasta: resources/gencode_v50/GRCh38.primary_assembly.genome.fa
+  gtf: resources/gencode_v50/gencode.v50.primary_assembly.annotation.gtf
+  star_index: resources/gencode_v50/star_index
+
+analysis:
+  # Change only if the original library-preparation record confirms strandedness.
+  # Allowed: fr-unstranded, fr-firststrand, fr-secondstrand
+  library_type: fr-unstranded
+  read_length: auto
+  fastq_scan_records: 10000
+  fastp:
+    qualified_quality_phred: 20
+    minimum_length: 30
+    trim_poly_g: true
+  rmats:
+    statistical_test: false
+    max_fdr: 0.05
+    allow_clipping: true
+    detect_novel_splice_sites: false
+    min_total_junction_reads_per_group: 20
+    min_abs_delta_psi: 0.20
+
+resources:
+  fastqc_threads: 2
+  fastp_threads: 4
+  star_index_threads: 12
+  star_align_threads: 8
+  star_sort_ram_bytes: 12000000000
+  samtools_threads: 4
+  featurecounts_threads: 8
+  rmats_threads: 8
+
+study_limitations:
+  biological_replicates_per_condition: 1
+  matched_healthy_24h_control: false
+  matched_uva_vehicle_24h_control: false
+  interpretation: exploratory_candidate_generation_only

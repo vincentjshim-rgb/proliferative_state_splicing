@@ -1,0 +1,389 @@
+configfile: "config/config.yaml"
+
+import csv
+from pathlib import Path
+
+
+def load_tsv(path):
+    with open(path, newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle, delimiter="\t"))
+
+
+SAMPLE_ROWS = load_tsv(config["samples"])
+CONTRAST_ROWS = load_tsv(config["contrasts"])
+SAMPLES = [row["sample_id"] for row in SAMPLE_ROWS]
+SAMPLE_BY_ID = {row["sample_id"]: row for row in SAMPLE_ROWS}
+CONTRASTS = [row["contrast_id"] for row in CONTRAST_ROWS]
+CONTRAST_BY_ID = {row["contrast_id"]: row for row in CONTRAST_ROWS}
+RESULTS = config["results_dir"].rstrip("/")
+REF = config["reference"]
+ANALYSIS = config["analysis"]
+RESOURCES = config["resources"]
+RMATS = ANALYSIS["rmats"]
+
+
+def raw_fastq(wildcards):
+    return SAMPLE_BY_ID[wildcards.sample][wildcards.mate.lower()]
+
+
+def samples_in_condition(condition):
+    return [row["sample_id"] for row in SAMPLE_ROWS if row["condition"] == condition]
+
+
+def contrast_bams(wildcards, group_field):
+    condition = CONTRAST_BY_ID[wildcards.contrast][group_field]
+    return [
+        f"{RESULTS}/alignment/{sample}/Aligned.sortedByCoord.out.bam"
+        for sample in samples_in_condition(condition)
+    ]
+
+
+def featurecounts_strand():
+    return {
+        "fr-unstranded": 0,
+        "fr-firststrand": 2,
+        "fr-secondstrand": 1,
+    }[ANALYSIS["library_type"]]
+
+
+RAW_FASTQS = [row[mate] for row in SAMPLE_ROWS for mate in ("r1", "r2")]
+ALL_BAMS = expand(
+    f"{RESULTS}/alignment/{{sample}}/Aligned.sortedByCoord.out.bam", sample=SAMPLES
+)
+ALL_BAIS = [f"{bam}.bai" for bam in ALL_BAMS]
+RMATS_CANDIDATES = expand(
+    f"{RESULTS}/rmats/{{contrast}}/summary/candidates.JC.tsv", contrast=CONTRASTS
+)
+
+
+rule all:
+    input:
+        f"{RESULTS}/metadata/preflight.json",
+        f"{RESULTS}/metadata/input_sha256.tsv",
+        f"{RESULTS}/metadata/software_versions.tsv",
+        f"{RESULTS}/qc/multiqc/multiqc_report.html",
+        f"{RESULTS}/counts/gene_counts.tsv",
+        f"{RESULTS}/counts/gene_counts.tsv.summary",
+        ALL_BAMS,
+        ALL_BAIS,
+        RMATS_CANDIDATES,
+        f"{RESULTS}/rmats/candidate_catalog.long.tsv",
+        f"{RESULTS}/rmats/candidate_catalog.ranked.tsv",
+        f"{RESULTS}/rmats/README_candidate_catalog.txt",
+
+
+rule preflight:
+    input:
+        manifest=config["samples"],
+        config="config/config.yaml",
+        fastqs=RAW_FASTQS,
+    output:
+        report=f"{RESULTS}/metadata/preflight.json",
+        profiles=f"{RESULTS}/metadata/fastq_profiles.tsv",
+        checksums=f"{RESULTS}/metadata/input_sha256.tsv",
+    log:
+        f"{RESULTS}/logs/preflight.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p $(dirname {log:q})
+        python workflow/scripts/preflight.py \
+          --manifest {input.manifest:q} \
+          --config {input.config:q} \
+          --json {output.report:q} \
+          --profiles {output.profiles:q} \
+          --checksums {output.checksums:q} \
+          > {log:q} 2>&1
+        """
+
+
+rule fastqc_raw:
+    input:
+        raw_fastq
+    output:
+        html=f"{RESULTS}/qc/fastqc_raw/{{sample}}.{{mate}}_fastqc.html",
+        zip=f"{RESULTS}/qc/fastqc_raw/{{sample}}.{{mate}}_fastqc.zip",
+    threads:
+        RESOURCES["fastqc_threads"]
+    log:
+        f"{RESULTS}/logs/fastqc_raw/{{sample}}.{{mate}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p {RESULTS}/qc/fastqc_raw $(dirname {log:q})
+        fastqc --threads {threads} --outdir {RESULTS}/qc/fastqc_raw {input:q} \
+          > {log:q} 2>&1
+        """
+
+
+rule fastp:
+    input:
+        r1=lambda wc: SAMPLE_BY_ID[wc.sample]["r1"],
+        r2=lambda wc: SAMPLE_BY_ID[wc.sample]["r2"],
+    output:
+        r1=f"{RESULTS}/trimmed/{{sample}}.R1.fastq.gz",
+        r2=f"{RESULTS}/trimmed/{{sample}}.R2.fastq.gz",
+        json=f"{RESULTS}/qc/fastp/{{sample}}.json",
+        html=f"{RESULTS}/qc/fastp/{{sample}}.html",
+    params:
+        qualified_quality=ANALYSIS["fastp"]["qualified_quality_phred"],
+        minimum_length=ANALYSIS["fastp"]["minimum_length"],
+        poly_g="--trim_poly_g" if ANALYSIS["fastp"]["trim_poly_g"] else "--disable_trim_poly_g",
+    threads:
+        RESOURCES["fastp_threads"]
+    log:
+        f"{RESULTS}/logs/fastp/{{sample}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p $(dirname {output.r1:q}) $(dirname {output.json:q}) $(dirname {log:q})
+        fastp \
+          --in1 {input.r1:q} --in2 {input.r2:q} \
+          --out1 {output.r1:q} --out2 {output.r2:q} \
+          --detect_adapter_for_pe \
+          --qualified_quality_phred {params.qualified_quality} \
+          --length_required {params.minimum_length} \
+          {params.poly_g} \
+          --thread {threads} \
+          --json {output.json:q} --html {output.html:q} \
+          > {log:q} 2>&1
+        """
+
+
+rule fastqc_trimmed:
+    input:
+        lambda wc: f"{RESULTS}/trimmed/{wc.sample}.{wc.mate}.fastq.gz"
+    output:
+        html=f"{RESULTS}/qc/fastqc_trimmed/{{sample}}.{{mate}}_fastqc.html",
+        zip=f"{RESULTS}/qc/fastqc_trimmed/{{sample}}.{{mate}}_fastqc.zip",
+    threads:
+        RESOURCES["fastqc_threads"]
+    log:
+        f"{RESULTS}/logs/fastqc_trimmed/{{sample}}.{{mate}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p {RESULTS}/qc/fastqc_trimmed $(dirname {log:q})
+        fastqc --threads {threads} --outdir {RESULTS}/qc/fastqc_trimmed {input:q} \
+          > {log:q} 2>&1
+        """
+
+
+rule star_index:
+    input:
+        fasta=REF["fasta"],
+        gtf=REF["gtf"],
+        profile_json=f"{RESULTS}/metadata/preflight.json",
+    output:
+        index=directory(REF["star_index"]),
+    params:
+        read_length=ANALYSIS["read_length"],
+    threads:
+        RESOURCES["star_index_threads"]
+    log:
+        f"{RESULTS}/logs/star_index.log",
+    conda:
+        "envs/rnaseq.yaml"
+    script:
+        "scripts/build_star_index.py"
+
+
+rule star_align:
+    input:
+        r1=f"{RESULTS}/trimmed/{{sample}}.R1.fastq.gz",
+        r2=f"{RESULTS}/trimmed/{{sample}}.R2.fastq.gz",
+        index=REF["star_index"],
+    output:
+        bam=f"{RESULTS}/alignment/{{sample}}/Aligned.sortedByCoord.out.bam",
+        final_log=f"{RESULTS}/alignment/{{sample}}/Log.final.out",
+        sj=f"{RESULTS}/alignment/{{sample}}/SJ.out.tab",
+        gene_counts=f"{RESULTS}/alignment/{{sample}}/ReadsPerGene.out.tab",
+    params:
+        prefix=lambda wc: f"{RESULTS}/alignment/{wc.sample}/",
+        sort_ram=RESOURCES["star_sort_ram_bytes"],
+    threads:
+        RESOURCES["star_align_threads"]
+    log:
+        f"{RESULTS}/logs/star_align/{{sample}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p $(dirname {output.bam:q}) $(dirname {log:q})
+        STAR \
+          --genomeDir {input.index:q} \
+          --readFilesIn {input.r1:q} {input.r2:q} \
+          --readFilesCommand zcat \
+          --runThreadN {threads} \
+          --twopassMode Basic \
+          --outFileNamePrefix {params.prefix:q} \
+          --outSAMtype BAM SortedByCoordinate \
+          --outSAMattributes NH HI AS nM MD \
+          --outFilterMultimapNmax 20 \
+          --outFilterMismatchNoverReadLmax 0.04 \
+          --alignSJoverhangMin 8 \
+          --alignSJDBoverhangMin 1 \
+          --alignIntronMin 20 \
+          --alignIntronMax 1000000 \
+          --alignMatesGapMax 1000000 \
+          --limitBAMsortRAM {params.sort_ram} \
+          --quantMode GeneCounts \
+          > {log:q} 2>&1
+        """
+
+
+rule samtools_index:
+    input:
+        f"{RESULTS}/alignment/{{sample}}/Aligned.sortedByCoord.out.bam"
+    output:
+        f"{RESULTS}/alignment/{{sample}}/Aligned.sortedByCoord.out.bam.bai"
+    threads:
+        RESOURCES["samtools_threads"]
+    log:
+        f"{RESULTS}/logs/samtools_index/{{sample}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p $(dirname {log:q})
+        samtools index -@ {threads} {input:q} {output:q} > {log:q} 2>&1
+        """
+
+
+rule samtools_flagstat:
+    input:
+        bam=f"{RESULTS}/alignment/{{sample}}/Aligned.sortedByCoord.out.bam",
+        bai=f"{RESULTS}/alignment/{{sample}}/Aligned.sortedByCoord.out.bam.bai",
+    output:
+        f"{RESULTS}/qc/samtools/{{sample}}.flagstat.txt"
+    threads:
+        RESOURCES["samtools_threads"]
+    log:
+        f"{RESULTS}/logs/samtools_flagstat/{{sample}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p $(dirname {output:q}) $(dirname {log:q})
+        samtools flagstat -@ {threads} {input.bam:q} > {output:q} 2> {log:q}
+        """
+
+
+rule featurecounts:
+    input:
+        bams=ALL_BAMS,
+        gtf=REF["gtf"],
+    output:
+        counts=f"{RESULTS}/counts/gene_counts.tsv",
+        summary=f"{RESULTS}/counts/gene_counts.tsv.summary",
+    params:
+        strand=featurecounts_strand(),
+    threads:
+        RESOURCES["featurecounts_threads"]
+    log:
+        f"{RESULTS}/logs/featurecounts.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p $(dirname {output.counts:q}) $(dirname {log:q})
+        featureCounts \
+          -T {threads} -p --countReadPairs -B -C \
+          -s {params.strand} -t exon -g gene_id \
+          -a {input.gtf:q} -o {output.counts:q} {input.bams:q} \
+          > {log:q} 2>&1
+        """
+
+
+rule rmats_discovery:
+    input:
+        b1=lambda wc: contrast_bams(wc, "group1"),
+        b2=lambda wc: contrast_bams(wc, "group2"),
+        gtf=REF["gtf"],
+        profile_json=f"{RESULTS}/metadata/preflight.json",
+    output:
+        all_jc=f"{RESULTS}/rmats/{{contrast}}/summary/all_events.JC.tsv",
+        candidates_jc=f"{RESULTS}/rmats/{{contrast}}/summary/candidates.JC.tsv",
+        all_jcec=f"{RESULTS}/rmats/{{contrast}}/summary/all_events.JCEC.tsv",
+        candidates_jcec=f"{RESULTS}/rmats/{{contrast}}/summary/candidates.JCEC.tsv",
+        report=f"{RESULTS}/rmats/{{contrast}}/summary/README.txt",
+    params:
+        group1=lambda wc: CONTRAST_BY_ID[wc.contrast]["group1"],
+        group2=lambda wc: CONTRAST_BY_ID[wc.contrast]["group2"],
+        read_length=ANALYSIS["read_length"],
+        library_type=ANALYSIS["library_type"],
+        allow_clipping=RMATS["allow_clipping"],
+        novel_splice_sites=RMATS["detect_novel_splice_sites"],
+        statistical_test=RMATS["statistical_test"],
+        max_fdr=RMATS["max_fdr"],
+        min_reads=RMATS["min_total_junction_reads_per_group"],
+        min_abs_delta=RMATS["min_abs_delta_psi"],
+        script_dir="workflow/scripts",
+    threads:
+        RESOURCES["rmats_threads"]
+    log:
+        f"{RESULTS}/logs/rmats/{{contrast}}.log",
+    conda:
+        "envs/rnaseq.yaml"
+    script:
+        "scripts/run_rmats_discovery.py"
+
+
+rule combine_rmats_candidates:
+    input:
+        candidates=RMATS_CANDIDATES,
+        contrasts=config["contrasts"],
+    output:
+        long=f"{RESULTS}/rmats/candidate_catalog.long.tsv",
+        ranked=f"{RESULTS}/rmats/candidate_catalog.ranked.tsv",
+        report=f"{RESULTS}/rmats/README_candidate_catalog.txt",
+    conda:
+        "envs/rnaseq.yaml"
+    script:
+        "scripts/combine_candidates.py"
+
+
+rule software_versions:
+    output:
+        f"{RESULTS}/metadata/software_versions.tsv"
+    conda:
+        "envs/rnaseq.yaml"
+    script:
+        "scripts/collect_versions.py"
+
+
+rule multiqc:
+    input:
+        raw_fastqc=expand(
+            f"{RESULTS}/qc/fastqc_raw/{{sample}}.{{mate}}_fastqc.zip",
+            sample=SAMPLES,
+            mate=["R1", "R2"],
+        ),
+        trimmed_fastqc=expand(
+            f"{RESULTS}/qc/fastqc_trimmed/{{sample}}.{{mate}}_fastqc.zip",
+            sample=SAMPLES,
+            mate=["R1", "R2"],
+        ),
+        fastp=expand(f"{RESULTS}/qc/fastp/{{sample}}.json", sample=SAMPLES),
+        star=expand(f"{RESULTS}/alignment/{{sample}}/Log.final.out", sample=SAMPLES),
+        flagstat=expand(f"{RESULTS}/qc/samtools/{{sample}}.flagstat.txt", sample=SAMPLES),
+        featurecounts=f"{RESULTS}/counts/gene_counts.tsv.summary",
+    output:
+        html=f"{RESULTS}/qc/multiqc/multiqc_report.html",
+    log:
+        f"{RESULTS}/logs/multiqc.log",
+    conda:
+        "envs/rnaseq.yaml"
+    shell:
+        """
+        mkdir -p {RESULTS}/qc/multiqc $(dirname {log:q})
+        multiqc {RESULTS} \
+          --outdir {RESULTS}/qc/multiqc \
+          --filename multiqc_report.html \
+          --force --no-ansi \
+          > {log:q} 2>&1
+        """

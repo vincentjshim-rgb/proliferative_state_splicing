@@ -1,0 +1,6 @@
+contrast_id	group1	group2	priority	interpretation
+Rep_CM_24h_vs_HDF_CM_24h	Rep_CM_24h	HDF_CM_24h	primary	Repro-CM-specific candidate comparison; one biological sample per group
+Rep_CM_24h_vs_iPSC_CM_24h	Rep_CM_24h	iPSC_CM_24h	primary	Reprogramming-transition CM versus established iPSC-CM; one biological sample per group
+Rep_CM_24h_vs_15J_0hr	Rep_CM_24h	15J_0hr	secondary	Treatment and elapsed-time effects are confounded (24 h versus 0 h)
+HDF_CM_24h_vs_15J_0hr	HDF_CM_24h	15J_0hr	secondary	Treatment and elapsed-time effects are confounded (24 h versus 0 h)
+iPSC_CM_24h_vs_15J_0hr	iPSC_CM_24h	15J_0hr	secondary	Treatment and elapsed-time effects are confounded (24 h versus 0 h)

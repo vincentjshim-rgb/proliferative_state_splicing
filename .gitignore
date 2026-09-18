@@ -1,0 +1,42 @@
+# Raw and intermediate public data are not redistributed here: every dataset is
+# obtainable from its own repository under the accessions in Supplementary Table 4.
+public_data_tierA/*
+!public_data_tierA/derived/
+public_data_tierA/derived/*
+!public_data_tierA/derived/figures_sciadv/
+public_data_tierA/derived/figures_sciadv/*
+!public_data_tierA/derived/figures_sciadv/*.png
+
+# Supplementary Data tables are added explicitly under supplementary_data/
+
+# Vendored R library (662 MB) -- see renv.lock / SESSIONINFO.md instead
+analysis_r_lib/
+
+# Build outputs (12 MB each); rebuild with scripts/artifact_build/
+*.docx
+*.html
+!scripts/artifact_build/tpl_*.html
+supplementary.md
+
+# Material derived from sequencing that is not released with this study
+public_data_tierA/derived/psi_cohorts/col1a2_local_junctions.tsv
+local_bam_v41/
+*.bam
+*.bai
+*.fastq.gz
+*.fq.gz
+
+# Scratch
+.Rhistory
+.RData
+__pycache__/
+*.pyc
+
+# The related manuscript under consideration at another journal. It is supplied to the
+# editor with the submission; it is NOT redistributed from a code repository.
+JTE-Aug-26-0256*.pdf
+*_Proof_hi.pdf
+
+# Superseded versions: hundreds of MB of old figures, and copies that still contain the
+# withdrawn local contrast. The revision history is in CLAUDE.md and revision_response_ko.md.
+archive/

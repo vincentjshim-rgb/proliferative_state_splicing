@@ -1,0 +1,13 @@
+Repro-CM splicing workflow quick start (Ubuntu)
+
+cd /home/shim/Downloads/develop_shim_project_260906/repro_cm_splicing_ubuntu
+chmod +x setup_runner_env.sh setup_reference.sh system_check.sh run.sh run_with_env.sh
+./system_check.sh
+./setup_runner_env.sh
+CORES=4 ./run_with_env.sh results/metadata/preflight.json
+cat results/metadata/preflight.json
+./setup_reference.sh
+CORES=16 ./run_with_env.sh --dry-run
+CORES=16 ./run_with_env.sh 2>&1 | tee workflow_run.log
+
+Read README_KO.md before interpreting any result.

@@ -1,0 +1,5 @@
+sample_id	condition	biological_replicate	r1	r2
+15J_0hr	15J_0hr	1	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/15J_0hr.R1.fastq.gz	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/15J_0hr.R2.fastq.gz
+HDF_CM_24h	HDF_CM_24h	1	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/HDF_CM_24h.R1.fastq.gz	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/HDF_CM_24h.R2.fastq.gz
+Rep_CM_24h	Rep_CM_24h	1	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/Rep_CM_24h.R1.fastq.gz	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/Rep_CM_24h.R2.fastq.gz
+iPSC_CM_24h	iPSC_CM_24h	1	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/iPSC_CM_24h.R1.fastq.gz	/home/shim/Downloads/develop_shim_project_260906/00.RNA-seq_samle/iPSC_CM_24h.R2.fastq.gz

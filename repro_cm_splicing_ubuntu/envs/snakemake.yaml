@@ -1,0 +1,10 @@
+name: repro-splicing-runner
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.12
+  - snakemake-minimal=9.19.0
+  - pyyaml=6.0.2
+  - conda=25.7
