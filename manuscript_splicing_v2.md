@@ -206,7 +206,7 @@ Accessions for all public datasets are listed in Supplementary Table 4; GTEx v8 
 
 ## Code availability
 
-Analysis code, gene lists, contrast vectors and the preregistration document are available at [repository DOI to be inserted before submission].
+Analysis code, gene lists, contrast definitions, the two preregistration documents with their locked SHA-256 digests, and the ten Supplementary Data tables are available at https://github.com/vincentjshim-rgb/proliferative_state_splicing [a Zenodo DOI for the archived release will be inserted at acceptance].
 
 ## Author contributions
 

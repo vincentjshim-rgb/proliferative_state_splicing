@@ -208,7 +208,7 @@ GTEx v8^24^ 피부·골격근 프로젝트의 유전자 합과 시료 metadata�
 
 ## 코드 가용성
 
-분석 코드, 유전자 목록, 대비 벡터, 사전등록 문서는 [투고 전 삽입할 저장소 DOI]에서 이용할 수 있다.
+분석 코드, 유전자 목록, 대비 정의, 고정 SHA-256 해시를 포함한 사전등록 문서 두 건, 보충 데이터 표 10개는 https://github.com/vincentjshim-rgb/proliferative_state_splicing 에서 이용할 수 있다[게재 확정 시 보관 릴리스의 Zenodo DOI를 넣는다].
 
 ## 저자 기여
 

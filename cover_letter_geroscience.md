@@ -25,7 +25,7 @@ We submit for your consideration the manuscript **"Splicing-factor expression in
 
 **Related work.** A manuscript with overlapping authorship, *[title]* (Shim, V. *et al.*), is under consideration at the *Journal of Tissue Engineering* (JTE-Aug-26-0256). A copy accompanies this submission. The two share no data: that work is an experimental study, and the present manuscript is a reanalysis of public data that cites it in the Discussion as the earlier work that prompted the question. No finding of it is tested here.
 
-**Availability.** All datasets are public and listed with accessions in Supplementary Table 4. Analysis code, gene lists, contrast vectors and the preregistration document are deposited at [repository DOI].
+**Availability.** All datasets are public and listed with accessions in Supplementary Table 4. Analysis code, gene lists, contrast definitions, both preregistration documents with their locked SHA-256 digests, and the ten Supplementary Data tables are public at https://github.com/vincentjshim-rgb/proliferative_state_splicing. We will archive the accepted release with a Zenodo DOI.
 
 The manuscript is not under consideration elsewhere, all authors have approved the submission, and we declare no competing interests [confirm].
 
