@@ -413,4 +413,4 @@ pSc <- ggplot() +
 
 save_fig(plot_grid(lab_grid(pSa, pSb, labels = c("a", "b"), ncol = 2, rel_widths = c(0.95, 1.1)),
                    lab_grid(pSc, labels = "c", ncol = 1), ncol = 1, rel_heights = c(84, 58)),
-         "FigS10.png", 183, 142)
+         "FigS8.png", 183, 142)

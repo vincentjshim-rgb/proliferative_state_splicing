@@ -1,3 +1,12 @@
+FIGURES_WRITTEN <- c("FigS5.png")
+## RETIRED 2026-09-18. The transcriptome-wide age predictor was a post hoc side analysis and was demoted to
+## Supplementary Table 3; FigS5.png is now the specificity figure.
+## Running it would overwrite a live figure. Set ALLOW_RETIRED_FIGURE_SCRIPT=1 to override.
+if (!nzchar(Sys.getenv("ALLOW_RETIRED_FIGURE_SCRIPT"))) {
+  stop("retired script: would overwrite a live manuscript figure (",
+       paste(FIGURES_WRITTEN, collapse = ", "), "). See CLAUDE.md section 9.", call. = FALSE)
+}
+
 ## Supplementary Fig. S5  A transcriptome-wide age predictor built in the same donors
 ## (six-figure restructure, 2026-09-17). Panel f of the former main Fig. 4
 ## (make_sa_fig4new.R), extended so that every arm of scripts/revision/run_age_predictor.R

@@ -74,4 +74,4 @@ pb <- ggplot(B, aes(b, lab, colour = model)) +
                      axis.text.y = element_text(size = 7.5))
 
 save_fig(lab_grid(pa, pb, labels = c("a", "b"), ncol = 2, rel_widths = c(1, 1.06)),
-         "FigS8.png", 183, 76)
+         "FigS6.png", 183, 76)

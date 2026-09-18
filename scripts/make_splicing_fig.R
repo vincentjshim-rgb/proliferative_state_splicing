@@ -1,3 +1,12 @@
+FIGURES_WRITTEN <- c("FigS4.png")
+## RETIRED 2026-09-18. Its two event-level panels were folded into Supplementary Fig. S3 (make_sa_figS_outcome.R);
+## FigS4.png is now the intervention figure.
+## Running it would overwrite a live figure. Set ALLOW_RETIRED_FIGURE_SCRIPT=1 to override.
+if (!nzchar(Sys.getenv("ALLOW_RETIRED_FIGURE_SCRIPT"))) {
+  stop("retired script: would overwrite a live manuscript figure (",
+       paste(FIGURES_WRITTEN, collapse = ", "), "). See CLAUDE.md section 9.", call. = FALSE)
+}
+
 ## Supplementary Fig. S4 (six-figure restructure 2026-09-17; was Fig. S1). Event-level
 ## splicing in the donor cohort, and why it is not interpreted. Direction (a) removes
 ## the COL1A2 example and the event-level age signal from the claims: the counts

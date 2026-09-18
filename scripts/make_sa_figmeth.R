@@ -93,4 +93,4 @@ pd <- ggplot(Dd, aes(rho, clock)) +
 save_fig(lab_grid(lab_grid(pa, pb, labels = c("a", "b"), ncol = 2),
                   lab_grid(pc, pd, labels = c("c", "d"), ncol = 2, rel_widths = c(1, 1.05)),
                   labels = c("", ""), ncol = 1),
-         "FigS9.png", 183, 124)
+         "FigS7.png", 183, 124)

@@ -1,5 +1,5 @@
 """Assemble the Supplementary Information as one document: Supplementary Results 1-8,
-figures S1-S10 with their legends, Tables 1-9, Notes 1 and 2 (the preregistrations in
+figures S1-S8 with their legends, Tables 1-10, Notes 1 and 2 (the preregistrations in
 English) and the list of
 Supplementary Data files. Written as markdown, converted to docx by pandoc and to
 PDF by LibreOffice, because the journal asks for a single PDF.
@@ -309,7 +309,7 @@ matrix_note = (f"{_sel[0]['n_genes_splicing']} of the 177 genes pass it, and the
 
 n_secretome = sum(x["class"] == "secretome" for x in read(FIG / "supp_table1.tsv"))
 
-figs = "\n\n".join(f"![]({FIG}/FigS{i}.png){{width=6.3in}}\n\n" + legend(f"Fig. S{i}") for i in range(1, 11))
+figs = "\n\n".join(f"![]({FIG}/FigS{i}.png){{width=6.3in}}\n\n" + legend(f"Fig. S{i}") for i in range(1, 9))
 
 parts = [f"""# Supplementary Information
 

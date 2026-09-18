@@ -86,4 +86,4 @@ pc <- ggplot(C, aes(beta, metric, colour = model2)) +
   theme_sa() + LEG
 
 save_fig(lab_grid(pa, pb, pc, labels = c("a", "b", "c"), ncol = 1, rel_heights = c(1.08, 1, 1.22)),
-         "FigS7.png", 183, 158)
+         "FigS5.png", 183, 158)

@@ -180,4 +180,4 @@ pC <- ggplot(L, aes(set, gene, fill = pmax(pmin(v, 1.2), -1.2))) +
 
 left <- lab_grid(pA, pB, labels = c("a", "b"), ncol = 1, rel_heights = c(1.30, 1))
 save_fig(lab_grid(left, pC, labels = c("", "c"), ncol = 2, rel_widths = c(1.38, 1)),
-         "FigS6.png", 183, 136)
+         "FigS4.png", 183, 136)

@@ -225,16 +225,16 @@ else:
 | 4 | 63개 대비에서 결합이 일반화되는가 | `make_sa_fig3.R` |
 | 5 | 어떤 노화 프로그램이 분열 읽기값인가 | `make_sa_fighall.R` |
 | 6 | 결합은 조직에서도 성립하는가(사전등록 GTEx, **패널 e: 구성 보정의 프로그램별 비교**) | `make_sa_figgtex.R` (Fig6.png·FigS10.png·보충 표 9 스코어카드를 함께 쓴다) |
-| S1 | 처리로 증식을 섭동해도 결합이 유지되는가 | `make_sa_figpert.R` (분석 `scripts/revision/run_treatment_perturbation.R`) |
+| S1 | 처리로 증식을 섭동해도 결합이 유지되는가 | `make_sa_figpert.R` |
 | S2 | 어떤 유전자가 연령 연관을 유지하는가 | `make_sa_figS_gene.R` |
-| S3 | splicing outcome 지표 | `make_sa_figS_outcome.R` |
-| S4 | event 수준 splicing을 왜 해석하지 않는가 | `make_splicing_fig.R` |
-| S5 | 전사체 나이 예측기 | `make_sa_figS_agepred.R` |
-| S6 | 개입(표본 외 예측) | `make_bio_fig6.R` (분석 `scripts/revision/run_interventions.R`) |
-| S7 | 결합이 splicing에 특이적인가(선택·비선택 정의) | `make_sa_figspec.R` (분석 `run_machinery_specificity.R`, 결합 추정 `run_residual_meta.R`) |
-| S8 | 어떤 senescence 패널이 분열을 보고하는가 | `make_sa_figsen.R` (분석 `run_senescence_panels.R`) |
-| S9 | methylation 시계(사전등록) | `make_sa_figmeth.R` |
-| S10 | GTEx 사후 분석 + 공여자 일치 | `make_sa_figgtex.R` |
+| S3 | splicing outcome 지표와 event 수준 splicing(2026-09-18 병합, 5패널) | `make_sa_figS_outcome.R` |
+| S4 | 개입(표본 외 예측) | `make_bio_fig6.R` |
+| S5 | 결합이 splicing에 특이적인가 | `make_sa_figspec.R` |
+| S6 | 어떤 senescence 패널이 분열을 보고하는가 | `make_sa_figsen.R` |
+| S7 | methylation 시계(사전등록) | `make_sa_figmeth.R` |
+| S8 | GTEx 사후 분석 + 공여자 일치 | `make_sa_figgtex.R` |
+
+**보충 그림 10 → 8 (2026-09-18, 사용자 결정).** 옛 S3(outcome 지표)과 S4(event 수준)는 같은 음성 결과 하나를 나눠 지고 있어 **한 그림 5패널로 병합**했고(`make_splicing_fig.R` 은퇴), 옛 S5(전사체 나이 예측기)는 사후 분석이고 수치가 이미 보충 표 3에 있어 **그림을 내리고 표만 남겼다**(`make_sa_figS_agepred.R` 은퇴). 나머지는 두 칸씩 당겼다(옛 S6–S10 → 현 S4–S8). 본문 그림 6개는 그대로다.
 
 **덮어쓰기 주의 (2026-09-18 실행 차단 완료).** 은퇴 스크립트 **26개**가 살아있는 그림 파일명에 쓴다. 특히 `make_sa_fig4.R`은 **Fig6.png**(GTEx 경계)에 쓰면서 `LOCAL_ReproCM` 행이 남은 `conserved_core/splicing_vs_proliferation.tsv`를 읽으므로, 한 번만 잘못 실행해도 내린 비공개 대비가 게재 그림으로 돌아간다. 다른 예: `make_journal_fig6.R`·`make_pub_fig6.R`(→ Fig6.png), `make_sa_fig5gene.R`·`make_bm_fig3.R`·`make_journal_fig3.R`·`make_pub_fig3.R`(→ Fig3.png), `make_sa_fig4new.R`(→ Fig4.png), `make_sashimi_local.R`(→ FigS3.png).
 
@@ -334,7 +334,7 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 - 덜어내기 판단 근거(2026-09-17): 내용 단위 목록 아티팩트 https://claude.ai/artifact/2D9nKSKmpsBDmeNxaxwHdk , 심사 패널 결과 `…/scratchpad/panel_result.json`은 세션 임시 파일이므로 요지는 `revision_response_ko.md` 9차 처리에 옮겨 적었다
 - 제출 전 모의 심사(2026-09-15): `review_presubmission_npjaging_ko.md` (+ `.html`, 아티팩트 https://claude.ai/code/artifact/aa94de80-764a-46e9-af8b-edf1eedd2a43 ). 필수 6개 항목과 리뷰어 3명 의견. **모든 항목의 처리 결과는 §7·§8과 `scripts/revision/`에 있다.**
 - 요청사항 재점검: `review_audit_ko.md` (항목별 판정, 남은 취약점 4가지, 아티팩트 https://claude.ai/artifact/WnpBWqXL26bYxQyqpUdPQe )
-- 투고 서류(2026-09-16 작성): `supplementary_information.pdf`(+ `.docx`, 빌드 `bash scripts/artifact_build/build_supplementary_pdf.sh`) — 보충 Results 1–8, 보충 그림 S1–S10, 표 1–9, Note 1–2, Supplementary Data 목록을 단일 PDF로(86쪽). `cover_letter_geroscience.md`(+ `.docx`, 한글판 `_ko.md`)
+- 투고 서류(2026-09-16 작성): `supplementary_information.pdf`(+ `.docx`, 빌드 `bash scripts/artifact_build/build_supplementary_pdf.sh`) — 보충 Results 1–8, 보충 그림 S1–S8, 표 1–10, Note 1–2, Supplementary Data 목록을 단일 PDF로(86쪽). `cover_letter_geroscience.md`(+ `.docx`, 한글판 `_ko.md`)
 - 투고 규정 대조: `submission_checklist_ko.md` (2026-09-16 저널 페이지 직접 대조, 남은 항목 7개)
 - 대응 기록: `revision_response_ko.md` — 모의 심사 지적별로 무엇을 어떻게 고쳤는지와 남은 항목
 - 합본 읽기 페이지: `revision_bundle_ko.html` (1부 대응 기록, 2부 원고 v6 한글 전문과 그림 11개, 3부 모의 심사 전문). 빌드는 `bash scripts/artifact_build/build_review_bundle.sh`, 아티팩트 https://claude.ai/artifact/T3vfcBDCod3bMzd1Da8bga
@@ -354,7 +354,7 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 8. 한 문장 주장(§2)이 모든 그림과 맞는지 다시 점검하고, 본문 수치를 산출 파일과 대조한다.
 ## 17. 완료 기준
 
-- Fig. 1–6과 보충 S1–S10이 각각 하나의 질문과 생물학적 읽을거리를 가진다.
+- Fig. 1–6과 보충 S1–S8이 각각 하나의 질문과 생물학적 읽을거리를 가진다.
 - 모든 주장이 §2의 경계 안에 있다.
 - 사전등록 결과가 H4·H6을 포함해 모두 보고되어 있고, 영문판(보충 Note 1)이 있다.
 - 제출 전 모의 심사의 필수 6개 항목이 모두 해결되어 있다(2026-09-15 완료).
