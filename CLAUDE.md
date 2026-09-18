@@ -379,6 +379,16 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 
 **되돌리려면**: `scripts/revision/run_stats_supplements.R`의 `INCLUDE_LOCAL <- FALSE`를 TRUE로 바꾸고 `run_interventions.R`·`make_supp_tables.R`·`make_sa_fig3.R`·`make_bio_fig6.R`·`make_splicing_fig.R`을 되돌린 뒤 그림과 표를 다시 만든다. 그 전에 §8의 3,118개 유전자 표 문제를 먼저 고쳐야 한다.
 
+## 20. 두 표를 위치로 join하지 않는다 (2026-09-18, 실수 기록)
+
+정의 series 3개를 뺀 검증값을 처음에 **ρ = 0.881, *R*² = 0.940**으로 계산해 원고에 넣었다. 틀렸다. 맞는 값은 **ρ = 0.841 [0.733, 0.907], *R*² = 0.929**(n = 49, 20개 series)다.
+
+원인: `revision_stats/fig6_contrasts_revised.tsv`(id 순 정렬)와 `figures_sciadv/supp_table1.tsv`(class·series·id 순 정렬)를 **행 위치로 zip** 해서 대비마다 엉뚱한 accession이 붙었다. 두 파일은 정렬이 다르다.
+
+**규칙.** 대비를 series나 accession에 붙일 때는 `make_supp_tables.R`이 쓰는 경로를 따른다: `id`에서 `^(GSE[0-9]+)`를 뽑고, 그게 없는 secretome 대비는 `secretome_class/secretome_signatures.tsv`의 `dataset` 열로 `id`를 match한다. `supp_table1.tsv`에는 id 열이 없으므로 그 파일로는 join하지 않는다.
+
+리뷰어 2가 같은 검정에서 0.840을 보고했는데 내가 0.881을 내놓고 "방향은 같으니 재확인 필요"로 넘겼다. **독립 계산이 어긋나면 어느 쪽이 맞는지 정하기 전에는 원고에 넣지 않는다.**
+
 ## 19. 재심사 패널과 편집자 결정 (2026-09-18)
 
 리뷰어 4명 전원 **Major revision**, reject 없음. 사전등록 해시·그림 주석·헤드라인 수치 재계산에서 오류 0건. 결정문 아티팩트 https://claude.ai/artifact/7H63hPbzfetBxE8HmmwBpu
@@ -387,7 +397,7 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 
 **반영 완료(BC 1·2 + 리뷰어 1 권고).** pooled 추정치 전면 삭제(초록·Results·고찰·Methods·Fig. 6d·커버레터), suppression 명시와 분모 보고, specification 범위(−0.040 → −0.016~−0.022), 피부 내부 양성 대조 승격과 Fig. 6 패널 e 신설, 근육 판별 불가 재분류(**잠긴 H3 판정은 건드리지 않는다**), Fig. 2 패널 f 신설, 스코어카드를 보충 표 9로 이동(Fig. 6 243 → 196 mm), 보충 표 9·10 번호 교환.
 
-**남은 구속 조건.** 3 선택·재정의 이력 공개(정의 series 3개 뺀 ρ = 0.881, R² = 0.940 포함 — 저자에게 유리), 4 대비를 series 단위로, 5 산출물과 모순되는 문장 3개, 6 **코드 저장소와 Supplementary Data 실제 제작**.
+**남은 구속 조건.** 3 선택·재정의 이력 공개(정의 series 3개 뺀 ρ = 0.84 [0.73, 0.91], R² = 0.93 포함 — 저자에게 유리), 4 대비를 series 단위로, 5 산출물과 모순되는 문장 3개, 6 **코드 저장소와 Supplementary Data 실제 제작**.
 
 **편집자가 명시적으로 면제한 것(하지 않는다).** GTEx 혈액·고회전 상피 추가(새 다운로드 필요), epiTOC2/RepliTali, 20개 marker 점수의 split-half 신뢰도, GTEx에서의 무작위 집합 1,000개, 근육 분산 맞춤, GSE179848 밖에서 더 나은 증식 측정치 도출, Cochran *Q*·*I*².
 

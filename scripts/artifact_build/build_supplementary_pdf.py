@@ -814,18 +814,18 @@ parts.append("""# Supplementary Data
 
 Machine-readable tables accompany this file.
 
-| File | Contents |
-|---|---|
-| Supplementary Data 1 | The 63 contrasts with their per-gene score vectors |
-| Supplementary Data 2 | Programme scores against proliferation and donor age in every GTEx tissue, with age effects before and after adjustment |
-| Supplementary Data 3 | Gene-level age effects before and after adjustment in each of the four cohort definitions |
-| Supplementary Data 4 | Division-rate correlations for every programme, with and without cell-cycle genes, and the senescence-set dissection |
-| Supplementary Data 5 | Per-donor values behind the age predictor, and the permuted-age null |
-| Supplementary Data 6 | Per-sample methylation clock values with culture metadata, and the table of cultures carrying both a clock and transcriptional scores |
-| Supplementary Data 7 | Matched treated-minus-control differences for every treated culture, the full treatment models, and the oxygen contrast |
-| Supplementary Data 8 | Per-donor machinery scores behind the specificity analysis, under every splicing definition |
-| Supplementary Data 9 | The seven senescence panels with their gene lists and per-gene correlations |
-| Supplementary Data 10 | Out-of-sample predictions and class residuals for the intervention contrasts |
+| File | Deposited as | Contents |
+|---|---|---|
+| Supplementary Data 1 | `SupplementaryData1_contrasts.tsv` | The 63 contrasts with their per-gene score vectors |
+| Supplementary Data 2 | `SupplementaryData2_gtex_programmes_by_tissue.tsv` | Programme scores against proliferation and donor age in every GTEx tissue, with age effects before and after adjustment |
+| Supplementary Data 3 | `SupplementaryData3_gene_level_by_cohort.tsv` | Gene-level age effects before and after adjustment in each of the four cohort definitions |
+| Supplementary Data 4 | `SupplementaryData4_programme_division_rate.tsv` | Division-rate correlations for every programme, with and without cell-cycle genes, and the senescence-set dissection |
+| Supplementary Data 5 | `SupplementaryData5_residual_specification.tsv` | Per-donor values behind the age predictor, and the permuted-age null |
+| Supplementary Data 6 | `SupplementaryData6_composition_adjusted.tsv` | Per-sample methylation clock values with culture metadata, and the table of cultures carrying both a clock and transcriptional scores |
+| Supplementary Data 7 | `SupplementaryData7_library_scores_vs_counted_rate.tsv` | Matched treated-minus-control differences for every treated culture, the full treatment models, and the oxygen contrast |
+| Supplementary Data 8 | `SupplementaryData8_intervention_prediction.tsv` | Per-donor machinery scores behind the specificity analysis, under every splicing definition |
+| Supplementary Data 9 | `SupplementaryData9_senescence_panels.tsv` | The seven senescence panels with their gene lists and per-gene correlations |
+| Supplementary Data 10 | `SupplementaryData10_methylation_tests.tsv` | Out-of-sample predictions and class residuals for the intervention contrasts |
 """)
 
 (OUT / "supplementary.md").write_text("\n".join(parts))

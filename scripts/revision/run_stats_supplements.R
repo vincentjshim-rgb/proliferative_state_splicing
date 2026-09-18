@@ -211,3 +211,34 @@ s3 <- sapply(R$id, function(i) dlt(vec[[i]], v3)); ok3 <- is.finite(s3)
 say("    contrast-level coupling with the redefined set: rho = %.2f, R2 = %.2f (published set %.2f, %.2f)",
     cor(R$cc[ok3], s3[ok3], method = "spearman"), summary(lm(s3[ok3] ~ R$cc[ok3]))$r.squared, obs$rho, r2)
 sink(file.path(O, "sessionInfo.txt")); print(sessionInfo()); sink()
+
+## ================================================================================
+## Leave-out check for the set-defining series (2026-09-18, referee request).
+## Fourteen of the 63 contrasts come from the three series that defined the splicing
+## set.  This asks whether the compendium relationship depends on them.
+## NB: join contrasts to series through the id, NOT by row position against
+## supp_table1.tsv -- the two files are sorted differently and a positional join
+## silently mislabels every contrast (see CLAUDE.md section 20).
+## ================================================================================
+{
+  CO <- read.delim(file.path(D, "revision_stats/fig6_contrasts_revised.tsv"))
+  SG <- read.delim(file.path(D, "secretome_class/secretome_signatures.tsv"))
+  CO$series <- sub("^(GSE[0-9]+).*$", "\\1", CO$id)
+  CO$series[!grepl("^GSE", CO$series)] <- NA
+  CO$series[is.na(CO$series)] <- SG$dataset[match(CO$id[is.na(CO$series)], SG$id)]
+  stopifnot(!anyNA(CO$series))
+  DEFINING <- c("GSE179848", "GSE113957", "GSE307377")
+  fit1 <- function(x) {
+    ct <- suppressWarnings(cor.test(x$cc, x$spl, method = "spearman", exact = FALSE))
+    z <- atanh(ct$estimate); se <- 1 / sqrt(nrow(x) - 3)
+    data.frame(n_contrasts = nrow(x), n_series = length(unique(x$series)),
+               rho = unname(ct$estimate), lo = tanh(z - 1.96 * se), hi = tanh(z + 1.96 * se),
+               p = ct$p.value, r2 = summary(lm(spl ~ cc, x))$r.squared)
+  }
+  LO <- rbind(data.frame(set = "all contrasts", fit1(CO)),
+              data.frame(set = "set-defining series dropped",
+                         fit1(CO[!(CO$series %in% DEFINING), ])))
+  write.table(LO, file.path(D, "revision_stats/leave_out_defining_series.tsv"),
+              sep = "\t", row.names = FALSE, quote = FALSE)
+  cat("\nleave-out check (set-defining series):\n"); print(LO, digits = 3)
+}
