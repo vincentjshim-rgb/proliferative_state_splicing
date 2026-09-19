@@ -95,41 +95,6 @@ pb <- ggplot(G, aes(r_prolif)) +
   theme_sa(8) + theme(axis.title.y = element_text(margin = margin(r = 6)),
                       plot.margin = margin(8, 12, 3, 3))
 
-## ====== c. genes coupled to proliferation lose their age association ======
-YL <- c(-0.6, 1.7)
-G$surv <- ifelse(G$FDR_adj < 0.05, "keeps a decline", "no association after adjustment")
-ct <- cor.test(G$r_prolif, G$retained, method = "spearman", exact = FALSE)
-P <- G[is.finite(G$retained), ]
-P$off <- P$retained < YL[1] | P$retained > YL[2]
-P$yy <- pmin(pmax(P$retained, YL[1]), YL[2])
-say("c  rho = %.4f, P = %.3g, n = %d genes; off the axis: %d (%d above, %d below), of which age-associated before adjustment: %d",
-    ct$estimate, ct$p.value, sum(is.finite(G$retained)), sum(P$off), sum(P$retained > YL[2]),
-    sum(P$retained < YL[1]), sum(P$off & P$FDR < 0.05))
-say("c  coupling of the %d genes keeping a decline: median r %.4f; the other %d: %.4f; Wilcoxon P = %.3g",
-    sum(G$gene %in% KEPT), median(G$r_prolif[G$gene %in% KEPT]), sum(!G$gene %in% KEPT),
-    median(G$r_prolif[!G$gene %in% KEPT]),
-    wilcox.test(G$r_prolif[G$gene %in% KEPT], G$r_prolif[!G$gene %in% KEPT])$p.value)
-CLS <- c("keeps a decline", "no association after adjustment", "ratio beyond the axis")
-P$cls <- factor(ifelse(P$off, CLS[3], P$surv), levels = CLS)
-stopifnot(!any(P$off & P$surv == CLS[1]))
-pc <- ggplot(P, aes(r_prolif, yy, colour = cls, shape = cls)) +
-  geom_hline(yintercept = c(0, 1), colour = GREY_L, linewidth = 0.3) +
-  geom_point(size = 1.4, stroke = 0.4) +
-  annotate("text", x = 0.98, y = 1.57, hjust = 1, vjust = 1, family = FONT, size = pt(7),
-           colour = INK, lineheight = 1.05,
-           label = sprintf("%s = %s, n = %d genes\n%s", RHO, num(ct$estimate),
-                           sum(is.finite(G$retained)), pfmt(ct$p.value))) +
-  scale_colour_manual(values = setNames(c(OUTC, PALE, PALE), CLS), name = NULL) +
-  scale_shape_manual(values = setNames(c(16, 16, 2), CLS), name = NULL) +
-  guides(colour = guide_legend(ncol = 1)) +
-  scale_x_continuous(labels = num_axis()) +
-  scale_y_continuous(labels = num_axis(), limits = YL, expand = expansion(mult = 0.03)) +
-  labs(x = "correlation with proliferation (r)", y = "age effect retained\n(adjusted / unadjusted)") +
-  theme_sa(8) + theme(legend.position = "bottom", legend.margin = margin(t = -5),
-                      legend.text = element_text(size = 7), legend.spacing.y = unit(0, "pt"),
-                      axis.title.y = element_text(margin = margin(r = 4), lineheight = 0.95),
-                      plot.margin = margin(8, 12, 3, 3))
-
 ## ============ d. the genes that keep a decline ============================
 ## beta and beta_adj are the age coefficients per decade of donor age in log2 CPM
 R <- G[G$gene %in% KEPT, ]
@@ -147,41 +112,26 @@ XT <- 0.012
 ## on this axis at the printed width) and is drawn over the unadjusted symbol. Where the
 ## change is smaller than the symbol plus a head the two symbols touch or overlap and a
 ## plain segment is kept: there is no room for a head and no distance to show.
-RAD <- 0.0062; HEAD <- 0.0068                       # symbol radius, head length (x units)
-R$dx   <- R$beta_adj - R$beta
-R$tip  <- R$beta_adj - sign(R$dx) * (RAD + 0.0008)
-R$room <- abs(R$dx) >= RAD + HEAD + 0.0008
-say("d  arrows drawn for %d of %d genes (change of at least %.4f); plain segment for: %s",
-    sum(R$room), nrow(R), RAD + HEAD + 0.0008, paste(R$gene[!R$room], collapse = ", "))
-pd <- ggplot(R, aes(y = gene)) +
+## paired bars (2026-09-19) in place of the arrow plot
+RL <- rbind(data.frame(gene = R$gene, k = "unadjusted", b = R$beta),
+            data.frame(gene = R$gene, k = "adjusted for proliferation", b = R$beta_adj))
+RL$k <- factor(RL$k, levels = c("unadjusted", "adjusted for proliferation"))
+pd <- ggplot(RL, aes(b, gene, fill = k)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
-  geom_segment(data = R[!R$room, ], aes(x = beta, xend = beta_adj, yend = gene),
-               colour = GREY, linewidth = 0.4) +
-  geom_point(aes(x = beta), colour = "#E8C4C0", size = 1.5) +
-  geom_segment(data = R[R$room, ], aes(x = beta, xend = tip, yend = gene), colour = INK2,
-               linewidth = 0.4, linejoin = "mitre",
-               arrow = arrow(length = unit(3, "pt"), angle = 25, type = "closed")) +
-  geom_point(aes(x = beta_adj), colour = OUTC, size = 1.5) +
-  annotate("text", x = XT, y = nrow(R) + 0.4, hjust = 0, vjust = 1, family = FONT,
-           size = pt(7), colour = INK, lineheight = 1.05,
-           label = sprintf("%d of %d genes\nchange with age;\n%d keep a decline\nafter adjustment",
-                           sum(G$FDR < 0.05), nrow(G), nrow(R))) +
-  annotate("point", x = XT + 0.006, y = 7.2, colour = "#E8C4C0", size = 1.5) +
-  annotate("text",  x = XT + 0.018, y = 7.2, hjust = 0, family = FONT,
-           size = pt(7), colour = INK2, label = "unadjusted") +
-  annotate("point", x = XT + 0.006, y = 5.6, colour = OUTC, size = 1.5) +
-  annotate("text",  x = XT + 0.018, y = 5.6, hjust = 0, family = FONT, lineheight = 0.95,
-           size = pt(7), colour = OUTC, label = "adjusted for\nproliferation") +
-  ## the first layer holds a subset of the genes, so the order is fixed explicitly
+  geom_col(position = position_dodge(width = 0.75), width = 0.68, colour = NA) +
+  scale_fill_manual(values = c(unadjusted = "#D9A9A4", `adjusted for proliferation` = OUTC), name = NULL) +
   scale_y_discrete(limits = levels(R$gene)) +
-  scale_x_continuous(sprintf("age effect (log%s CPM per decade)", "₂"),
-                     breaks = c(-0.1, -0.05, 0), labels = num_axis(), limits = c(-0.13, 0.155)) +
+  scale_x_continuous(sprintf("age effect (log%s CPM per decade)", "\u2082"),
+                     breaks = c(-0.1, -0.05, 0), labels = num_axis(), limits = c(-0.13, 0.012)) +
+  labs(subtitle = sprintf("%d of %d genes change with age;\n%d keep a decline after adjustment",
+                          sum(G$FDR < 0.05), nrow(G), nrow(R))) +
   theme_sa(8) + theme(axis.title.y = element_blank(), axis.line.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.text.y = element_text(size = 7, face = "italic"),
-        axis.title.x = element_text(hjust = 0.2),
-        plot.margin = margin(9, 7, 3, 3))
+        axis.ticks.y = element_blank(), axis.text.y = element_text(size = 7, face = "italic"),
+        legend.position = "bottom", legend.direction = "vertical", legend.margin = margin(t = -4),
+        legend.key.size = unit(6, "pt"), legend.text = element_text(size = 7),
+        plot.subtitle = element_text(size = 7, colour = INK2, lineheight = 1.05),
+        plot.margin = margin(3, 7, 3, 3))
 
-mid <- lab_grid(pb, pc, labels = c("b", "c"), ncol = 1, rel_heights = c(0.82, 1.18))
-save_fig(lab_grid(pa, mid, pd, labels = c("a", "", "d"), ncol = 3,
-                  rel_widths = c(1.28, 0.96, 0.96)), "FigS2.png", 183, 128)
+right <- lab_grid(pb, pd, labels = c("b", "c"), ncol = 1, rel_heights = c(0.62, 1.38))
+save_fig(lab_grid(pa, right, labels = c("a", ""), ncol = 2, rel_widths = c(1.2, 1)),
+         "FigS2.png", 183, 128)

@@ -40,34 +40,6 @@ NF <- setNames(CNT$final_donors, CNT$tissue)          # donors in each tissue
 NC <- setNames(CNT$complete_covariates, CNT$tissue)   # donors with complete covariates
 NPAIR <- CNT[tissue == "culture"]$paired_with_legskin
 
-## ---------------- a. design -------------------------------------------------------
-## the culture box is taller than the others because it carries a third line
-BX <- data.table(tk = TK, ymin = c(3.57, 2.62, 1.67, 0.72), ymax = c(4.67, 3.42, 2.47, 1.52),
-  lab = c("cultured fibroblasts", "skin, sun-exposed", "skin, not sun-exposed", "skeletal muscle"),
-  site = c("", "lower leg, ", "suprapubic, ", ""))
-BX[, ymid := (ymin + ymax) / 2]
-BX[, n := sprintf("%sn = %d donors", site, NF[tk])]
-BX[, extra := ifelse(tk == "culture", sprintf("%d with complete covariates", NC["culture"]), "")]
-BX[, `:=`(y1 = ifelse(tk == "culture", ymid + 0.31, ymid + 0.16),
-          y2 = ifelse(tk == "culture", ymid,        ymid - 0.16),
-          y3 = ymid - 0.31)]
-pA <- ggplot(BX) +
-  geom_rect(aes(xmin = 0.02, xmax = 0.98, ymin = ymin, ymax = ymax, colour = tk),
-            fill = "white", linewidth = 0.45) +
-  geom_rect(aes(xmin = 0.02, xmax = 0.06, ymin = ymin, ymax = ymax, fill = tk), colour = NA) +
-  geom_text(aes(x = 0.085, y = y1, label = lab), hjust = 0, family = FONT, size = pt(7.5), colour = INK) +
-  geom_text(aes(x = 0.085, y = y2, label = n), hjust = 0, family = FONT, size = pt(7), colour = INK2) +
-  geom_text(aes(x = 0.085, y = y3, label = extra), hjust = 0, family = FONT, size = pt(7), colour = INK2) +
-  annotate("segment", x = 1.02, xend = 1.02, y = BX$ymid[1], yend = BX$ymid[2], colour = GREY, linewidth = 0.35) +
-  annotate("segment", x = 0.99, xend = 1.02, y = BX$ymid[1:2], yend = BX$ymid[1:2], colour = GREY, linewidth = 0.35) +
-  annotate("text", x = 1.05, y = mean(BX$ymid[1:2]), hjust = 0, family = FONT, size = pt(7), colour = INK2,
-           lineheight = 1.0, label = sprintf("%d donors\nin both", NPAIR)) +
-  annotate("text", x = 0.02, y = 4.99, hjust = 0, family = FONT, size = pt(7.5), colour = INK2,
-           label = "GTEx v8, one pipeline (recount3)") +
-  scale_colour_manual(values = TCOL, guide = "none") + scale_fill_manual(values = TCOL, guide = "none") +
-  coord_cartesian(xlim = c(0, 1.34), ylim = c(0.62, 5.15), clip = "off") + theme_void() +
-  theme(plot.background = element_rect(fill = "white", colour = NA), plot.margin = margin(12, 3, 3, 3))
-
 ## ---------------- b. the splicing genes against proliferation --------------------
 ## the y axis is given headroom so that the statistic never sits on the points
 SC <- rbindlist(lapply(c("culture","legskin","muscle"), function(tk) { T <- TS[[tk]]
@@ -153,46 +125,28 @@ E <- rbind(
   ## between-study variance is not estimable, and the two estimates are not the same
   ## quantity -- GSE113957 is an attenuation, GTEx a suppression effect.
   NULL)
-YB <- c(3.10, 1.60); YRULE <- NA_real_; YHEAD <- 4.02; YLIM <- c(0.75, 4.25)
-E[, y := YB[block] + ifelse(model == "unadjusted", 0.26, -0.26)]
 E[, model := factor(model, levels = c("unadjusted", "proliferation-adjusted"))]
-E[, est := sprintf("%s [%s, %s]", num(b, 3), num(lo, 3), num(hi, 3))]
-E[, ptx := pfmt_v(p)]
+E[, cohort := factor(block, levels = 1:2, labels = c(
+  sprintf("GSE113957 fibroblasts\n%d donors, %d to %d years", K$n, as.integer(min(PRIM$age)), as.integer(max(PRIM$age))),
+  sprintf("GTEx fibroblasts\n%d donors, %s", nobs(ga0), gt_age)))]
+RHOLAB <- data.table(cohort = factor(levels(E$cohort), levels = levels(E$cohort)),
+                     lab = sprintf("proliferation vs age\n%s = %s", RHO, c(num(rho_ap), num(rho_gt))))
 print(E)
-CO <- data.table(y = YB, lab = c(
-  sprintf("GSE113957 fibroblasts\n%d donors, %d to %d years\nproliferation vs age %s = %s",
-          K$n, as.integer(min(PRIM$age)), as.integer(max(PRIM$age)), RHO, num(rho_ap)),
-  sprintf("GTEx fibroblasts\n%d donors, %s\nproliferation vs age %s = %s", nobs(ga0), gt_age, RHO, num(rho_gt)),
-  NULL))
-void_d <- theme_void() + theme(plot.background = element_rect(fill = "white", colour = NA))
-ysc <- scale_y_continuous(limits = YLIM, expand = c(0, 0))
-rule <- NULL  ## the rule separated the pooled row, which was withdrawn
-head_d <- function(x, lab) annotate("text", x = x, y = YHEAD, hjust = 0, family = FONT, size = pt(7),
-                                    colour = GREY, label = lab)
-pDl <- ggplot() + rule +
-  geom_text(data = CO, aes(0.04, y, label = lab), hjust = 0, family = FONT, size = pt(7), colour = INK,
-            lineheight = 1.05) +
-  geom_text(data = E, aes(0.63, y, label = model), hjust = 0, family = FONT, size = pt(7), colour = INK2) +
-  head_d(0.04, "fibroblast cohort") + head_d(0.63, "model") +
-  scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) + ysc + void_d +
-  theme(plot.margin = margin(3, 0, 3, 3))
-pDm <- ggplot(E, aes(b, y, colour = model)) + rule +
-  geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0, linewidth = 0.55) +
-  geom_point(size = 1.9) +
-  scale_colour_manual(values = c(unadjusted = GREY, `proliferation-adjusted` = BLUE), guide = "none") +
-  scale_x_continuous("age effect per decade, 96 splicing genes",
-                     limits = c(-0.20, 0.05), breaks = seq(-0.20, 0.05, 0.05), labels = num_axis()) +
-  ysc + labs(y = NULL) + theme_sa() +
-  theme(axis.line.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank(),
-        axis.ticks.length.y = unit(0, "pt"), plot.margin = margin(3, 0, 3, 0))
-pDr <- ggplot(E) + rule +
-  geom_text(aes(0.06, y, label = est), hjust = 0, family = FONT, size = pt(7), colour = INK) +
-  geom_text(aes(0.70, y, label = ptx), hjust = 0, family = FONT, size = pt(7), colour = INK) +
-  head_d(0.06, "estimate [95% CI]") + head_d(0.70, "two-sided P") +
-  scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) + ysc + void_d +
-  theme(plot.margin = margin(3, 6, 3, 0))
-pD <- plot_grid(pDl, pDm, pDr, nrow = 1, align = "h", axis = "tb", rel_widths = c(0.385, 0.345, 0.27))
+## grouped bars with 95% CI (2026-09-19) in place of the forest plot and its printed
+## columns; every estimate and P is in Supplementary Table 5
+pD <- ggplot(E, aes(cohort, b, fill = model)) +
+  geom_hline(yintercept = 0, colour = INK, linewidth = 0.3) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6, colour = NA) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.7), width = 0.2,
+                colour = INK2, linewidth = 0.4) +
+  geom_text(data = RHOLAB, aes(cohort, y = 0.074, label = lab), inherit.aes = FALSE,
+            family = FONT, size = pt(7), colour = INK2, vjust = 1, lineheight = 1.05) +
+  scale_fill_manual(values = c(unadjusted = GREY, `proliferation-adjusted` = BLUE), name = NULL) +
+  scale_y_continuous("age effect per decade\n(96 splicing genes)", limits = c(-0.20, 0.078),
+                     breaks = seq(-0.20, 0.05, 0.05), labels = num_axis(), expand = c(0, 0)) +
+  labs(x = NULL) + theme_sa() +
+  theme(legend.position = "top", legend.justification = "left", legend.margin = margin(b = -4),
+        axis.text.x = element_text(size = 7, lineheight = 1.05), plot.margin = margin(3, 6, 3, 3))
 
 ## ---------------- e. preregistered scorecard --------------------------------------
 sgn <- function(x, digits) paste0(ifelse(x > 0, "+", ""), num(x, digits))
@@ -255,18 +209,17 @@ CF[, adj := factor(adj, levels = c("rho_tech", "rho_tech_comp"),
                    labels = c("technical covariates", "+ cell-composition markers"))]
 CF[, pgf := factor(nice(set), levels = rev(nice(PGF)))]
 CF[, tkf := factor(tissue, levels = c("legskin", "pubskin"),
-                   labels = c("skin, sun-exposed (n = 739)", "skin, not exposed (n = 626)"))]
+                   labels = c("sun-exposed skin\nn = 739", "non-exposed skin\nn = 626"))]
 ## the two splicing definitions that were never selected in these data are marked, so a
 ## reader can see the drop is not a property of the selected set
 UNSEL <- data.table(pgf = factor(nice(c("mRNA splicing", "pre-mRNA processing")),
                                  levels = rev(nice(PGF))))
-pF <- ggplot(CF, aes(rho, pgf, colour = adj)) +
+pF <- ggplot(CF, aes(rho, pgf, fill = adj)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
-  geom_line(aes(group = interaction(tkf, pgf)), colour = GREY, linewidth = 0.4) +
-  geom_point(size = 2) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.64, colour = NA) +
   facet_wrap(~ tkf, nrow = 1) +
-  scale_colour_manual(values = c("technical covariates" = GREY,
-                                 "+ cell-composition markers" = BLUE), name = NULL) +
+  scale_fill_manual(values = c("technical covariates" = GREY,
+                               "+ cell-composition markers" = BLUE), name = NULL) +
   scale_x_continuous(sprintf("partial %s with proliferation score", RHO),
                      limits = c(-0.15, 0.78), breaks = seq(0, 0.75, 0.25), labels = num_axis()) +
   labs(y = NULL) + theme_sa() +
@@ -286,17 +239,18 @@ fwrite(V[, .(hypothesis = id, test = what, criterion = crit, observed = obs, ver
        file.path(O, "preregistered_scorecard.tsv"), sep = "\t")
 cat("\nSupplementary Table 10 (preregistered scorecard) written\n")
 
-top <- lab_grid(pA, pB, labels = c("a", "b"), ncol = 2, rel_widths = c(0.94, 2.0))
-save_fig(plot_grid(top, lab_grid(pC, labels = "c", ncol = 1), lab_grid(pD, labels = "d", ncol = 1),
-                   lab_grid(pF, labels = "e", ncol = 1), ncol = 1,
-                   rel_heights = c(53, 53, 44, 46)), "Fig6.png", 183, 196)
+top <- lab_grid(pB, labels = "a", ncol = 1)
+save_fig(plot_grid(top, lab_grid(pC, labels = "b", ncol = 1),
+                   lab_grid(pD, pF, labels = c("c", "d"), ncol = 2, rel_widths = c(0.95, 1.05)),
+                   ncol = 1, rel_heights = c(50, 53, 56)), "Fig6.png", 183, 165)
 
 ## ================= Supplementary Fig. S10: post hoc tissue analyses and donor concordance
 TN <- c(culture = "cultured\nfibroblasts", legskin = "skin,\nsun-exposed",
         pubskin = "skin,\nnot exposed", muscle = "skeletal\nmuscle")
 ## ---- S10a. slope by tissue, with variance-matched subsampling (post hoc)
 R9 <- RR[set == "splicing 96"][, tissue := factor(tissue, levels = TK)]
-XN <- setNames(sprintf("%s\nn = %d", TN[as.character(R9$tissue)], R9$n), as.character(R9$tissue))
+XN <- setNames(sprintf("%s\nn = %d\nSD %s", TN[as.character(R9$tissue)], R9$n, num(R9$sd_prolif)),
+               as.character(R9$tissue))
 vmw <- VM[scheme == "window"]; vmk <- VM[scheme == "kernel"]
 nsub <- unique(VD$n); stopifnot(length(nsub) == 1, vmw$draws == vmk$draws)
 vm_txt <- sprintf(paste0("post hoc. Cultured fibroblasts subsampled\nto the leg-skin SD of proliferation (%s);\n",
@@ -306,22 +260,18 @@ vm_txt <- sprintf(paste0("post hoc. Cultured fibroblasts subsampled\nto the leg-
                   num(vmw$target_sd), vmw$draws, nsub,
                   RHO, num(vmw$rho_median), num(vmw$rho_lo), num(vmw$rho_hi),
                   RHO, num(vmk$rho_median), num(vmk$rho_lo), num(vmk$rho_hi))
-pSa <- ggplot(R9, aes(as.integer(tissue), slope, colour = tissue)) +
+pSa <- ggplot(R9, aes(as.integer(tissue), slope, fill = tissue)) +
   geom_hline(yintercept = 0, colour = GREY_L, linewidth = 0.4) +
-  geom_errorbar(aes(ymin = slope_lo, ymax = slope_hi), width = 0.12, linewidth = 0.55) +
-  geom_point(size = 2.1) +
-  ## the last label goes to the left of its point so that the axis need not be stretched for it
-  geom_text(aes(x = as.integer(tissue) + ifelse(tissue == "muscle", -0.14, 0.14),
-                hjust = ifelse(tissue == "muscle", 1, 0),
-                label = sprintf("slope %s\nSD %s", num(slope), num(sd_prolif))),
-            vjust = 0.5, size = pt(7), family = FONT, lineheight = 1.05, show.legend = FALSE) +
-  scale_colour_manual(values = TCOL, guide = "none") +
-  scale_x_continuous(breaks = 1:4, labels = XN[TK], limits = c(0.6, 4.4), expand = c(0, 0)) +
+  geom_col(width = 0.6, colour = NA) +
+  geom_errorbar(aes(ymin = slope_lo, ymax = slope_hi), width = 0.18, linewidth = 0.45, colour = INK2) +
+  scale_fill_manual(values = TCOL, guide = "none") +
+  scale_x_continuous(breaks = 1:4, labels = XN[TK], limits = c(0.5, 4.5), expand = c(0, 0)) +
   scale_y_continuous(labels = num_axis(), expand = expansion(mult = c(0.10, 0.62))) +
-  labs(x = NULL, y = "slope: 96 splicing genes per unit\nproliferation score (95% CI)") +
+  labs(x = NULL, y = "slope: 96 splicing genes per unit\nproliferation score (95% CI)",
+       caption = "SD: spread of the proliferation score in that tissue") +
   annotate("text", x = 1.55, y = Inf, hjust = 0, vjust = 1.08, family = FONT, size = pt(7),
            colour = INK2, lineheight = 1.15, label = vm_txt) +
-  theme_sa()
+  theme_sa() + theme(plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0))
 
 ## ---- S10b. coupling before and after composition adjustment (post hoc)
 ## every value, n and marker list on this panel comes from composition_adjusted.tsv
@@ -338,30 +288,30 @@ mk_full <- c(kerat = "keratinocyte", fibro = "fibroblast", immune = "immune",
              myofibre = "myofibre", satellite = "satellite cell")
 mk_txt <- function(s) { p <- strsplit(s, "+", fixed = TRUE)[[1]]
   paste("+", paste(ifelse(p %in% names(mk_full), mk_full[p], p), collapse = ", ")) }
-xr <- range(c(0, CL$rho)); XL <- xr + c(-0.10, 0.14) * diff(xr)
+xr <- range(c(0, CL$rho)); XL <- xr + c(-0.22, 0.16) * diff(xr)
 ## the marker list of each tissue is written under its own row, below the value
 ## labels and on the side away from the points, so that it follows the table
 ## without running into a value
 MK <- if ("markers" %in% names(CC)) CC[, .(tissue, txt = vapply(markers, mk_txt, ""),
         right = pmax(rho_tech, rho_tech_comp) < mean(XL))] else NULL
-pSb <- ggplot(CL, aes(rho, tissue, colour = k)) +
+pSb <- ggplot(CL, aes(rho, tissue, fill = k)) +
   geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.4) +
-  geom_line(aes(group = tissue), colour = GREY, linewidth = 0.4) +
-  geom_point(size = 2.1) +
-  geom_text(aes(label = num(rho), vjust = ifelse(k == "technical covariates", -1.1, 1.9)),
-            size = pt(7), family = FONT, show.legend = FALSE) +
-  { if (!is.null(MK)) geom_text(data = MK, aes(x = ifelse(right, XL[2], 0.03), y = tissue, label = txt,
-                                               hjust = ifelse(right, 1, 0)),
-                                inherit.aes = FALSE, vjust = 3.7, size = pt(7), family = FONT, colour = INK2) } +
-  annotate("text", x = 0.03, y = 4.5, hjust = 0, family = FONT, size = pt(7), colour = INK2, label = "post hoc") +
-  scale_colour_manual(values = c(`technical covariates` = INK2, `+ cell-composition markers` = ORANGE),
-                      name = NULL) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.62, colour = NA) +
+  geom_text(aes(label = num(rho), x = rho + ifelse(rho >= 0, 0.015, -0.015), hjust = ifelse(rho >= 0, 0, 1)),
+            position = position_dodge(width = 0.7), size = pt(7), family = FONT, colour = INK2,
+            show.legend = FALSE) +
+  scale_fill_manual(values = c(`technical covariates` = INK2, `+ cell-composition markers` = ORANGE),
+                    name = NULL) +
   scale_y_discrete(limits = rev(TK), labels = YN, expand = expansion(add = c(0.75, 0.55))) +
   scale_x_continuous(labels = num_axis(), limits = XL, expand = c(0, 0)) +
-  labs(x = sprintf("partial %s with proliferation, 96 splicing genes", RHO), y = NULL) +
+  labs(x = sprintf("partial %s with proliferation, 96 splicing genes", RHO), y = NULL,
+       caption = paste0("post hoc. markers added: fibroblast, immune (culture);\n",
+                        "keratinocyte, fibroblast, immune (skin);\n",
+                        "myofibre, satellite cell, fibroblast, immune (muscle)")) +
   theme_sa() + theme(legend.position = "top", legend.location = "plot", legend.justification = "right",
                      legend.margin = margin(b = -4), legend.key.size = unit(6, "pt"),
                      axis.text.y = element_text(size = 7.5, lineheight = 1.05),
+                     plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0, lineheight = 1.05),
                      plot.margin = margin(3, 10, 3, 3))
 
 ## ---- S10c. culture erases the donor, and the control that shows the design can

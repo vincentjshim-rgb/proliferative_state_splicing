@@ -41,14 +41,14 @@ partial_panel <- function(Q, xlab, xlim, breaks, legend) {
   A$def <- factor(A$def, levels = SHOW); U$def <- factor(U$def, levels = SHOW)
   A$comparator <- factor(CMP[A$comparator], levels = rev(CMP))
   A$side <- factor(A$side, levels = SIDE)
-  ggplot(A, aes(rho, comparator, colour = side)) +
+  ggplot(A, aes(rho, comparator, fill = side)) +
     geom_vline(xintercept = 0, colour = GREY, linewidth = 0.3) +
     geom_vline(data = U, aes(xintercept = rho), colour = INK, linewidth = 0.3, linetype = "22") +
-    geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0, linewidth = 0.5,
-                   position = position_dodge(width = 0.55)) +
-    geom_point(size = 1.8, position = position_dodge(width = 0.55)) +
+    geom_col(position = position_dodge(width = 0.7), width = 0.62, colour = NA) +
+    geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2, linewidth = 0.4, colour = INK2,
+                   position = position_dodge(width = 0.7)) +
     facet_wrap(~def, nrow = 1, labeller = as_labeller(lab)) +
-    scale_colour_manual(values = c(BLUE, ORANGE), name = NULL) +
+    scale_fill_manual(values = c(BLUE, ORANGE), name = NULL) +
     scale_x_continuous(limits = xlim, breaks = breaks, labels = num_axis(2)) +
     labs(x = xlab, y = NULL) + theme_sa() + LEG +
     theme(legend.position = if (legend) "top" else "none")
@@ -71,17 +71,15 @@ C$model2 <- factor(ifelse(C$model == "technical covariates only", MOD[1],
                    ifelse(C$model == "+ proliferation score", MOD[2], MOD[3])), levels = MOD)
 C$metric <- factor(ROW[C$metric], levels = rev(ROW))
 C$def <- factor(CDEF[C$splicing_definition], levels = CDEF)
-pc <- ggplot(C, aes(beta, metric, colour = model2)) +
+## grouped bars with 95% CI (2026-09-19); every P is in Supplementary Table 5
+pc <- ggplot(C, aes(beta, metric, fill = model2)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0, linewidth = 0.5,
-                 position = position_dodge(width = 0.66)) +
-  geom_point(size = 1.8, position = position_dodge(width = 0.66)) +
-  ## P values in one column at the right, clear of the zero line and of the other intervals
-  geom_text(aes(x = 0.043, label = pfmt_v(p)), hjust = 0, family = FONT, size = pt(7),
-            position = position_dodge(width = 0.66), show.legend = FALSE) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.64, colour = NA) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2, linewidth = 0.4, colour = INK2,
+                 position = position_dodge(width = 0.72)) +
   facet_wrap(~def, nrow = 1) +
-  scale_colour_manual(values = c(GREY, BLUE, TEAL), name = NULL) +
-  scale_x_continuous(limits = c(-0.19, 0.098), breaks = seq(-0.15, 0.05, 0.05), labels = num_axis(2)) +
+  scale_fill_manual(values = c(GREY, BLUE, TEAL), name = NULL) +
+  scale_x_continuous(limits = c(-0.19, 0.04), breaks = seq(-0.15, 0, 0.05), labels = num_axis(2)) +
   labs(x = sprintf("age effect per decade (s.d. of the score), %d adult donors", C$n_donors[1]), y = NULL) +
   theme_sa() + LEG
 

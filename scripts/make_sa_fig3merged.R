@@ -63,25 +63,27 @@ for (i in seq_len(nrow(K)))
   say("b  %-10s n = %3d  unadjusted %.4f [%.4f, %.4f] P = %.3g | adjusted %.4f [%.4f, %.4f] P = %.3g | removed %.1f%%",
       K$cohort[i], K$n[i], K$beta[i], K$lo[i], K$hi[i], K$p[i], K$beta_adj[i], K$lo_adj[i],
       K$hi_adj[i], K$p_adj[i], K$pct_lost[i])
-XP <- 0.012; XR <- 0.098                                  # columns for P and for % removed
-pb <- ggplot(FB, aes(b, y, colour = k)) +
-  geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.4) +
-  geom_segment(aes(x = lo, xend = hi, yend = y), linewidth = 0.55) +
-  geom_point(size = 1.7) +
-  geom_text(aes(x = XP, label = plab), hjust = 0, size = pt(7), family = FONT, show.legend = FALSE) +
-  annotate("text", x = XR, y = K$row, hjust = 0, family = FONT, size = pt(7), colour = INK,
-           label = sprintf("%.0f%%", K$pct_lost)) +
-  annotate("text", x = XR, y = max(K$row) + 0.62, hjust = 0, vjust = 0, family = FONT, size = pt(7),
-           colour = INK2, lineheight = 0.95, label = "removed by\nadjustment") +
-  scale_colour_manual(values = c(unadjusted = EXPC, `adjusted for proliferation` = GREY), name = NULL) +
-  scale_y_continuous(breaks = K$row, labels = COHLAB[K$cohort], limits = c(0.5, max(K$row) + 1.05),
+## grouped bars with 95% CI (2026-09-19). The forest plot with its printed columns of
+## P values and percentages is gone; the share removed is printed once per cohort and
+## every estimate and P is in Supplementary Table 1.
+FB$cohort <- factor(FB$cohort, levels = K$cohort[order(K$row, decreasing = TRUE)])
+LABK <- K[order(K$row, decreasing = TRUE), ]
+LABK$cohort <- factor(LABK$cohort, levels = levels(FB$cohort))
+pb <- ggplot(FB, aes(cohort, b, fill = k)) +
+  geom_hline(yintercept = 0, colour = INK, linewidth = 0.35) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.64, colour = NA) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.72), width = 0.22,
+                colour = INK2, linewidth = 0.4) +
+  geom_text(data = LABK, aes(cohort, y = 0.014, label = sprintf("%.0f%% removed", pct_lost)),
+            inherit.aes = FALSE, family = FONT, size = pt(7), colour = INK2, vjust = 0) +
+  scale_fill_manual(values = c(unadjusted = EXPC, `adjusted for proliferation` = GREY), name = NULL) +
+  scale_x_discrete(labels = COHLAB) +
+  scale_y_continuous(limits = c(-0.235, 0.06), breaks = c(-0.2, -0.1, 0), labels = num_axis(),
                      expand = c(0, 0)) +
-  scale_x_continuous(limits = c(-0.235, 0.15), breaks = c(-0.2, -0.1, 0), labels = num_axis()) +
-  labs(x = "age effect per decade, pre-mRNA processing score", y = NULL) +
+  labs(x = NULL, y = "age effect per decade,\npre-mRNA processing score") +
   theme_sa() + theme(legend.position = "top", legend.justification = "left",
                      legend.margin = margin(b = -6), legend.key.size = unit(6, "pt"),
-                     axis.text.y = element_text(size = 7, lineheight = 0.95),
-                     axis.line.y = element_blank(), axis.ticks.y = element_blank(),
+                     axis.text.x = element_text(size = 7, lineheight = 0.95),
                      plot.margin = margin(3, 4, 3, 6))
 
 ## =========== c. the same two models on 1,000 random gene sets ================

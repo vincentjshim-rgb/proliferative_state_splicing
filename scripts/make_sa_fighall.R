@@ -56,42 +56,37 @@ N <- nrow(J)
 ## the two programmes whose gene sets are entirely inside the cell-cycle union
 ## cannot be scored after removal; they are marked rather than dropped
 J$noCC_missing <- !is.finite(J$rho_rate_noCC)
-pA <- ggplot(J, aes(rho_rate, short)) +
-  scale_y_discrete() +   # declared first so that the annotate() segments below can use row numbers
-  annotate("rect", xmin = -0.2, xmax = 0.2, ymin = 0.4, ymax = N + 0.6, fill = GREY_L, alpha = 0.35) +
-  ## segments rather than vlines: the label above the rows extends the y range, and a
-  ## vline would run up through it
-  annotate("segment", x = 0, xend = 0, y = 0.4, yend = N + 0.6, colour = INK, linewidth = 0.3) +
-  annotate("segment", x = CCrho, xend = CCrho, y = 0.4, yend = N + 0.6, colour = GREY,
-           linewidth = 0.35, linetype = "21") +
-  geom_segment(aes(x = 0, xend = rho_rate, yend = short, colour = class), linewidth = 0.45) +
-  geom_segment(data = J[!J$noCC_missing, ],
-               aes(x = rho_rate, xend = rho_rate_noCC, yend = short), colour = INK2,
-               linewidth = 0.3, arrow = arrow(length = unit(2.6, "pt"), type = "closed")) +
-  geom_point(aes(colour = class), size = 1.8) +
-  geom_point(data = J[!J$noCC_missing, ], aes(rho_rate_noCC, short, colour = class),
-             size = 1.6, shape = 21, fill = "white", stroke = 0.6) +
-  geom_text(data = J[J$noCC_missing, ], aes(x = rho_rate + 0.03, label = "\u2020"),
-            hjust = 0, vjust = 0.42, family = FONT, size = pt(8), colour = INK2) +
-  scale_colour_manual(values = PAL, name = NULL) +
-  guides(colour = guide_legend(nrow = 4, override.aes = list(size = 1.7))) +
-  scale_x_continuous(sprintf("%s with measured division rate (328 libraries)", RHO),
-                     limits = c(-0.47, 1.20), breaks = seq(-0.4, 0.8, 0.2),
-                     labels = num_axis(), expand = c(0, 0)) +
-  ## 2026-09-17: label lifted clear of the zero line; the key moved to the right of the
-  ## dashed line, where no programme reaches (it used to run through the line and the axis)
-  annotate("text", x = CCrho - 0.02, y = N + 1.2, label = "cell-cycle gene set", family = FONT,
-           size = pt(7), colour = GREY, hjust = 1, vjust = 0.4) +
-  annotate("text", x = CCrho + 0.05, y = 9.4, hjust = 0, vjust = 1, family = FONT, size = pt(7),
-           colour = INK2, lineheight = 1.15,
-           label = "filled: all genes\nopen: without\ncell-cycle genes") +
-  theme_sa() + theme(axis.title.y = element_blank(), axis.line.y = element_blank(),
-        axis.ticks.y = element_blank(), axis.text.y = element_text(size = 7.2),
-        legend.position = "bottom", legend.justification = "left",
-        legend.key.size = unit(7, "pt"),
-        legend.margin = margin(t = -4), legend.text = element_text(size = 7),
-        plot.margin = margin(12, 4, 3, 3)) +
-  coord_cartesian(clip = "off")
+## two-column heatmap (2026-09-19) in place of the dumbbell plot: the programme x
+## condition matrix with printed values is the form used for programme-level
+## summaries in the ageing transcriptome literature
+if (!exists("DIVERGE")) DIVERGE <- c(BLUE, "#F7F7F7", RED)
+JH <- rbind(data.frame(short = J$short, class = J$class, col = "all genes",
+                       rho = J$rho_rate, miss = FALSE),
+            data.frame(short = J$short, class = J$class, col = "without\ncell-cycle genes",
+                       rho = J$rho_rate_noCC, miss = J$noCC_missing))
+JH$col <- factor(JH$col, levels = c("all genes", "without\ncell-cycle genes"))
+JH$lab <- ifelse(JH$miss, "\u2020", ifelse(is.finite(JH$rho), sub("-", MINUS, sprintf("%.2f", JH$rho)), ""))
+JH$rho[JH$miss] <- NA
+LABCOL <- unname(PAL[as.character(J$class[match(levels(droplevels(J$short)), as.character(J$short))])])
+pA <- ggplot(JH, aes(col, short)) +
+  geom_tile(aes(fill = pmax(pmin(rho, 1), -1)), colour = "white", linewidth = 0.5) +
+  geom_text(aes(label = lab), family = FONT, size = pt(6.5), colour = INK) +
+  scale_fill_gradientn(colours = DIVERGE, limits = c(-1, 1), breaks = c(-1, 0, 1),
+                       labels = c(paste0(MINUS, "1"), "0", "1"), na.value = "#E6E8EB",
+                       name = sprintf("%s with measured division rate", RHO),
+                       guide = guide_colourbar(title.position = "top", barwidth = unit(48, "pt"),
+                                               barheight = unit(4, "pt"), ticks.colour = "white")) +
+  scale_x_discrete(position = "top", expand = c(0, 0)) + scale_y_discrete(expand = c(0, 0)) +
+  labs(x = NULL, y = NULL,
+       caption = "\u2020 all measured genes are cell-cycle genes\nrow colour: programme class (key in b)") +
+  theme_sa() + theme(axis.line = element_blank(), axis.ticks = element_blank(),
+        axis.text.y = element_text(size = 7.2, colour = LABCOL),
+        axis.text.x = element_text(size = 7, lineheight = 0.95),
+        legend.position = "bottom", legend.key.height = unit(5, "pt"),
+        legend.key.width = unit(28, "pt"), legend.title = element_text(size = 7),
+        legend.text = element_text(size = 7), legend.margin = margin(t = 2),
+        plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0, lineheight = 1.05),
+        plot.margin = margin(3, 4, 3, 3))
 
 ## ---------------- b. division readout against donor-age readout -------------
 J$sig <- J$FDR_age < 0.05
@@ -121,13 +116,16 @@ pB <- ggplot(J, aes(rho_rate, rho_age)) +
              shape = 21, stroke = 0.6) +
   geom_text(data = LP, aes(lx, ly, label = lab, colour = class, hjust = hj),
             family = FONT, size = pt(7), vjust = 0.5, lineheight = 0.95) +
-  scale_colour_manual(values = PAL, guide = "none") +
+  scale_colour_manual(values = PAL, name = NULL) +
+  guides(colour = guide_legend(nrow = 2, override.aes = list(size = 1.7))) +
   scale_fill_manual(values = c(sig = INK2, ns = "white"), guide = "none") +
   scale_x_continuous(sprintf("%s with measured division rate (328 libraries)", RHO),
       limits = c(-0.47, 0.95), breaks = seq(-0.4, 0.8, 0.2), labels = num_axis()) +
   scale_y_continuous(sprintf("%s with donor age (107 donors; open, FDR > 0.05)", RHO),
       limits = c(-0.64, 0.32), breaks = seq(-0.6, 0.2, 0.2), labels = num_axis()) +
-  theme_sa()
+  theme_sa() +
+  theme(legend.position = "bottom", legend.justification = "left", legend.margin = margin(t = -4),
+        legend.text = element_text(size = 7), legend.key.size = unit(7, "pt"))
 
 ## ---------------- c. the senescence set is largely a cell-cycle set ---------
 SGR$group <- factor(SGR$group, levels = c("also in cell cycle", "senescence set only"))
@@ -182,8 +180,7 @@ M$exp  <- EXP[as.character(M$gene)]
 M$col  <- ifelse(is.na(M$exp), GREY, ifelse(M$rho > 0, BLUE, RED))
 pD <- ggplot(M, aes(rho, gene)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
-  geom_segment(aes(x = 0, xend = rho, yend = gene), colour = M$col, linewidth = 0.5) +
-  geom_point(colour = M$col, size = 1.8) +
+  geom_col(fill = M$col, width = 0.66) +
   geom_text(aes(x = ifelse(rho > 0, -0.05, 0.05), label = ifelse(is.na(exp), "", exp),
                 hjust = ifelse(rho > 0, 1, 0)), family = FONT, size = pt(7), colour = INK2) +
   scale_x_continuous(sprintf("%s with division rate", RHO), limits = c(-0.95, 0.95),
@@ -246,7 +243,7 @@ pE <- plot_grid(
   sp(mk(PS$col, PS$age, pmod("collagen formation")),  "donor age (years)",  NULL,   BROWN, NULL),
   ncol = 2, align = "hv", axis = "tblr", rel_heights = c(1.16, 1))
 
-top <- lab_grid(pA, pB, labels = c("a", "b"), ncol = 2, rel_widths = c(1.06, 1))
+top <- lab_grid(pA, pB, labels = c("a", "b"), ncol = 2, rel_widths = c(0.9, 1.1))
 ## panel c is wider than before so that its gutter holds the three set-level labels
 bot <- lab_grid(pC, pD, pE, labels = c("c", "d", "e"), ncol = 3, rel_widths = c(1.07, 1.00, 1.28))
 save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.34, 1)), "Fig5.png", 183, 164)

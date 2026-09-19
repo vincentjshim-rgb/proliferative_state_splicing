@@ -19,63 +19,6 @@ AR <- arrow(length = unit(1.8, "pt"), type = "closed")
 EXPC <- "#B2182B"; OUTC <- "#2166AC"
 say <- function(...) cat(sprintf(...), "\n")
 
-## ================== a. the two measurements, same libraries =================
-bx <- function(x, y, w, h, lab, fill = "white", col = INK, fc = INK)
-  data.frame(x, y, w, h, lab, fill, col, fc, stringsAsFactors = FALSE)
-B <- rbind(
-  bx(50, 93, 98, 10, sprintf("%d normal dermal fibroblast donors, 20 to 96 years\nuniformly reprocessed RNA-seq\n(of 143 deposited libraries: 10 progeria, 26 under 20 excluded)", nrow(M)),
-     "#F2F4F6", INK, INK),
-  bx(25, 64, 47, 26, "", "#FBECEA", EXPC, EXPC),
-  bx(75, 64, 47, 26, "", "#EAF0F8", OUTC, OUTC),
-  bx(50, 37.5, 80, 8, "age effect per decade,\nbefore and after adjusting for proliferation", "white", INK, INK))
-B$xmin <- B$x - B$w/2; B$xmax <- B$x + B$w/2; B$ymin <- B$y - B$h/2; B$ymax <- B$y + B$h/2
-GY <- 59.6                                              # centre line of the gene model
-pa <- ggplot() +
-  ## donors -> the two measurements
-  annotate("segment", x = 50, xend = 50, y = 88, yend = 83, colour = GREY, linewidth = 0.32) +
-  annotate("segment", x = 25, xend = 75, y = 83, yend = 83, colour = GREY, linewidth = 0.32) +
-  annotate("segment", x = c(25, 75), xend = c(25, 75), y = 83, yend = 77.5, colour = GREY,
-           linewidth = 0.32, arrow = AR) +
-  ## the two measurements -> the age model
-  annotate("segment", x = c(25, 75), xend = c(25, 75), y = 51, yend = 46.5, colour = GREY, linewidth = 0.32) +
-  annotate("segment", x = 25, xend = 75, y = 46.5, yend = 46.5, colour = GREY, linewidth = 0.32) +
-  annotate("segment", x = 50, xend = 50, y = 46.5, yend = 42, colour = GREY, linewidth = 0.32, arrow = AR) +
-  geom_rect(data = B, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
-            fill = B$fill, colour = B$col, linewidth = 0.4) +
-  geom_text(data = B, aes(x, y, label = lab), family = FONT, colour = B$fc, size = pt(7), lineheight = 1.0) +
-  ## machinery
-  annotate("text", x = 25, y = 74.4, family = FONT, colour = EXPC, size = pt(7.5), fontface = "bold",
-           label = "machinery") +
-  annotate("text", x = 25, y = 69.6, family = FONT, colour = EXPC, size = pt(7), lineheight = 1.0,
-           label = "how much spliceosome\nis transcribed") +
-  annotate("text", x = 25, y = 61.4, family = FONT, colour = EXPC, size = pt(7), fontface = "italic",
-           lineheight = 1.05, label = "SRSF1   SRSF2\nHNRNPD   HNRNPA1\nHNRNPK   TRA2B") +
-  annotate("text", x = 25, y = 53.8, family = FONT, colour = EXPC, size = pt(7),
-           label = sprintf("%d genes, mean z", NCORE)) +
-  ## outcome
-  annotate("text", x = 75, y = 74.4, family = FONT, colour = OUTC, size = pt(7.5), fontface = "bold",
-           label = "outcome") +
-  annotate("text", x = 75, y = 69.6, family = FONT, colour = OUTC, size = pt(7), lineheight = 1.0,
-           label = "where the spliceosome\nactually cuts") +
-  ## gene model: annotated junctions grey, an unannotated junction blue
-  annotate("segment", x = 57, xend = 93, y = GY, yend = GY, colour = INK2, linewidth = 0.3) +
-  annotate("rect", xmin = c(57, 71, 85), xmax = c(65, 79, 93), ymin = GY - 1, ymax = GY + 1,
-           fill = "white", colour = INK2, linewidth = 0.35) +
-  annotate("curve", x = 65, xend = 71, y = GY + 1, yend = GY + 1, curvature = -0.75, ncp = 12,
-           colour = GREY, linewidth = 0.4) +
-  annotate("curve", x = 79, xend = 85, y = GY + 1, yend = GY + 1, curvature = -0.75, ncp = 12,
-           colour = GREY, linewidth = 0.4) +
-  annotate("curve", x = 65, xend = 89, y = GY - 1, yend = GY - 1, curvature = 0.16, ncp = 16,
-           colour = OUTC, linewidth = 0.55) +
-  annotate("segment", x = 89, xend = 89, y = GY - 1, yend = GY + 1, colour = OUTC, linewidth = 0.45) +
-  annotate("text", x = 75, y = 64.4, family = FONT, colour = GREY, size = pt(7), label = "annotated") +
-  annotate("text", x = 75, y = 54.4, family = FONT, colour = OUTC, size = pt(7), lineheight = 1.0,
-           label = "unannotated reads /\nall junction reads") +
-  scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(32, 99), expand = c(0, 0)) +
-  theme_void() + theme(plot.background = element_rect(fill = "white", colour = NA),
-                       plot.margin = margin(12, 4, 6, 4))
-
 ## =========== b. the outcome measure against donor age, 83+ marked ==========
 GRP <- c("aged 83+ (all from one repository)", "under 83, same repository (AG)", "under 83, other repository")
 N$grp <- factor(ifelse(N$age >= 83, GRP[1], ifelse(N$repo == "AG", GRP[2], GRP[3])), levels = GRP)
@@ -129,23 +72,26 @@ for (i in seq_len(nrow(K)))
   say("c  %-10s n = %3d  unadjusted %.3e [%.3e, %.3e] P = %.3g | adjusted %.3e [%.3e, %.3e] P = %.3g",
       K$cohort[i], K$n[i], K$beta[i], K$lo[i], K$hi[i], K$p[i], K$beta_adj[i], K$lo_adj[i],
       K$hi_adj[i], K$p_adj[i])
-XP <- max(FB$hi) + 0.12
-pc <- ggplot(FB, aes(b, y, colour = k)) +
-  geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.4) +
-  geom_segment(aes(x = lo, xend = hi, yend = y), linewidth = 0.55) +
-  geom_point(size = 1.7) +
-  geom_text(aes(x = XP, label = plab), hjust = 0, size = pt(7), family = FONT, show.legend = FALSE) +
-  scale_colour_manual(values = c(unadjusted = OUTC, `adjusted for proliferation` = GREY), name = NULL) +
-  scale_y_continuous(breaks = K$row, labels = COHLAB[K$cohort], limits = c(0.5, max(K$row) + 0.5),
-                     expand = c(0, 0)) +
-  scale_x_continuous(limits = c(min(FB$lo) - 0.05, XP + 0.62), breaks = c(-1, 0, 1), labels = num_axis()) +
-  labs(x = sprintf("age effect per decade, unannotated read fraction (%s 10%s)", TIMES, sup("-4")), y = NULL) +
+## grouped bars with 95% CI (2026-09-19); every P is in Supplementary Table 1
+FB$cohort <- factor(rep(K$cohort, 2), levels = K$cohort[order(K$row, decreasing = TRUE)])
+## short axis labels, the same wording as panel c
+SHORT <- c(published = "deposited\n142", normal = "all normal\n133",
+           primary = "adults 20+\n107 (primary)", adult2082 = "adults 20 to 82\n76")
+SHORT <- SHORT[names(SHORT) %in% K$cohort]
+if (length(SHORT) < nrow(K)) SHORT <- COHLAB   # unknown cohort keys: fall back to the long labels
+pc <- ggplot(FB, aes(cohort, b, fill = k)) +
+  geom_hline(yintercept = 0, colour = INK, linewidth = 0.35) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.64, colour = NA) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.72), width = 0.22,
+                colour = INK2, linewidth = 0.4) +
+  scale_fill_manual(values = c(unadjusted = OUTC, `adjusted for proliferation` = GREY), name = NULL) +
+  scale_x_discrete(labels = SHORT) +
+  scale_y_continuous(breaks = c(-1, 0, 1), labels = num_axis()) +
+  labs(x = NULL, y = sprintf("age effect per decade,\nunannotated read fraction (%s 10%s)", TIMES, sup("-4"))) +
   theme_sa() + theme(legend.position = "top", legend.justification = "left",
                      legend.margin = margin(b = -6), legend.key.size = unit(6, "pt"),
-                     axis.text.y = element_text(size = 7, lineheight = 0.95),
-                     axis.line.y = element_blank(), axis.ticks.y = element_blank(),
-                     axis.title.x = element_text(hjust = 1),
-                     plot.margin = margin(10, 8, 3, 3))
+                     axis.text.x = element_text(size = 7, lineheight = 0.95),
+                     plot.margin = margin(3, 8, 3, 3))
 
 ## ================================================================================
 ## 2026-09-18: the event-level panels, previously a supplementary figure of their own,
@@ -203,8 +149,7 @@ pe <- ggplot(EV, aes(age, psi_top)) +
                      axis.title.y = element_text(size = 7.5))
 
 
-right <- lab_grid(pb, pc, labels = c("b", "c"), ncol = 1, rel_heights = c(1.12, 0.88))
-top   <- lab_grid(pa, right, labels = c("a", ""), ncol = 2, rel_widths = c(0.86, 1.14))
-bot   <- lab_grid(pd, pe, labels = c("d", "e"), ncol = 2, rel_widths = c(1, 1.02))
-save_fig(lab_grid(top, bot, labels = c("", ""), ncol = 1, rel_heights = c(120, 88)),
-         "FigS3.png", 183, 200)
+top <- lab_grid(pb, pc, labels = c("a", "b"), ncol = 2, rel_widths = c(1.08, 1))
+bot <- lab_grid(pd, pe, labels = c("c", "d"), ncol = 2, rel_widths = c(1, 1.02))
+save_fig(lab_grid(top, bot, labels = c("", ""), ncol = 1, rel_heights = c(1, 1)),
+         "FigS3.png", 183, 168)

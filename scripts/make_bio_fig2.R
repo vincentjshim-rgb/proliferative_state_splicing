@@ -59,58 +59,31 @@ if (file.exists(SFFILE)) { SRC <- readLines(SFFILE); R <- R[R$gene %in% SRC, ] }
 R <- R[order(R$rho_rate), ]; R$gene <- factor(R$gene, levels = R$gene)
 R$hl  <- ifelse(as.character(R$gene) %in% REPEATED, "falls with age in two or more cited studies", "other")
 R$dir <- ifelse(as.character(R$gene) %in% UP_IN_AGE, "reported higher in late-passage cells", "reported lower")
-p2b <- ggplot(R, aes(rho_rate, gene, colour = hl)) +
+## bars in place of lollipops (2026-09-19): the per-gene form used in the
+## splicing-factor literature (Holly 2013, Lee 2016 present per-factor values as bars)
+p2b <- ggplot(R, aes(rho_rate, gene, fill = hl)) +
+  geom_col(width = 0.7, colour = NA) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.35) +
-  geom_segment(aes(x = 0, xend = rho_rate, yend = gene), linewidth = 0.45) +
-  geom_point(aes(shape = dir, fill = hl), size = 1.8, stroke = 0.5) +
+  geom_text(data = R[R$dir == "reported higher in late-passage cells", ],
+            aes(x = pmax(rho_rate, 0) + 0.03, label = "\u2020"), hjust = 0, vjust = 0.45,
+            family = FONT, size = pt(8), colour = INK2) +
   annotate("text", x = 0.93, y = 1.2, hjust = 1, vjust = 0, family = FONT, size = pt(7),
            colour = GREY, label = sprintf("median %s = %s", RHO, num(median(R$rho_rate)))) +
-  scale_colour_manual(values = c(`falls with age in two or more cited studies` = EXPC,
-                                 other = "#9AA5AE"), name = NULL,
-                      breaks = "falls with age in two or more cited studies") +
   scale_fill_manual(values = c(`falls with age in two or more cited studies` = EXPC,
-                               other = "#9AA5AE"), guide = "none") +
-  scale_shape_manual(values = c(`reported lower` = 21, `reported higher in late-passage cells` = 1),
-                     name = NULL, breaks = "reported higher in late-passage cells") +
-  guides(colour = guide_legend(nrow = 1, order = 1),
-         shape  = guide_legend(nrow = 1, order = 2, override.aes = list(colour = INK2))) +
+                               other = "#9AA5AE"), name = NULL,
+                    breaks = "falls with age in two or more cited studies") +
   scale_x_continuous(limits = c(-0.35, 0.95), breaks = c(-0.25, 0, 0.25, 0.5, 0.75),
                      labels = num_axis()) +
   coord_cartesian(ylim = c(0.5, nrow(R) + 0.4), clip = "off") +
-  labs(x = "correlation with measured division rate", y = NULL) +
+  labs(x = "correlation with measured division rate", y = NULL,
+       caption = "\u2020 reported higher, not lower, in late-passage cells") +
   theme_sa(8) + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank(),
                       axis.text.y = element_text(size = 7, face = "italic"),
-                      legend.position = "bottom", legend.box = "vertical",
-                      legend.box.just = "left", legend.spacing.y = unit(1, "pt"),
-                      legend.margin = margin(t = 0, b = 0), legend.box.spacing = unit(5, "pt"),
-                      legend.text = element_text(size = 7))
+                      legend.position = "bottom", legend.margin = margin(t = -5),
+                      legend.text = element_text(size = 7),
+                      plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0))
 
-## ====== c. the same factors against time in culture =======================
-ctc <- cor.test(R$rho_rate, R$rho_days, method = "spearman", exact = FALSE)
-LABC <- data.frame(gene = c("HNRNPD", "HNRNPA1", "HNRNPA0"),
-                   hj   = c(-0.15, -0.15, -0.15),
-                   vj   = c(0.4, -0.7, 0.4))
-LABC <- merge(LABC, R[, c("gene", "rho_rate", "rho_days")], by = "gene")
-p2c <- ggplot(R, aes(rho_rate, rho_days)) +
-  geom_hline(yintercept = 0, colour = GREY_L, linewidth = 0.3) +
-  geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.3) +
-  geom_point(aes(colour = hl), size = 1.8) +
-  scale_colour_manual(values = c(`falls with age in two or more cited studies` = EXPC,
-                                 other = "#9AA5AE"), guide = "none") +
-  geom_text(data = LABC, aes(label = gene, hjust = hj, vjust = vj),
-            size = pt(7), family = FONT, fontface = "italic", colour = INK) +
-  annotate("text", x = -0.33, y = -0.86, hjust = 0, vjust = 0, family = FONT, size = pt(7),
-           colour = INK, lineheight = 1.05,
-           label = sprintf("%s\nn = %d factors\nred: highlighted in b", rp(ctc$estimate, ctc$p.value), nrow(R))) +
-  scale_x_continuous(limits = c(-0.35, 1.38), breaks = c(0, 0.4, 0.8),
-                     labels = num_axis()) +
-  ## upper limit 0.2, not 0.12: IMP3 (+0.14 with days in culture) was being dropped,
-  ## so the panel drew 19 of the 20 factors it counts
-  scale_y_continuous(limits = c(-0.88, 0.2), labels = num_axis()) +
-  labs(x = "correlation with division rate", y = "correlation with days in culture") +
-  theme_sa(8)
-
-## ====== d. untreated cells across the culture lifespan ====================
+## ====== c. untreated cells across the culture lifespan =====================
 ex <- d[d$cond == "Control" & d$oxy == 21 & grepl("^HC", d$line), ]
 p2d <- ggplot(ex, aes(days, splice, colour = line)) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 0.55) +
@@ -129,16 +102,16 @@ p2d <- ggplot(ex, aes(days, splice, colour = line)) +
 ## ====== e. one correlation per cell line ==================================
 PL$line <- factor(PL$line, levels = rev(PL$line))
 PL$sig <- ifelse(PL$p < 0.05, "P < 0.05", "not significant")
-p2e <- ggplot(PL, aes(rho, line)) +
-  geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.35) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.22, colour = INK2, linewidth = 0.4) +
-  geom_point(aes(fill = sig), shape = 21, size = 2, colour = INK2, stroke = 0.4) +
-  geom_text(aes(x = 1.52, label = sprintf("n = %d", n)), hjust = 1, size = pt(7),
-            family = FONT, colour = GREY) +
-  scale_fill_manual(values = c(`P < 0.05` = EXPC, `not significant` = "white"), name = NULL) +
-  scale_x_continuous(limits = c(-0.45, 1.55), breaks = c(0, 0.5, 1), labels = num_axis()) +
+p2e <- ggplot(PL, aes(rho, line, fill = sig)) +
+  geom_col(width = 0.66, colour = NA) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.25, colour = INK2, linewidth = 0.4) +
+  geom_vline(xintercept = 0, colour = INK, linewidth = 0.35) +
+  scale_fill_manual(values = c(`P < 0.05` = EXPC, `not significant` = "#C9CFD6"), name = NULL) +
+  scale_y_discrete(labels = function(x) sprintf("%s (n = %d)", x, PL$n[match(x, as.character(PL$line))])) +
+  scale_x_continuous(limits = c(-0.45, 1.05), breaks = c(0, 0.5, 1), labels = num_axis()) +
   labs(x = sprintf("%s with division rate, per cell line", RHO), y = NULL) +
   theme_sa(8) + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank(),
+                      axis.text.y = element_text(size = 7),
                       legend.position = "bottom", legend.margin = margin(t = -5),
                       legend.text = element_text(size = 7))
 
@@ -176,6 +149,6 @@ cat(sprintf("\npanel f -- proxy vs counting: proliferation score rho = %.3f, spl
 cat(sprintf("   arms furthest above the fit: %s\n", paste(NAMED, collapse = ", ")))
 
 top <- lab_grid(p2a, p2b, labels = c("a", "b"), ncol = 2, rel_widths = c(1.18, 1))
-bot <- lab_grid(p2c, p2d, p2e, labels = c("c", "d", "e"), ncol = 3, rel_widths = c(1, 1.15, 1.02))
-save_fig(lab_grid(top, bot, lab_grid(p2f, labels = "f", ncol = 1), labels = c("", "", ""), ncol = 1,
+bot <- lab_grid(p2d, p2e, labels = c("c", "d"), ncol = 2, rel_widths = c(1.15, 1))
+save_fig(lab_grid(top, bot, lab_grid(p2f, labels = "e", ncol = 1), labels = c("", "", ""), ncol = 1,
                   rel_heights = c(1.3, 1, 0.92)), "Fig2.png", 183, 190)

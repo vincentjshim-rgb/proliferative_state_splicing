@@ -86,14 +86,15 @@ Cc$sig <- Cc$FDR < 0.05
 Cc$fillcol <- ifelse(Cc$sig, ifelse(grepl("measured rate", Cc$response), RED, BLUE), "white")
 ## group = model: without it the fill colour joins the dodge grouping and a filled symbol
 ## lands on the other model's row, off its own confidence interval
-pc <- ggplot(Cc, aes(beta, term, colour = model, group = model)) +
+## grouped bars with 95% CI (2026-09-19); bars at 40% opacity did not reach FDR < 0.05
+pc <- ggplot(Cc, aes(beta, term, fill = model, group = model)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.3, linetype = "22") +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0, linewidth = 0.45,
-                 position = position_dodge(width = 0.62)) +
-  geom_point(aes(fill = fillcol), shape = 21, size = 2.1, stroke = 0.5,
-             position = position_dodge(width = 0.62)) +
-  scale_colour_manual(values = c(RED, BLUE), name = NULL) +
-  scale_fill_identity(guide = "none") +
+  geom_col(aes(alpha = sig), position = position_dodge(width = 0.7), width = 0.62, colour = NA) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.22, linewidth = 0.4, colour = INK2,
+                 position = position_dodge(width = 0.7)) +
+  scale_fill_manual(values = c(RED, BLUE), name = NULL) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = 0.4), name = NULL,
+                     labels = c(`TRUE` = "FDR < 0.05", `FALSE` = "FDR \u2265 0.05")) +
   scale_y_discrete(labels = function(x) LAB[x]) +
   scale_x_continuous(breaks = seq(-0.5, 1, 0.25), labels = num_axis(2)) +
   labs(x = "residual effect of the treatment on the pre-mRNA processing score (z per treatment)",

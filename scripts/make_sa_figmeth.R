@@ -80,15 +80,17 @@ Dd <- do.call(rbind, lapply(names(clocks), function(cl) {
   data.frame(clock = clocks[[cl]], rho = s$rho, lo = ci[1], hi = ci[2], p = s$p) }))
 Dd$clock <- factor(Dd$clock, levels = rev(unname(clocks)))
 Dd$lab <- vapply(Dd$p, pfmt, character(1))
-pd <- ggplot(Dd, aes(rho, clock)) +
-  geom_vline(xintercept = 0, colour = GREY, linewidth = 0.3) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.14, colour = INK2, linewidth = 0.4) +
-  geom_point(aes(fill = p < 0.05), shape = 21, size = 2.2, colour = INK2, stroke = 0.4) +
-  geom_text(aes(x = hi, label = lab), hjust = -0.18, family = FONT, size = pt(7), colour = GREY) +
-  scale_fill_manual(values = c(`TRUE` = BLUE, `FALSE` = "white"), guide = "none") +
-  scale_x_continuous(limits = c(-0.22, 0.52), labels = num_axis(1)) +
+## bars with 95% CI (2026-09-19); every P is in Supplementary Table 8
+pd <- ggplot(Dd, aes(rho, clock, fill = p < 0.05)) +
+  geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
+  geom_col(width = 0.62, colour = NA) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2, colour = INK2, linewidth = 0.4) +
+  scale_fill_manual(values = c(`TRUE` = BLUE, `FALSE` = "#C9CFD6"), name = NULL,
+                    labels = c(`TRUE` = "P < 0.05", `FALSE` = "not significant")) +
+  scale_x_continuous(limits = c(-0.22, 0.42), labels = num_axis(1)) +
   labs(x = sprintf("%s between clock acceleration and measured division rate", RHO), y = NULL) +
-  theme_sa() + theme(axis.text.y = element_text(size = 7.5))
+  theme_sa() + theme(axis.text.y = element_text(size = 7.5), legend.position = "bottom",
+                     legend.margin = margin(t = -4), legend.text = element_text(size = 7))
 
 save_fig(lab_grid(lab_grid(pa, pb, labels = c("a", "b"), ncol = 2),
                   lab_grid(pc, pd, labels = c("c", "d"), ncol = 2, rel_widths = c(1, 1.05)),

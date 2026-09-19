@@ -220,11 +220,11 @@ else:
 | Fig. | 질문 | 스크립트 |
 |---|---|---|
 | 1 | splicing 기계가 공여자 연령·배양 시간에 따라 감소하는가 | `make_sa_fig1.R` |
-| 2 | 측정된 분열 속도를 따라가는가(반복 측정 보정, **패널 f: 20개 marker 대리 지표의 품질**) | `make_bio_fig2.R` |
+| 2 | 측정된 분열 속도를 따라가는가(반복 측정 보정, **패널 e: 20개 marker 대리 지표의 품질**) | `make_bio_fig2.R` |
 | 3 | 증식이 연령 연관의 얼마를 설명하고 무엇이 남는가(무작위 집합 대조 포함) | `make_sa_fig3merged.R` |
 | 4 | 63개 대비에서 결합이 일반화되는가 | `make_sa_fig3.R` |
 | 5 | 어떤 노화 프로그램이 분열 읽기값인가 | `make_sa_fighall.R` |
-| 6 | 결합은 조직에서도 성립하는가(사전등록 GTEx, **패널 e: 구성 보정의 프로그램별 비교**) | `make_sa_figgtex.R` (Fig6.png·FigS10.png·보충 표 9 스코어카드를 함께 쓴다) |
+| 6 | 결합은 조직에서도 성립하는가(사전등록 GTEx, **패널 d: 구성 보정의 프로그램별 비교**) | `make_sa_figgtex.R` (Fig6.png·FigS10.png·보충 표 9 스코어카드를 함께 쓴다) |
 | S1 | 처리로 증식을 섭동해도 결합이 유지되는가 | `make_sa_figpert.R` |
 | S2 | 어떤 유전자가 연령 연관을 유지하는가 | `make_sa_figS_gene.R` |
 | S3 | splicing outcome 지표와 event 수준 splicing(2026-09-18 병합, 5패널) | `make_sa_figS_outcome.R` |
@@ -378,6 +378,22 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 **검증에서 함께 잡은 오래된 오류 4개** (로컬 제거와 무관): Metabolism of RNA ρ 0.77 → **0.76**, translation 0.58 → **0.57**, ECM organisation −0.59 → **−0.60**(`fig6_other_programmes.tsv`), 종류 잔차 원시 *P* 0.25–0.94/BH 0.94 → **0.22–0.85/BH 0.85**(`fig6_class_residuals.tsv`). 마지막 것은 Fig. 4c 패널 주석에도 0.94로 박혀 있어 파일을 읽도록 고쳤다(`make_sa_fig3.R`). 그림 주석에 통계값을 문자열로 박지 않는다.
 
 **되돌리려면**: `scripts/revision/run_stats_supplements.R`의 `INCLUDE_LOCAL <- FALSE`를 TRUE로 바꾸고 `run_interventions.R`·`make_supp_tables.R`·`make_sa_fig3.R`·`make_bio_fig6.R`·`make_splicing_fig.R`을 되돌린 뒤 그림과 표를 다시 만든다. 그 전에 §8의 3,118개 유전자 표 문제를 먼저 고쳐야 한다.
+
+## 21. 그림 형식 정리 (2026-09-19, 사용자 요청)
+
+**왜.** 사용자 지적: Fig. 6d·S2c 같은 형태는 "AI가 만드는 대표적 바 형태"라 그 자체로 reject 사유가 되고, 다른 논문에서 안 쓰는 형태가 너무 많다. splicing·노화 논문(Harries 2011 *Aging Cell*, Holly 2013 *MAD*, Lee 2016 *Aging Cell*, Latorre 2017, naked mole-rat *GeroScience* 2019)의 그림 어휘로 맞췄다: **산점도+회귀선, 그룹별 box, 오차막대 막대그래프, 시료 주석 heatmap, 계대별 line, volcano.**
+
+**바꾼 것(58 → 52패널).**
+- **삭제 5**: flowchart 도식 Fig. 1a·6a·S3a(자료 없음), 동어반복 meta-scatter Fig. 2c(ρ 대 ρ, R1 지적)·S2c(유지 비율 대 결합도, R2 "독립 검정 아님").
+- **텍스트 컬럼 forest → 오차막대 막대** (13): Fig. 2e(옛 e)·3b·4c·6c(옛 d)·S1c·S3b·S5a·S5b·S5c·S6b·S7d·S8a. 추정치·*P* 컬럼은 전부 보충 표로 보냈다.
+- **롤리팝/덤벨 → 막대·heatmap** (6): Fig. 2b(거명 인자, † = 후기 계대에서 증가 보고)·5a(23×2 **heatmap**, 값 인쇄, 행 이름 색 = 분류)·5d·6d(옛 e)·S2c(옛 d, 짝 막대)·S6a(막대, 세포주기 비율은 이름에)·S8b.
+- 유의성 표기 통일: 채운/빈 기호 대신 **막대 색(파랑/빨강) 또는 40% 불투명도**.
+
+**패널 번호 변경.** Fig. 1: b→a, c→b, d→c. Fig. 2: d→c, e→d, f→e. Fig. 6: b→a, c→b, d→c, e→d. S2: d→c. S3: b→a, c→b, d→c, e→d. 본문·범례·보충 Results 영/한 전부 단일 패스로 재번호했고 검증 통과(삭제 패널 인용 0, 범례 문자 연속, 인용 패널이 범례에 존재).
+
+**함께 잡은 것.** `supplementary_results_en/ko.md`가 **어제(9/18)의 보충 그림 10 → 8 재번호를 받지 않은 채** 옛 번호(S4b, S5a·b, S6, S7, S8, S10c)를 인용하고 있었다. PDF 빌더가 이 파일을 그대로 넣으므로 보충 PDF의 Results 절 그림 번호가 전부 틀려 있었다. 오늘 고쳤다. **그림 번호를 바꿀 때는 원고 2개 + 보충 Results 2개, 네 파일을 함께 돌린다.**
+
+**규칙.** 새 패널을 만들 때 롤리팝, 덤벨, 추정치/*P* 텍스트 컬럼이 붙은 forest, 자료 없는 flowchart는 쓰지 않는다. 그런 정보는 막대+95% CI로 그리고 수치는 보충 표에 둔다.
 
 ## 20. 두 표를 위치로 join하지 않는다 (2026-09-18, 실수 기록)
 

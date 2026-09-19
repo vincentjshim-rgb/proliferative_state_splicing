@@ -8,34 +8,6 @@ D <- "public_data_tierA/derived"
 CORE <- readLines(file.path(D, "conserved_core/age_down_splicing_core_v2.txt"))
 AR <- arrow(length = unit(1.8, "pt"), type = "closed")
 
-## ================== a. model schematic =====================================
-bx <- function(x,y,w,h,lab,fill="white",col=INK,fc=INK,tsz=7)
-  data.frame(x,y,w,h,lab,fill,col,fc,tsz,stringsAsFactors=FALSE)
-B <- rbind(
-  bx(50, 92, 84, 9,  "Human dermal fibroblast in culture"),
-  bx(22, 62, 38, 13, "Replicative ageing\ntime in culture", "#FBECEA", RED, RED),
-  bx(78, 62, 38, 13, "Donor age\n20 to 96 years", "#F6F1EA", BROWN, BROWN),
-  bx(50, 34, 86, 11, "splicing-factor transcript abundance falls", "#F2F4F6", INK, INK, 7.2),
-  bx(50, 11, 86, 12, "a property of ageing,\nor a readout of how fast the cells divide?", "white", INK, INK, 7.2))
-B$xmin<-B$x-B$w/2; B$xmax<-B$x+B$w/2; B$ymin<-B$y-B$h/2; B$ymax<-B$y+B$h/2
-SG <- rbind(data.frame(x=50,xend=50,y=87.5,yend=80), data.frame(x=22,xend=78,y=80,yend=80),
-            data.frame(x=22,xend=22,y=80,yend=68.8), data.frame(x=78,xend=78,y=80,yend=68.8),
-            data.frame(x=22,xend=22,y=55.5,yend=39.5), data.frame(x=78,xend=78,y=55.5,yend=39.5),
-            data.frame(x=22,xend=78,y=39.5,yend=39.5), data.frame(x=50,xend=50,y=28.5,yend=17.4))
-p1a <- ggplot() +
-  geom_segment(data=SG, aes(x,y,xend=xend,yend=yend), colour=GREY, linewidth=0.32) +
-  geom_segment(data=data.frame(x=c(22,78,50), xend=c(22,78,50),
-               y=c(70.5,70.5,30.5), yend=c(68.8,68.8,17.4)),
-               aes(x,y,xend=xend,yend=yend), colour=GREY, linewidth=0.32, arrow=AR) +
-  geom_rect(data=B, aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax),
-            fill=B$fill, colour=B$col, linewidth=0.35) +
-  geom_text(data=B, aes(x,y,label=lab), family=FONT, colour=B$fc, size=pt(B$tsz), lineheight=0.95) +
-  annotate("text", x=50, y=47, label="both reduce", family=FONT, size=pt(7), colour=GREY,
-           fontface="italic") +
-  scale_x_continuous(limits=c(0,100)) + scale_y_continuous(limits=c(3,98)) +
-  theme_void() + theme(plot.background=element_rect(fill="white",colour=NA),
-                       plot.margin=margin(3,3,3,3))
-
 ## ============ b. what the three series agree on ============================
 ENT <- read.delim(file.path(D, "conserved_core/age_core_v2_reactome.tsv"))
 SHOW <- c("Cell Cycle, Mitotic" = "Cell cycle, mitotic",
@@ -99,6 +71,6 @@ p1d <- ggplot(L, aes(days, score)) +
   labs(x="days in culture", y="pre-mRNA processing score") +
   theme_sa(8) + theme(strip.text=element_text(size=7.5, lineheight=1.05))
 
-top <- lab_grid(p1a, p1b, labels=c("a","b"), ncol=2, rel_widths=c(0.85,1))
-save_fig(lab_grid(top, lab_grid(p1c, p1d, labels=c("c","d"), ncol=2, rel_widths=c(0.62,1)),
+top <- lab_grid(p1b, p1c, labels=c("a","b"), ncol=2, rel_widths=c(1.15,0.85))
+save_fig(lab_grid(top, lab_grid(p1d, labels="c", ncol=1),
                   labels=c("",""), ncol=1, rel_heights=c(1,0.86)), "Fig1.png", 183, 124)

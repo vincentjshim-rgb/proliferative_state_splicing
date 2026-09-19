@@ -134,19 +134,15 @@ CL$lab <- factor(sprintf("%s (n = %d)", CL$class, CL$n),
 ## pfmt() takes one value at a time
 CL$ptxt <- vapply(CL$p_raw, pfmt, character(1))
 CL$clab <- sprintf("%s (n = %d)", CL$class, CL$n)
-pC <- ggplot(CL, aes(mean, lab)) +
+## bars with 95% CI (2026-09-19); the per-class P values are in Supplementary Table 4
+pC <- ggplot(CL, aes(mean, lab, fill = class)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.35) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi, colour = class), height = 0, linewidth = 0.5) +
-  geom_point(aes(colour = class), size = 1.9) +
-  geom_text(aes(x = hi + 0.015, label = ptxt),
-            hjust = 0, family = FONT, size = pt(7), colour = INK2) +
-  scale_colour_manual(values = CC, guide = "none") +
+  geom_col(width = 0.62, colour = NA) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.22, colour = INK2, linewidth = 0.4) +
+  scale_fill_manual(values = CC, guide = "none") +
   scale_x_continuous("residual (class mean, 95% CI)",
-                     limits = c(-0.32, 0.45), breaks = seq(-0.2, 0.2, 0.2), labels = num_axis()) +
+                     limits = c(-0.2, 0.2), breaks = seq(-0.2, 0.2, 0.1), labels = num_axis()) +
   scale_y_discrete(expand = expansion(add = c(0.75, 0.75))) +
-  ## the note used to sit inside the panel, where the zero line ran through it
-  ## BH-corrected P is identical for all six classes; read it from the file rather
-  ## than hard-coding it, which left a stale 0.94 behind when the set changed
   labs(subtitle = sprintf("no detectable residual; BH P = %s for all six",
                           num(max(CL$p_BH), 2))) +
   theme_sa() + theme(axis.title.y = element_blank(), axis.line.y = element_blank(),
