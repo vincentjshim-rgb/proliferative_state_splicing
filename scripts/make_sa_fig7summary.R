@@ -14,9 +14,9 @@ D <- "public_data_tierA/derived"
 ## before the PNG device exists; register the family there with the Helvetica metrics it is
 ## built on (Nimbus Sans is metrically Helvetica), so the measurement is exact and silent.
 if (!FONT %in% names(grDevices::pdfFonts()))
-  grDevices::pdfFonts(structure(list(grDevices::Type1Font(FONT,
+  do.call(grDevices::pdfFonts, setNames(list(grDevices::Type1Font(FONT,
     c("Helvetica.afm", "Helvetica-Bold.afm", "Helvetica-Oblique.afm",
-      "Helvetica-BoldOblique.afm", "Symbol.afm"))), names = FONT))
+      "Helvetica-BoldOblique.afm", "Symbol.afm"))), FONT))
 
 ## ---------------- b. the same coupling in every dataset ----------------------------
 fz <- function(r, n) { z <- atanh(r); se <- 1/sqrt(n - 3)
@@ -44,7 +44,7 @@ B <- rbind(
   row("Donor cohort, proliferation score",
       sprintf("%d adult donors (Fig. 3a)", nrow(DS)),
       cor(DS$prolif, DS$splicing, method = "spearman"), nrow(DS)),
-  row("63 contrasts, change in cell-cycle genes",
+  row("63 contrasts, Δ splicing set vs Δ cell-cycle genes",
       sprintf("%d GEO series (Fig. 4a)", LO$n_series),
       LO$rho, LO$n_contrasts, LO$lo, LO$hi),
   row("GTEx cultured fibroblasts, 96-gene set",
@@ -61,8 +61,17 @@ B <- rbind(
 B[, lab := paste0(dataset, "\n", unit)]
 B[, lab := factor(lab, levels = rev(lab))]
 B[, xlab := pmax(hi, r) + 0.025]
+## study-level value for the contrast row: one averaged value per study, secretome
+## preparations counted separately, exactly as run_stats_supplements.R computes it
+CT <- fread(file.path(D, "revision_stats/fig6_contrasts_revised.tsv"))
+CT[, study := sub("_.*$", "", id)]
+ST <- CT[, .(spl = mean(spl), cc = mean(cc)), by = study]
+r_study <- cor(ST$cc, ST$spl, method = "spearman"); n_study <- nrow(ST)
+stopifnot(n_study == 29, abs(r_study - 0.79) < 0.006)
+B[, study := NA_real_]; B[4, study := r_study]
 fwrite(B[, .(dataset = gsub("\n", " ", dataset), unit, n, rho = r, lo, hi, tissue,
-             rho_after_composition_markers = adj)],
+             rho_after_composition_markers = adj, rho_one_value_per_study = study,
+             n_studies = ifelse(is.na(study), NA_integer_, n_study))],
        file.path(PUBDIR, "fig7_coupling_strip.tsv"), sep = "\t")
 cat("Fig. 7b values:\n"); print(B[, .(dataset = gsub("\n", " ", dataset), n, r = round(r, 3),
                                       lo = round(lo, 3), hi = round(hi, 3), adj = round(adj, 3))])
@@ -74,13 +83,17 @@ pB <- ggplot(B, aes(x = r, y = lab)) +
                 orientation = "y") +
   geom_point(data = B[!is.na(adj)], aes(x = adj), shape = 21, fill = "white", colour = INK,
              size = 1.9, stroke = 0.45) +
+  geom_point(data = B[!is.na(study)], aes(x = study), shape = 23, fill = INK, colour = INK, size = 1.9) +
   geom_text(aes(x = xlab, label = num(r)), hjust = 0, size = pt(7), family = FONT, colour = INK) +
   annotate("point", x = 0.50, y = 2.5, shape = 21, fill = "white", colour = INK, size = 1.9, stroke = 0.45) +
   annotate("text", x = 0.525, y = 2.5, hjust = 0, size = pt(7), family = FONT, colour = INK2,
            label = "after cell-composition markers (post hoc)") +
+  annotate("point", x = 0.50, y = 3.45, shape = 23, fill = INK, colour = INK, size = 1.9) +
+  annotate("text", x = 0.525, y = 3.45, hjust = 0, size = pt(7), family = FONT, colour = INK2,
+           label = sprintf("one value per study (%s = %s, n = %d)", RHO, num(r_study), n_study)) +
   scale_fill_manual(values = c(culture = BLUE, skin = ORANGE),
                     labels = c(culture = "cultured fibroblasts", skin = "bulk skin"), name = NULL) +
-  scale_x_continuous(sprintf("correlation between the splicing set and proliferation (Spearman %s, 95%% CI)", RHO),
+  scale_x_continuous(sprintf("Spearman %s with the proliferation measure named in each row (partial %s for the GTEx rows)\n95%% confidence interval from Fisher's z", RHO, RHO),
                      limits = c(-0.12, 1.06), breaks = seq(-0.2, 1, 0.2), labels = num_axis(1),
                      expand = c(0, 0)) +
   labs(y = NULL) +
@@ -121,21 +134,23 @@ pA <- ggplot() +
   tx(c2, 83, "The age effect in culture", 8, face = "bold") +
   tx(c3, 83, "Bulk skin, same donor pool (GTEx)", 8, face = "bold") +
   ## ---- column 1: what moves proliferative state, and what follows it
-  box(L1, 67, R1, 79.5, fill = CULT) +
-  tx(L1 + 2, 76.3, "slower", 7, hjust = 0, face = "bold") +
-  tx(L1 + 14, 76.3, "donor age, passage,\ncontact inhibition", 7, hjust = 0) +
-  tx(L1 + 2, 70.2, "faster", 7, hjust = 0, face = "bold") +
-  tx(L1 + 14, 70.2, "reprogramming media, secretome,\ngrowth-promoting media", 7, hjust = 0) +
-  arr(c1, 67, c1, 62.3) +
-  box(L1, 52, R1, 62, fill = CULT) +
-  tx(c1, 59, "Proliferative state", 8, face = "bold") +
-  tx(c1, 55, "counted division rate, or a 20-marker\ntranscriptional score (calibrated, Fig. 2e)", 7) +
-  arr(L1 + 11, 52, L1 + 11, 42.3) +
-  tx(L1 + 14, 47, "growth programme:\ntranscribed with the cell cycle,\nMYC targets", 7, hjust = 0) +
-  box(L1, 30, R1, 42, fill = CULT) +
+  box(L1, 66.5, R1, 79.5, fill = CULT) +
+  tx(L1 + 2, 76.6, "slower", 7, hjust = 0, face = "bold") +
+  tx(L1 + 17, 76.6, "donor age, passage,\ncontact inhibition", 7, hjust = 0) +
+  tx(L1 + 2, 71.6, "faster", 7, hjust = 0, face = "bold") +
+  tx(L1 + 17, 71.6, "most secretome preparations", 7, hjust = 0) +
+  tx(L1 + 2, 68.4, "either way", 7, hjust = 0, face = "bold") +
+  tx(L1 + 17, 68.4, "reprogramming media", 7, hjust = 0) +
+  arr(c1, 66.5, c1, 62.8) +
+  box(L1, 49.5, R1, 62.5, fill = CULT) +
+  tx(c1, 60.3, "Proliferative state", 8, face = "bold") +
+  tx(c1, 54.4, "counted division rate, or a 20-marker\ntranscriptional score\n(checked against counting, Fig. 2e)", 7, lh = 0.92) +
+  arr(L1 + 11, 49.5, L1 + 11, 41.8) +
+  tx(L1 + 14, 45.6, "growth programme:\ntranscribed with the cell cycle", 7, hjust = 0) +
+  box(L1, 30, R1, 41.5, fill = CULT) +
   tx(c1, 39, "Splicing-machinery transcripts", 8, face = "bold") +
   tx(c1, 34.5, "177 pre-mRNA processing genes:\nspliceosome, capping, 3′-end processing", 7) +
-  tx(c1, 24, sprintf("%s = 0.71 with the counted division rate\n63 perturbation contrasts: %s = 0.86\n8 of 23 ageing programmes follow the rate too", RHO, RHO), 7, col = INK2) +
+  tx(c1, 22.8, sprintf("%s = 0.71 with the counted division rate\n63 contrasts: %s = 0.86\n8 of 23 ageing programmes follow the rate too\ncollagen formation indifferent (H5, %s = 0.05)", RHO, RHO, RHO), 7, col = INK2) +
   ## ---- column 2: what the age effect in culture contains
   tx(c2, 77.5, "107 adult donors: −0.133 SD per decade", 7) +
   annotate("rect", xmin = L2, xmax = L2 + 0.70 * 56, ymin = 68, ymax = 74, fill = BLUE, colour = NA) +
@@ -144,7 +159,7 @@ pA <- ggplot() +
   tx(L2 + 0.85 * 56, 71, "residual", 7) +
   tx(L2 + 0.85 * 56, 65.8, "−0.040 per decade", 7, col = INK2) +
   tx(c2, 57.5, "The residual is not robust:\nit halves with a second programme in the model,\nand in GTEx cultures it appears only by suppression.\nNo age effect independent of proliferation is reported.", 7) +
-  tx(c2, 44, "The same adjustment removes a median 56% of the\nage effect of 1,000 expression-matched random sets;\nnone reaches the size of this association.", 7, col = INK2) +
+  tx(c2, 44, "The same adjustment removes a median 56% of the\nage effect of the 205 expression-matched random sets\nthat have one; none of 1,000 reaches this size.", 7, col = INK2) +
   tx(c2, 32.5, "Splicing outcome (unannotated junctions) in the\nsame libraries carries no age association.", 7, col = INK2) +
   ## ---- column 3: bulk skin
   box(L3, 67, R3, 79.5, fill = SKIN) +
@@ -156,13 +171,13 @@ pA <- ggplot() +
   arr(L3 + 11, 52, L3 + 11, 42.3, lwd = 0.45, col = GREY, lty = "22") +
   tx(L3 + 14, 47, "coupling weakens", 7, hjust = 0, col = INK2) +
   box(L3, 30, R3, 42, fill = SKIN) +
-  tx(c3, 39, "Splicing-machinery transcripts", 8, face = "bold") +
-  tx(c3, 34.5, sprintf("partial %s = 0.23 and 0.06 at the two sites;\n0.10 and −0.06 after cell-composition markers", RHO), 7) +
-  tx(c3, 24, "collagen formation stays indifferent (H5);\nage effects within GTEx tissues are not read\n(the collagen positive control, H6, failed)", 7, col = INK2) +
+  tx(c3, 39.6, "Splicing-machinery transcripts", 8, face = "bold") +
+  tx(c3, 34.2, sprintf("partial %s = 0.23 and 0.06 at the two sites;\n0.10 and −0.06 after cell-composition\nmarkers (post hoc)", RHO), 7, lh = 0.92) +
+  tx(c3, 22.8, "collagen formation stays small (0.03 and 0.09;\nthe preregistered test, H5, was in culture);\nage effects within GTEx tissues are not read\n(the collagen positive control, H6, failed)", 7, col = INK2) +
   ## ---- reading
   box(3, 3, 177, 13.5, fill = BAND, col = NA) +
   tx(6, 8.3, "Reading", 8, hjust = 0, face = "bold") +
-  tx(22, 8.3, "In a cultured fibroblast, a change in splicing-factor transcripts is first of all a change in proliferative state;\noutside culture the coupling weakens, and the claim stops at the culture dish until it is shown in the tissue of interest.", 7, hjust = 0) +
+  tx(22, 8.3, "In a cultured fibroblast, a change in splicing-factor transcripts is first of all a change in proliferative state;\nin skin the coupling weakens, and the claim stops at the culture dish until it is shown in the tissue of interest.", 7, hjust = 0) +
   coord_cartesian(xlim = c(0, 180), ylim = c(0, 86), expand = FALSE) +
   theme_void() + theme(plot.margin = margin(1, 1, 1, 1))
 

@@ -6,7 +6,7 @@ date: "16 September 2026"
 
 # What this document is
 
-The methylation analysis reported in Supplementary Fig. S9 was planned before the data were seen. The plan below was written in Korean on 16 September 2026, and its SHA-256 digest was recorded before the methylation matrix of GSE179847 was downloaded; the analysis script `scripts/revision/run_methylation_clock.R` recomputes the digest and stops if it does not match. The digest is
+The methylation analysis reported in Supplementary Fig. S7 was planned before the data were seen. The plan below was written in Korean on 16 September 2026, and its SHA-256 digest was recorded before the methylation matrix of GSE179847 was downloaded; the analysis script `scripts/revision/run_methylation_clock.R` recomputes the digest and stops if it does not match. The digest is
 
 `be51a7550c982e2071ebdb80f36ab7098965351c6e14a65434e8df275505d929`
 
@@ -92,7 +92,7 @@ Supporting numbers, none of them preregistered tests. Within the 109 paired cult
 
 # Deviations and post hoc additions
 
-1. **The Hannum clock was added.** The preregistration named Horvath 2013, the skin and blood clock and PhenoAge. Hannum's clock was computed as well, because its coefficient table was obtained at the same time. It is reported only as a supporting comparison in Supplementary Fig. S9d and carries none of the preregistered verdicts.
+1. **The Hannum clock was added.** The preregistration named Horvath 2013, the skin and blood clock and PhenoAge. Hannum's clock was computed as well, because its coefficient table was obtained at the same time. It is reported only as a supporting comparison in Supplementary Fig. S7d and carries none of the preregistered verdicts.
 
 2. **How "untreated healthy cell lines" was operationalised for M1.** The preregistration did not define the phrase. It was taken as the six healthy-donor lines (HC1–HC6) under the study's own `Control` treatment label at 21% oxygen, which gives n = 86. The SURF1 patient lines and every treated or hypoxic culture are excluded from M1 only; M2 uses all 471.
 
@@ -100,4 +100,4 @@ Supporting numbers, none of them preregistered tests. Within the 109 paired cult
 
 4. **Post hoc — the confidence interval reported for M3.** The preregistration fixed a threshold but did not ask for an interval. The Fisher-*z* interval is given in the manuscript and above so that the failure is not read as evidence of absence.
 
-5. **Reporting limit** (recorded 2026-09-17). The preregistration allowed one panel and one paragraph. The analysis is reported as one four-panel supplementary figure (Supplementary Fig. S9: the sanity check M1, the tests M2 and M3, and the supporting clocks; M4 is not drawn, and its estimate is in Supplementary Table 8) so that every outcome is visible, with one Results paragraph, one sentence of Discussion, one Methods subsection and Supplementary Table 8. The claim remains limited as preregistered, and no claim about clocks is made.
+5. **Reporting limit** (recorded 2026-09-17). The preregistration allowed one panel and one paragraph. The analysis is reported as one four-panel supplementary figure (Supplementary Fig. S7: the sanity check M1, the tests M2 and M3, and the supporting clocks; M4 is not drawn, and its estimate is in Supplementary Table 8) so that every outcome is visible, with one Results paragraph, one sentence of Discussion, one Methods subsection and Supplementary Table 8. The claim remains limited as preregistered, and no claim about clocks is made.

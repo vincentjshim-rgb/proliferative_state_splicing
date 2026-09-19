@@ -317,9 +317,9 @@ parts = [f"""# Supplementary Information
 
 [Authors and affiliations to be completed before submission]
 
-This file contains Supplementary Results 1 to 8, Supplementary Figures S1 to S10,
-Supplementary Tables 1 to 9, Supplementary Notes 1 and 2 and the list of Supplementary Data
-files. Supplementary items are numbered in the order in which the main text first cites them.
+This file contains Supplementary Results 1 to 8, Supplementary Figures S1 to S8,
+Supplementary Tables 1 to 10, Supplementary Notes 1 and 2 and the list of Supplementary Data
+files.
 Reference numbers are those of the main reference list. Every number here is reproduced by
 the scripts named in the Code availability statement.
 
@@ -532,7 +532,7 @@ Mean class residual with its 95% confidence interval and the shift detectable wi
           "detectable_shift_80pct_power": lambda v: num(v, 3),
           "class_median_abs_change": lambda v: num(v, 3)})}
 
-## Supplementary Table 5. Specificity of the coupling, and the combined residual age effect
+## Supplementary Table 5. Specificity of the coupling, and the specification range of the residual age effect
 
 All of this table is post hoc.
 
@@ -599,10 +599,12 @@ proliferation score in 511 cultures. The asymmetry is not reproduced.
           "partial_splicing": lambda v: num(v, 2), "partial_comparator": lambda v: num(v, 2),
           "asymmetry": lambda v: num(v, 2)})}
 
-**(d) The two cohorts combined.** Inverse-variance combination of the
-proliferation-adjusted age effects; unadjusted estimates are not combined.
+**(d) The two cohorts, not pooled.** Proliferation-adjusted age effects of the two
+fibroblast cohorts, reported side by side; they are not combined, because one is an
+attenuation and the other a suppression effect in cultures with no unadjusted age effect.
 
 {tsv(D / "residual_meta/residual_age_effect_meta.tsv",
+     rows=lambda x: "combined" not in x["cohort"],
      cols=["gene_set", "cohort", "n", "beta", "lo", "hi", "p"],
      rename={"gene_set": "gene set", "beta": "per decade", "lo": "95% CI lower",
              "hi": "95% CI upper", "p": "P"},
@@ -695,7 +697,7 @@ Note 1.
 
 **(a) Partial correlation with proliferation.** Partial Spearman correlation of each of
 the twenty-five programme scores with the proliferation score in each tissue, after
-regressing out RNA integrity, ischaemic time and library size (the values of Fig. 6c).
+regressing out RNA integrity, ischaemic time and library size (the values of Fig. 6b).
 
 {pivot(D / "gtex_boundary/programme_by_tissue.tsv")}
 
@@ -779,7 +781,7 @@ expression depends strongly on genotype or on sex. The column before the note is
 product of the gene's correlations with sex in the two sample types, that is, the
 concordance that sex alone would produce. For comparison, the preregistered exploratory
 analysis gave {concordance_range(D / "gtex_boundary/donor_concordance_culture_vs_legskin.tsv")}
-(Supplementary Fig. S10c).
+(Supplementary Fig. S8c).
 
 {tsv(D / "gtex_posthoc/donor_identity_positive_control.tsv",
      cols=["gene", "group", "n", "rho", "p", "ceiling_from_sex", "note"],
@@ -788,12 +790,13 @@ analysis gave {concordance_range(D / "gtex_boundary/donor_concordance_culture_vs
      fmt={"rho": lambda v: num(v, 3), "p": lambda v: sig(v),
           "ceiling_from_sex": lambda v: num(v, 3)})}
 
-**(f) The same composition adjustment across programmes (post hoc).** Run on the splicing
+**(f) The same composition adjustment for six sets (post hoc).** Run on the splicing
 sets alone, block (d) cannot distinguish an adjustment that removes splicing's coupling
-from one that flattens the whole proliferation axis. Across programmes the two separate:
-the mitotic cell-cycle positive control and collagen formation do not move, while every
-definition of the splicing set falls, including the two Reactome definitions that were
-not selected in these data (the values of Fig. 6e).
+from one that flattens the proliferation signal. Repeated for the mitotic cell-cycle
+positive control, collagen formation and the two unselected Reactome splicing definitions,
+the two separate: the cell-cycle programme and collagen formation do not move, while every
+definition of the splicing set falls (the values of Fig. 6d). The fibroblast marker score
+contains COL1A1 and COL1A2, so collagen formation is not an independent check.
 
 {tsv(D / "gtex_posthoc/composition_adjusted_all_programmes.tsv",
      cols=["tissue", "set", "rho_tech", "rho_tech_comp", "drop_abs"],
@@ -816,16 +819,16 @@ Machine-readable tables accompany this file.
 
 | File | Deposited as | Contents |
 |---|---|---|
-| Supplementary Data 1 | `SupplementaryData1_contrasts.tsv` | The 63 contrasts with their per-gene score vectors |
+| Supplementary Data 1 | `SupplementaryData1_contrasts.tsv` | The 63 contrasts: change in the 177-gene splicing set, in the cell-cycle set and in the splicing set without the 23 shared genes, with the class of each contrast (`leave_out_defining_series.tsv` in the same folder gives the refit without the three set-defining series) |
 | Supplementary Data 2 | `SupplementaryData2_gtex_programmes_by_tissue.tsv` | Programme scores against proliferation and donor age in every GTEx tissue, with age effects before and after adjustment |
-| Supplementary Data 3 | `SupplementaryData3_gene_level_by_cohort.tsv` | Gene-level age effects before and after adjustment in each of the four cohort definitions |
-| Supplementary Data 4 | `SupplementaryData4_programme_division_rate.tsv` | Division-rate correlations for every programme, with and without cell-cycle genes, and the senescence-set dissection |
-| Supplementary Data 5 | `SupplementaryData5_residual_specification.tsv` | Per-donor values behind the age predictor, and the permuted-age null |
-| Supplementary Data 6 | `SupplementaryData6_composition_adjusted.tsv` | Per-sample methylation clock values with culture metadata, and the table of cultures carrying both a clock and transcriptional scores |
-| Supplementary Data 7 | `SupplementaryData7_library_scores_vs_counted_rate.tsv` | Matched treated-minus-control differences for every treated culture, the full treatment models, and the oxygen contrast |
-| Supplementary Data 8 | `SupplementaryData8_intervention_prediction.tsv` | Per-donor machinery scores behind the specificity analysis, under every splicing definition |
-| Supplementary Data 9 | `SupplementaryData9_senescence_panels.tsv` | The seven senescence panels with their gene lists and per-gene correlations |
-| Supplementary Data 10 | `SupplementaryData10_methylation_tests.tsv` | Out-of-sample predictions and class residuals for the intervention contrasts |
+| Supplementary Data 3 | `SupplementaryData3_gene_level_by_cohort.tsv` | For each of the four cohort definitions: the proliferation–age correlation, the machinery–proliferation correlation, and the number of genes with an age association before and after adjustment for proliferation |
+| Supplementary Data 4 | `SupplementaryData4_programme_division_rate.tsv` | Division-rate correlations for every programme, with and without cell-cycle genes |
+| Supplementary Data 5 | `SupplementaryData5_residual_specification.tsv` | The residual age effect under every model specification — splicing definition, comparator programme and covariate set (Supplementary Table 5) |
+| Supplementary Data 6 | `SupplementaryData6_composition_adjusted.tsv` | Partial correlation with proliferation before and after cell-composition marker scores, for six sets in four tissues (Fig. 6d, Supplementary Fig. S8b) |
+| Supplementary Data 7 | `SupplementaryData7_library_scores_vs_counted_rate.tsv` | Counted division rate, 20-marker proliferation score and the 177- and 96-gene splicing scores for the 328 counted libraries (Figs 2, 5a and 7b) |
+| Supplementary Data 8 | `SupplementaryData8_intervention_prediction.tsv` | Out-of-sample prediction of the intervention classes: contrasts, series, median change and residual under each prediction scheme (Supplementary Fig. S4, Supplementary Results 5) |
+| Supplementary Data 9 | `SupplementaryData9_senescence_panels.tsv` | The seven senescence panels: gene counts, cell-cycle content, correlation with the counted division rate with and without cell-cycle genes, and the age effect before and after adjustment (Supplementary Fig. S6, Supplementary Table 7) |
+| Supplementary Data 10 | `SupplementaryData10_methylation_tests.tsv` | The four preregistered methylation clock tests with their correlations, *P* values, BH-FDR and verdicts (Supplementary Table 8) |
 """)
 
 (OUT / "supplementary.md").write_text("\n".join(parts))
