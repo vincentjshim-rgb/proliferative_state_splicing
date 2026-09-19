@@ -2,7 +2,7 @@
 
 이 파일은 이 프로젝트를 Claude에게 인계할 때 가장 먼저 읽는 지속 지침이다. 과거 작업 요약이 아니라, 이후 분석·해석·그림·원고 작성에서 지킬 연구 설계와 판단 기준을 기록한다.
 
-- 최종 갱신: 2026-09-18 (원고 v10. **재심사 패널 4명 + 편집자 결정(Major revision)을 반영하기 시작했다**: 두 연구 역분산 결합 추정치 철회, GTEx 잔여를 suppression으로 명시, 피부 내부 양성 대조를 Fig. 6 패널 e로 승격, 대리 지표 품질을 Fig. 2 패널 f로 신설, 사전등록 스코어카드를 보충 표 9로 이동, 제목을 *weakens in skin*으로 확정(§19). 그 앞은 v9. **로컬 자료를 전부 내리고 공개 자료 재분석으로 확정**했고, 선행 연구는 고찰의 인용으로 잇는다(§4·§18). 그 앞은 v8의 **본문 그림 8 → 6장 일직선 재편**: 관찰 → 측정된 분열 속도 → 증식이 설명하는 몫 → 63개 대비 → 23개 프로그램 → 사전등록 조직 경계. 곁가지 분석은 전문을 보충 Results 1–8로 옮기고 본문에는 결과를 밝힌 짧은 포인터만 남겼다. 제목 변경. 재편 과정에서 나온 오류 다수 수정(§8 끝의 '2026-09-17 수정 기록'))
+- 최종 갱신: 2026-09-19 (원고 v11. **개념 요약 Fig. 7 신설, 근육 강등, Results 절 사이 예측 문장으로 논리 사슬 보강**(§22). 그 앞은 2026-09-18 v10. **재심사 패널 4명 + 편집자 결정(Major revision)을 반영하기 시작했다**: 두 연구 역분산 결합 추정치 철회, GTEx 잔여를 suppression으로 명시, 피부 내부 양성 대조를 Fig. 6 패널 e로 승격, 대리 지표 품질을 Fig. 2 패널 f로 신설, 사전등록 스코어카드를 보충 표 9로 이동, 제목을 *weakens in skin*으로 확정(§19). 그 앞은 v9. **로컬 자료를 전부 내리고 공개 자료 재분석으로 확정**했고, 선행 연구는 고찰의 인용으로 잇는다(§4·§18). 그 앞은 v8의 **본문 그림 8 → 6장 일직선 재편**: 관찰 → 측정된 분열 속도 → 증식이 설명하는 몫 → 63개 대비 → 23개 프로그램 → 사전등록 조직 경계. 곁가지 분석은 전문을 보충 Results 1–8로 옮기고 본문에는 결과를 밝힌 짧은 포인터만 남겼다. 제목 변경. 재편 과정에서 나온 오류 다수 수정(§8 끝의 '2026-09-17 수정 기록'))
 - 직전 상태(v7, 그림 8장): `archive/2026-09-17_before_six_figure_restructure/`
 - 직전 판(v5, 2026-09-14): `archive/2026-09-15_before_cohort_redefinition/CLAUDE_2026-09-15_v5.md`. 그림과 원고 사본도 같은 디렉터리에 있다.
 - 그 이전 판(Repro-CM stress–senescence decoupling 방향, 2026-09-11): `archive/CLAUDE_2026-09-11_repro_cm_decoupling.md`.
@@ -31,9 +31,9 @@
 
 한 문장 주장:
 
-> In cultured human fibroblasts the abundance of splicing-factor transcripts is a readout of proliferative state; the coupling does not transfer to skin or muscle.
+> In cultured human fibroblasts the abundance of splicing-factor transcripts is a readout of proliferative state; in skin from the same donor pool the coupling weakens while the same score still recovers the replication programmes. (Skeletal muscle cannot test it and is reported as a preregistered outcome only, §22.)
 
-> 배양 인간 섬유아세포에서 splicing factor 전사체의 양은 증식 상태의 읽기값이며, 이 결합은 피부와 근육으로 옮겨지지 않는다.
+> 배양 인간 섬유아세포에서 splicing factor 전사체의 양은 증식 상태의 읽기값이며, 같은 공여자 집단의 피부에서는 같은 점수가 복제 프로그램은 여전히 회수하는데도 이 결합은 약해진다. (골격근으로는 검정할 수 없어 사전등록 결과로만 보고한다, §22.)
 
 다음과 같이 더 강한 문장으로 바꾸지 않는다.
 
@@ -224,7 +224,8 @@ else:
 | 3 | 증식이 연령 연관의 얼마를 설명하고 무엇이 남는가(무작위 집합 대조 포함) | `make_sa_fig3merged.R` |
 | 4 | 63개 대비에서 결합이 일반화되는가 | `make_sa_fig3.R` |
 | 5 | 어떤 노화 프로그램이 분열 읽기값인가 | `make_sa_fighall.R` |
-| 6 | 결합은 조직에서도 성립하는가(사전등록 GTEx, **패널 d: 구성 보정의 프로그램별 비교**) | `make_sa_figgtex.R` (Fig6.png·FigS10.png·보충 표 9 스코어카드를 함께 쓴다) |
+| 6 | 결합은 조직에서도 성립하는가(사전등록 GTEx, **패널 a: 배양·하지 피부·치골상부 피부**(근육은 b의 heatmap에만), **패널 d: 구성 보정의 프로그램별 비교**) | `make_sa_figgtex.R` (Fig6.png·FigS8.png·보충 표 9 스코어카드를 함께 쓴다) |
+| 7 | 연구 전체 개념도 + 모든 자료의 결합을 한 줄로(2026-09-19 신설, §22) | `make_sa_fig7summary.R` (`fig7_coupling_strip.tsv`도 쓴다) |
 | S1 | 처리로 증식을 섭동해도 결합이 유지되는가 | `make_sa_figpert.R` |
 | S2 | 어떤 유전자가 연령 연관을 유지하는가 | `make_sa_figS_gene.R` |
 | S3 | splicing outcome 지표와 event 수준 splicing(2026-09-18 병합, 5패널) | `make_sa_figS_outcome.R` |
@@ -379,6 +380,16 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 **검증에서 함께 잡은 오래된 오류 4개** (로컬 제거와 무관): Metabolism of RNA ρ 0.77 → **0.76**, translation 0.58 → **0.57**, ECM organisation −0.59 → **−0.60**(`fig6_other_programmes.tsv`), 종류 잔차 원시 *P* 0.25–0.94/BH 0.94 → **0.22–0.85/BH 0.85**(`fig6_class_residuals.tsv`). 마지막 것은 Fig. 4c 패널 주석에도 0.94로 박혀 있어 파일을 읽도록 고쳤다(`make_sa_fig3.R`). 그림 주석에 통계값을 문자열로 박지 않는다.
 
 **되돌리려면**: `scripts/revision/run_stats_supplements.R`의 `INCLUDE_LOCAL <- FALSE`를 TRUE로 바꾸고 `run_interventions.R`·`make_supp_tables.R`·`make_sa_fig3.R`·`make_bio_fig6.R`·`make_splicing_fig.R`을 되돌린 뒤 그림과 표를 다시 만든다. 그 전에 §8의 3,118개 유전자 표 문제를 먼저 고쳐야 한다.
+
+## 22. 개념 요약 그림, 근육 강등, 논리 사슬 (2026-09-19, 사용자 요청; 원고 v11)
+
+**Fig. 7 신설** (`scripts/make_sa_fig7summary.R` → `Fig7.png`; 고찰 첫 문단 끝과 신설된 둘째 문단에서 인용). 사용자가 Sturm et al. 2023 *Commun. Biol.* (s42003-022-04303-x) Fig. 9 같은 연구 전체 개념도를 요청했다. (a) 배양 / 배양의 연령 효과 / bulk 피부 세 열의 도식에 원고 수치를 실었고, (b) 자료 7행의 결합을 Results 순서로 늘어놓은 막대 + Fisher *z* 95% CI: 센 속도 0.71, 비선택 Reactome mRNA splicing 0.63, 공여자 107명 **Spearman 0.91**(본문 Fig. 3a는 Pearson 0.89 — 범례에 밝혔다), 63개 대비 0.86, GTEx 배양 0.74, 피부 0.23·0.06(+ 구성 보정 후 0.10·−0.06을 빈 기호로). **(b)의 값은 전부 산출 표에서 계산하고, (a)에 적은 수치는 `chk()`로 같은 표와 대조한 뒤에야 그림을 쓴다.** 근육은 그리지 않는다(범례에 이유). §21의 "자료 없는 flowchart 금지"의 유일한 예외이며, 자료 패널 (b)와 짝지어 둔다. 값 파일 `figures_sciadv/fig7_coupling_strip.tsv`.
+
+**근육 강등(사용자 결정: "근육은 검정할 수 없는데 굳이 언급 안 해도").** 잠긴 H3 판정과 보고 의무는 그대로다(보충 표 9·10, Fig. 6b heatmap). 내린 곳: 초록, 서론 마지막 문장, 6절 제목, Fig. 6 제목과 **패널 a(셋째 facet을 골격근 → 비노출 피부로 교체; `SC`/`LB`/`STRIP`)**, 기울기 목록과 구성 보정 문장의 근육 값, 고찰 첫 문단과 조직 문단. 남긴 곳: 6절 둘째 문단 끝의 한 문장(H3 값 −0.12 + 증식 점수가 어떤 프로그램도 회수 못 함 + 근거로 쓰지 않음), 고찰 조직 문단의 한 문장(refs 29·30을 유지하려고), 한계 문단("피부와 골격근만"), Methods. 커버레터의 근육 한 문장은 편집자 BC2 대응이므로 유지.
+
+**논리 사슬 보강(사용자 질문: "다 독립된 자료라 각 연결점이 약하다").** 해법은 각 절 첫머리에 **앞 절이 내놓는 예측**과 **넘어가는 도구**를 적는 것이다. 2절: Fig. 1a에서 세포주기가 앞선다 → 센 속도를 따라가야 한다. 3절: Fig. 2의 결합이 Fig. 1b의 연령 효과를 만든다면 보정이 대부분을 없애야 하며, 20개 marker 점수는 Fig. 2e에서 계수에 대해 보정한 도구다. 4절: 연령·계대만이 아니라 어떤 섭동이든 움직여야 한다. 5절: Fig. 4가 이미 기계 전체를 보였다 → 다른 프로그램도 읽기값일 수 있다. 6절: 분열하는 세포의 성질이면 조직에서 약해지고 복제 프로그램은 회수되며 collagen은 무관해야 한다(복제 프로그램 회수는 **사전등록 아님, 내부 대조**라고 명시). 고찰 둘째 문단(신설)이 "시료를 공유하지 않는 자료 + 두 도구(177개 집합, 보정된 증식 점수) + 예측 사슬"을 정리하고 Fig. 7b를 가리킨다. 사슬 값: 모든 배양 자료에서 ρ 0.63–0.91, 조직에서만 약해진다.
+
+**함께 고친 것.** GTEx 배양의 CI "0.69 to 0.78"은 어떤 산출물에도 없는 값이었다 → Methods가 말하는 Fisher *z*(완전 사례 n)로 **0.70–0.78**, 비노출 피부 **−0.02–0.13**(하지 피부 0.15–0.29는 그대로). 한글판의 묵은 인용 3건(Fig. 6d → 6c 두 곳, Methods의 보충 Fig. S8 → S6)과 깨진 문장 1건("공여자의 그러나"), 영문 4절의 빠진 마침표, 한글 4절의 중첩 괄호. 초록 245단어. `xref.py`의 H3/H4/H6·"보충 표 6·10" 불일치 보고는 정규식 한계(한글 조사, "Tables 6 and 10")이지 실제 불일치가 아니다.
 
 ## 21. 그림 형식 정리 (2026-09-19, 사용자 요청)
 

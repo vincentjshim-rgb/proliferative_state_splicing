@@ -1,12 +1,13 @@
 ## Fig. 6. Is the coupling a property of culture?  Preregistered GTEx boundary test.
-## Main figure (Fig6.png), 96-gene splicing set throughout:
-##   a  samples from the GTEx donor pool
-##   b  the 96 splicing genes against the proliferation score in culture, skin, muscle
-##   c  partial rho with proliferation for every programme in every tissue
-##   d  age effect per decade before and after proliferation adjustment in two
-##      fibroblast cohorts, and (set apart, post hoc) the two adjusted estimates combined
-##   e  the six preregistered hypotheses
-## Supplementary figure (FigS10.png), written by the same script:
+## Main figure (Fig6.png), 96-gene splicing set throughout (panel letters as of 2026-09-19):
+##   a  the 96 splicing genes against the proliferation score in culture and the two
+##      skin sites (muscle is reported in b and in Supplementary Table 9 only)
+##   b  partial rho with proliferation for every programme in every tissue
+##   c  age effect per decade before and after proliferation adjustment in two
+##      fibroblast cohorts (not pooled)
+##   d  post hoc: the skin couplings before and after cell-composition markers
+## The six preregistered hypotheses go to Supplementary Table 9 (preregistered_scorecard.tsv).
+## Supplementary figure (FigS8.png), written by the same script:
 ##   a  regression slope by tissue and variance-matched subsampling        (post hoc)
 ##   b  coupling before and after cell-composition adjustment              (post hoc)
 ##   c  donor concordance between culture and skin (preregistered secondary analysis)
@@ -42,14 +43,16 @@ NPAIR <- CNT[tissue == "culture"]$paired_with_legskin
 
 ## ---------------- b. the splicing genes against proliferation --------------------
 ## the y axis is given headroom so that the statistic never sits on the points
-SC <- rbindlist(lapply(c("culture","legskin","muscle"), function(tk) { T <- TS[[tk]]
+## 2026-09-19: the third panel shows the second skin site rather than muscle -- the
+## title claims skin, and muscle is reported as a preregistered outcome only (Supplementary Table 9)
+SC <- rbindlist(lapply(c("culture","legskin","pubskin"), function(tk) { T <- TS[[tk]]
   data.table(tk = tk, x = T$d$prolif, y = T$S[, "splicing 96"]) }))
-SC[, tk := factor(tk, levels = c("culture","legskin","muscle"))]
-LB <- data.table(tk = factor(c("culture","legskin","muscle"), levels = levels(SC$tk)),
-  txt = sapply(c("culture","legskin","muscle"), function(tk)
+SC[, tk := factor(tk, levels = c("culture","legskin","pubskin"))]
+LB <- data.table(tk = factor(c("culture","legskin","pubskin"), levels = levels(SC$tk)),
+  txt = sapply(c("culture","legskin","pubskin"), function(tk)
     sprintf("partial %s = %s\n%s\nn = %d donors", RHO, num(G(tk, "splicing 96", "rho_prolif")),
             pfmt(G(tk, "splicing 96", "p_prolif")), G(tk, "splicing 96", "n"))))
-STRIP <- c(culture = "cultured fibroblasts", legskin = "skin, sun-exposed", muscle = "skeletal muscle")
+STRIP <- c(culture = "cultured fibroblasts", legskin = "skin, sun-exposed", pubskin = "skin, not exposed")
 pB <- ggplot(SC, aes(x, y)) +
   geom_point(aes(colour = tk), size = 0.5, alpha = 0.4) +
   geom_smooth(aes(colour = tk, fill = tk), method = "lm", formula = y ~ x, linewidth = 0.55, alpha = 0.15) +
