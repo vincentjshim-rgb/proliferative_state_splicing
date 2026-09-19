@@ -245,7 +245,7 @@ cat("\nSupplementary Table 10 (preregistered scorecard) written\n")
 top <- lab_grid(pB, labels = "a", ncol = 1)
 save_fig(plot_grid(top, lab_grid(pC, labels = "b", ncol = 1),
                    lab_grid(pD, pF, labels = c("c", "d"), ncol = 2, rel_widths = c(0.95, 1.05)),
-                   ncol = 1, rel_heights = c(50, 53, 56)), "Fig6.png", 183, 165)
+                   ncol = 1, rel_heights = c(50, 53, 56)), "Fig7.png", 183, 165)
 
 ## ================= Supplementary Fig. S10: post hoc tissue analyses and donor concordance
 TN <- c(culture = "cultured\nfibroblasts", legskin = "skin,\nsun-exposed",

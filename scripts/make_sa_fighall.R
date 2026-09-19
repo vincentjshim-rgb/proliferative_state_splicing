@@ -246,4 +246,4 @@ pE <- plot_grid(
 top <- lab_grid(pA, pB, labels = c("a", "b"), ncol = 2, rel_widths = c(0.9, 1.1))
 ## panel c is wider than before so that its gutter holds the three set-level labels
 bot <- lab_grid(pC, pD, pE, labels = c("c", "d", "e"), ncol = 3, rel_widths = c(1.07, 1.00, 1.28))
-save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.34, 1)), "Fig5.png", 183, 164)
+save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.34, 1)), "Fig6.png", 183, 164)

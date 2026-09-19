@@ -230,4 +230,4 @@ p <- ggplot() +
   coord_fixed(ratio = 1, xlim = c(0, W), ylim = c(0, H), expand = FALSE) +
   theme_void() + theme(plot.margin = margin(1, 1, 1, 1),
                        plot.background = element_rect(fill = "white", colour = NA))
-save_fig(p, "Fig7.png", W + 2, H + 2)
+save_fig(p, "Fig8.png", W + 2, H + 2)

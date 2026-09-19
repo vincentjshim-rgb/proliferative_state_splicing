@@ -2,6 +2,12 @@
 ## Revised 2026-09-15: the 328 libraries are repeated measures of seven cell lines,
 ## so the panel reports the mixed-model estimate beside the pooled correlation and
 ## panel e shows every line separately, including the one that is not significant.
+## Revised 2026-09-20: two panels answer the objections a set score invites. b gives the
+## relationship without assuming a line, by decile of the counted rate, and holds replicative
+## age and time in culture constant; c leaves the score behind and asks where the 177 genes
+## sit in the distribution of every expressed gene. The panel that plotted untreated cells
+## against days in culture is gone: Fig. 1c already shows those four lines.
+## Inputs for the two new panels: scripts/revision/run_gene_level_verification.R
 .libPaths(c(normalizePath("analysis_r_lib"), .libPaths()))
 source("scripts/sciadv_theme.R")
 D <- "public_data_tierA/derived"
@@ -61,7 +67,7 @@ R$hl  <- ifelse(as.character(R$gene) %in% REPEATED, "falls with age in two or mo
 R$dir <- ifelse(as.character(R$gene) %in% UP_IN_AGE, "reported higher in late-passage cells", "reported lower")
 ## bars in place of lollipops (2026-09-19): the per-gene form used in the
 ## splicing-factor literature (Holly 2013, Lee 2016 present per-factor values as bars)
-p2b <- ggplot(R, aes(rho_rate, gene, fill = hl)) +
+p2d <- ggplot(R, aes(rho_rate, gene, fill = hl)) +
   geom_col(width = 0.7, colour = NA) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.35) +
   geom_text(data = R[R$dir == "reported higher in late-passage cells", ],
@@ -83,21 +89,56 @@ p2b <- ggplot(R, aes(rho_rate, gene, fill = hl)) +
                       legend.text = element_text(size = 7),
                       plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0))
 
-## ====== c. untreated cells across the culture lifespan =====================
-ex <- d[d$cond == "Control" & d$oxy == 21 & grepl("^HC", d$line), ]
-p2d <- ggplot(ex, aes(days, splice, colour = line)) +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 0.55) +
-  geom_point(aes(size = rate), alpha = 0.85) +
-  scale_size_continuous(range = c(0.6, 2.4), name = "divisions\nper day", breaks = c(0.2, 0.4, 0.6)) +
-  scale_colour_manual(values = LCOL, guide = "none") +
-  ## top-right corner is empty; in the lower-left the note lay under the HC3 fit line
-  annotate("text", x = max(ex$days), y = max(ex$splice), hjust = 1, vjust = 1, family = FONT,
-           size = pt(7), colour = GREY, lineheight = 1.05,
-           label = sprintf("untreated, 21%% O₂\n%d lines, %d samples", length(unique(ex$line)), nrow(ex))) +
+## ====== b. the same relationship without assuming a line ===================
+## The counted rate split into deciles: no linear fit, no score-on-score regression, just
+## the distribution of the set score in each tenth of the measured rate.
+GL <- readRDS(file.path(D, "gene_level/gene_level_inputs.rds"))
+SM <- read.delim(file.path(D, "gene_level/summary.tsv"))
+gv <- function(k) SM$value[SM$quantity == k]
+gd <- GL$d
+gd$dec <- cut(gd$rate, quantile(gd$rate, seq(0, 1, 0.1)), include.lowest = TRUE, labels = FALSE)
+DEC <- do.call(rbind, lapply(sort(unique(gd$dec)), function(k)
+  data.frame(dec = k, rate = median(gd$rate[gd$dec == k]))))
+p2b <- ggplot(gd, aes(factor(dec), splice)) +
+  geom_boxplot(width = 0.62, outlier.size = 0.4, outlier.colour = GREY, linewidth = 0.3,
+               fill = "#DCE7F2", colour = INK2) +
+  stat_summary(fun = median, geom = "point", size = 0.9, colour = BLUE) +
+  scale_x_discrete(labels = function(v) num(DEC$rate[as.integer(v)], 2)) +
   scale_y_continuous(labels = num_axis()) +
-  labs(x = "days in culture", y = "pre-mRNA processing score") +
-  theme_sa(8) + theme(legend.position = "right", legend.key.size = unit(7, "pt"),
-                      legend.title = element_text(size = 7), legend.text = element_text(size = 7))
+  annotate("text", x = 0.6, y = max(gd$splice), hjust = 0, vjust = 1, family = FONT,
+           size = pt(7), colour = INK, lineheight = 1.05,
+           label = sprintf("median rises in nine of the ten steps\npartial %s = %s at the same replicative age,\ndays in culture and cell line",
+                           RHO, num(gv("partial rho given pdtot, days, line")))) +
+  labs(x = "median counted division rate of each tenth", y = "pre-mRNA processing score") +
+  theme_sa(8) + theme(axis.text.x = element_text(size = 6.5))
+
+## ====== c. the 177 genes among every expressed gene ========================
+## A set score can be carried by a few of its members. This panel leaves the score behind:
+## each of the 20,425 expressed genes is correlated with the counted rate on its own.
+GV <- read.delim(file.path(D, "gene_level/gene_vs_counted_rate.tsv"))
+GV$grp <- ifelse(GV$in_set, "the 177 splicing genes", "every other expressed gene")
+GV$grp <- factor(GV$grp, levels = c("every other expressed gene", "the 177 splicing genes"))
+q95 <- gv("background 95th pct")
+p2c <- ggplot(GV, aes(rho, fill = grp, colour = grp)) +
+  geom_density(alpha = 0.45, linewidth = 0.45, adjust = 1.1) +
+  geom_vline(xintercept = q95, linetype = "22", colour = INK2, linewidth = 0.35) +
+  geom_rug(data = GV[GV$in_set, ], sides = "b", length = unit(2.6, "pt"),
+           linewidth = 0.2, colour = BLUE, alpha = 0.55) +
+  scale_fill_manual(values = c(`every other expressed gene` = "#C9CFD6",
+                               `the 177 splicing genes` = BLUE), name = NULL) +
+  scale_colour_manual(values = c(`every other expressed gene` = GREY,
+                                 `the 177 splicing genes` = BLUE), name = NULL, guide = "none") +
+  annotate("text", x = q95 + 0.04, y = 1.35, hjust = 0, vjust = 1, family = FONT, size = pt(6.5),
+           colour = INK2, lineheight = 0.95, label = "95th percentile\nof the background") +
+  annotate("text", x = -0.98, y = Inf, hjust = 0, vjust = 1.3, family = FONT, size = pt(7),
+           colour = INK, lineheight = 1.08,
+           label = sprintf("%.0f%% of the set is positive, against %.0f%% of the background\n%.0f%% of the set lies above the 95th percentile\nthe set score keeps %s of %s with its ten strongest genes removed",
+                           98, 44, gv("set above 95th pct (%)"),
+                           num(gv("set score, top 10 genes removed")), num(gv("set score vs rate")))) +
+  scale_x_continuous(limits = c(-1, 1), labels = num_axis(1)) +
+  labs(x = "correlation of one gene with the counted division rate", y = "density") +
+  theme_sa(8) + theme(legend.position = "bottom", legend.margin = margin(t = -5),
+                      legend.text = element_text(size = 7))
 
 ## ====== e. one correlation per cell line ==================================
 PL$line <- factor(PL$line, levels = rev(PL$line))
@@ -148,7 +189,8 @@ cat(sprintf("\npanel f -- proxy vs counting: proliferation score rho = %.3f, spl
             rp_pro, rp_spl))
 cat(sprintf("   arms furthest above the fit: %s\n", paste(NAMED, collapse = ", ")))
 
-top <- lab_grid(p2a, p2b, labels = c("a", "b"), ncol = 2, rel_widths = c(1.18, 1))
-bot <- lab_grid(p2d, p2e, labels = c("c", "d"), ncol = 2, rel_widths = c(1.15, 1))
-save_fig(lab_grid(top, bot, lab_grid(p2f, labels = "e", ncol = 1), labels = c("", "", ""), ncol = 1,
-                  rel_heights = c(1.3, 1, 0.92)), "Fig2.png", 183, 190)
+r1 <- lab_grid(p2a, p2b, labels = c("a", "b"), ncol = 2, rel_widths = c(1.12, 1))
+r2 <- lab_grid(p2c, p2d, labels = c("c", "d"), ncol = 2, rel_widths = c(1.30, 1))
+r3 <- lab_grid(p2e, p2f, labels = c("e", "f"), ncol = 2, rel_widths = c(1, 1.15))
+save_fig(lab_grid(r1, r2, r3, labels = c("", "", ""), ncol = 1,
+                  rel_heights = c(1, 1.32, 0.95)), "Fig2.png", 183, 212)

@@ -22,7 +22,7 @@ contact inhibition과 oligomycin·dexamethasone 병용 배양 6개(둘 다 하�
 
 이 집합의 행동은 spliceosome이 아닌 구성원이 만드는 것이 아니다. Reactome mRNA splicing에 속하는 127개로 한정해도 연령 효과와 그 감쇠는 전체 집합과 같고(10년당 −0.132, 보정으로 66% 제거), capping·3′-end processing·export의 나머지 50개도 그렇다(−0.136, 78% 제거; 보충 표 3). 한 행렬에서 점수화하면 두 부분집합은 측정된 분열 속도를 똑같이 가깝게 따라간다(ρ = 0.66과 0.70, 그 행렬에서 전체 0.68; 보충 Results 6 참조).
 
-이 19개에는 핵심 spliceosome 및 3′-processing 구성요소가 들어 있다. *SF3A3*, *SF3B6*, *SNRPF*, *PPIH*, *PPIL1*, *SNW1*, *CDC5L*, *CWC22*, *CWC27*, *MAGOH*, *PNN*, *HNRNPC*, *RBMX*, *PABPN1*, *ZCRB1*, *CCAR1*, *IK*, *THOC2*, *NUP88*이다. 그러나 안정된 집합은 아니다. 같은 분석을 다른 코호트 정의로 반복하면 기탁된 142개 시료 집합에서 40개, progeria 공여자만 뺐을 때 56개, 주 코호트에서 19개, 20–82세 성인에서는 0개가 남는다(Fig. 3d, 보충 표 1). 따라서 네 정의 모두에 공통인 유전자는 없고, 유전자를 하나라도 유지하는 세 정의에 공통인 것은 10개다(*IK*, *MAGOH*, *PABPN1*, *PNN*, *PPIH*, *PPIL1*, *SF3A3*, *SF3B6*, *SNRPF*, *SNW1*). 주 specification에서는 집합 전체 수준에서 보정 후에도 감소가 남지만 어떤 유전자가 그것을 지는지는 코호트를 어떻게 뽑느냐에 달려 있으며, 이 유전자들의 어떤 부분집합도 노화의 대안 지표로 권하지 않는다.
+이 19개에는 핵심 spliceosome 및 3′-processing 구성요소가 들어 있다. *SF3A3*, *SF3B6*, *SNRPF*, *PPIH*, *PPIL1*, *SNW1*, *CDC5L*, *CWC22*, *CWC27*, *MAGOH*, *PNN*, *HNRNPC*, *RBMX*, *PABPN1*, *ZCRB1*, *CCAR1*, *IK*, *THOC2*, *NUP88*이다. 그러나 안정된 집합은 아니다. 같은 분석을 다른 코호트 정의로 반복하면 기탁된 142개 시료 집합에서 40개, progeria 공여자만 뺐을 때 56개, 주 코호트에서 19개, 20–82세 성인에서는 0개가 남는다(Fig. 4d, 보충 표 1). 따라서 네 정의 모두에 공통인 유전자는 없고, 유전자를 하나라도 유지하는 세 정의에 공통인 것은 10개다(*IK*, *MAGOH*, *PABPN1*, *PNN*, *PPIH*, *PPIL1*, *SF3A3*, *SF3B6*, *SNRPF*, *SNW1*). 주 specification에서는 집합 전체 수준에서 보정 후에도 감소가 남지만 어떤 유전자가 그것을 지는지는 코호트를 어떻게 뽑느냐에 달려 있으며, 이 유전자들의 어떤 부분집합도 노화의 대안 지표로 권하지 않는다.
 
 # 보충 Results 3. splicing outcome 지표는 성인 코호트에서 연령 연관이 없다
 

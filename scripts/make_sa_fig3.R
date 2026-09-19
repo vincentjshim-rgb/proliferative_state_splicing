@@ -177,4 +177,4 @@ pD <- ggplot(NL, aes(rho)) +
 
 top <- lab_grid(pA, pC, labels = c("a", "c"), ncol = 2, rel_widths = c(1.12, 1))
 bot <- lab_grid(pB, pD, labels = c("b", "d"), ncol = 2, rel_widths = c(2.3, 1))
-save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.42, 1)), "Fig4.png", 183, 138)
+save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.42, 1)), "Fig5.png", 183, 138)
