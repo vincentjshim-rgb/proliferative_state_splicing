@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Rebuild manuscript_splicing_v2{,_ko}.{docx,html}: web-size figures embedded in the reading pages.
+# The .html files are complete documents (doctype, charset, viewport), so they can be opened
+# from disk. To publish one where the host supplies its own skeleton, pass it through
+#   python3 scripts/artifact_build/standalone.py strip in.html out.html
 # Masthead title and summary strip live in tpl_v5*.html; edit them when the title or headline numbers change.
 set -euo pipefail
 WS="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"

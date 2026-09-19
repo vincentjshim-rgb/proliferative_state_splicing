@@ -49,5 +49,9 @@ navhtml = "".join(f'<a class="nv l{lvl}" href="#{hid}">{html.escape(txt)}'
                   f'{f"<em>{f}</em>" if f else ""}</a>' for lvl, hid, txt, f in nav)
 TPL = (S / f"tpl_v5{lang}.html").read_text()
 out = TPL.replace("<!--NAV-->", navhtml).replace("<!--BODY-->", body)
+## a complete document, so the file can be opened from disk as well as published
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import standalone
+out = standalone.wrap(out, "ko" if lang == "_ko" else "en")
 (S / f"art_v5{lang}.html").write_text(out)
 print(f"lang{lang or '_en'}: figures {nfig}, nav {len(nav)}, bytes {len(out):,}")
