@@ -40,3 +40,6 @@ JTE-Aug-26-0256*.pdf
 # Superseded versions: hundreds of MB of old figures, and copies that still contain the
 # withdrawn local contrast. The revision history is in CLAUDE.md and revision_response_ko.md.
 archive/
+
+# Simulated review pages (local reading copies; not for the public repository)
+review_pages/

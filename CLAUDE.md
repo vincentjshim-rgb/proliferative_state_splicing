@@ -337,10 +337,11 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 - 투고 서류(2026-09-16 작성): `supplementary_information.pdf`(+ `.docx`, 빌드 `bash scripts/artifact_build/build_supplementary_pdf.sh`) — 보충 Results 1–8, 보충 그림 S1–S8, 표 1–10, Note 1–2, Supplementary Data 목록을 단일 PDF로(86쪽). `cover_letter_geroscience.md`(+ `.docx`, 한글판 `_ko.md`)
 - 투고 규정 대조: `submission_checklist_ko.md` (2026-09-16 저널 페이지 직접 대조, 남은 항목 7개)
 - 대응 기록: `revision_response_ko.md` — 모의 심사 지적별로 무엇을 어떻게 고쳤는지와 남은 항목
-- 합본 읽기 페이지: `revision_bundle_ko.html` (1부 대응 기록, 2부 원고 v6 한글 전문과 그림 11개, 3부 모의 심사 전문). 빌드는 `bash scripts/artifact_build/build_review_bundle.sh`, 아티팩트 https://claude.ai/artifact/T3vfcBDCod3bMzd1Da8bga
+- 합본 읽기 페이지: `revision_bundle_ko.html` (1부 대응 기록, 2부 원고 v6 한글 전문과 그림 11개, 3부 모의 심사 전문). 빌드는 `bash scripts/artifact_build/build_review_bundle.sh`, 아티팩트 https://claude.ai/artifact/4pfbcSCkBZFyc5twWiAVot (2026-09-19 새 계정으로 재게시)
 - 개정 설계서: `scripts/revision/FIGURE_SPEC.md`(그림 번호 변경, 새 수치, 타이포그래피 규칙), `scripts/revision/references_v6.md`(참고문헌 36개와 자료 분류 확인, §7에 거명 유전자 출처 판정)
 - 사전등록: `preregistration_gtex_culture_tissue_boundary_ko.md`, 결과 `results_gtex_culture_tissue_boundary_ko.md`, 영문판 `supplementary_note1_preregistration_en.md`, 사후 분석 `results_gtex_posthoc_ko.md`, 프로그램 재계산 `results_hallmark_revised_ko.md`. **methylation**: `preregistration_methylation_clock_ko.md`, 영문판·결과 `supplementary_note2_preregistration_methylation_en.md`, 산출물 `public_data_tierA/derived/methylation_clock/`
 - 읽기용 아티팩트(**2026-09-19 새 계정 k0611c@gmail.com으로 재게시** — 이전 계정의 `PtwCBB7Y…`/`5hYrp2ow…` 링크는 이 계정에서 갱신 불가): 영문 https://claude.ai/artifact/TwvN7zBRxMxXpEg4ZrChjY , 한글 https://claude.ai/artifact/KH59jVRBduohNoJtqqAw93 . 모의 심사 https://claude.ai/artifact/N4ikBartGYSpgcN2Fs6R38 . 다시 게시할 때는 이 URL을 `url`로 넘긴다(`/code/artifact/` 형식 URL은 fetch가 실패한다)
+- **리뷰 페이지 로컬 사본**(git 제외, `review_pages/`): 편집자 결정문 `editorial_decision_20260918.html`, 리퍼리 4명 요약 `referee_reports_20260918.md`, 스토리 지도 `story_map_20260919.html`(아티팩트 https://claude.ai/artifact/6juTkLDKRePKVjuHU5aMP4 ), 합본 `revision_bundle_ko.html`. 계정이 바뀌면 아티팩트 링크는 죽으므로 이 사본이 기준이다.
 - 결과 디렉터리(`public_data_tierA/derived/`): `cohort_revised/`, `revision_stats/`, `hallmark_revised/`, `gtex_posthoc/`, `psi_cohorts/`, `interventions_revised/`, `methylation_clock/`, `treatment_perturbation/`, `machinery_specificity/`, `residual_meta/`, `senescence_panels/`, `interventions_revised/`(표본 외 예측 포함), `division_rate/`, `conserved_core/`, `gtex_boundary/`, `figures_sciadv/`
 ## 16. 작업 순서
 
@@ -407,7 +408,7 @@ methylation 사전등록 판정: M1 지지, M2·M3·M4 불지지(§7 S4). 사전
 
 ## 19. 재심사 패널과 편집자 결정 (2026-09-18)
 
-리뷰어 4명 전원 **Major revision**, reject 없음. 사전등록 해시·그림 주석·헤드라인 수치 재계산에서 오류 0건. 결정문 아티팩트 https://claude.ai/artifact/7H63hPbzfetBxE8HmmwBpu
+리뷰어 4명 전원 **Major revision**, reject 없음. 사전등록 해시·그림 주석·헤드라인 수치 재계산에서 오류 0건. 결정문 아티팩트 https://claude.ai/artifact/MNLXonfYkHcHbq1rpt953K (2026-09-19 재게시; 옛 `7H63hPbz…`는 이전 계정 소유)
 
 **핵심 판정.** 기여 (ii)("두 코호트에서 재현되는 잔여 연령 효과")는 **철회**한다. GTEx 배양의 −0.053은 사전등록이 "평가 불가"로 선언한 모형에서 나오고(감쇠 −1.098), 25개 프로그램 중 15개가 같은 보정 후 음의 연령 효과를 얻으며, **세포주기 양성 대조 자신이 +0.0064(P = 0.748) → −0.0208(P = 0.0018)**이 된다. 사전등록 Note 1이 이미 해석 불가로 정해 둔 비교다. 세 기여 중 (i) 유지, (ii) 삭제, (iii) 좁혀서 유지.
 
