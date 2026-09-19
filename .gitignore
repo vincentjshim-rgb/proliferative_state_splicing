@@ -43,3 +43,6 @@ archive/
 
 # Simulated review pages (local reading copies; not for the public repository)
 review_pages/
+
+# LibreOffice lock files
+.~lock.*#
