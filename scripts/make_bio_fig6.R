@@ -15,8 +15,7 @@ D <- "public_data_tierA/derived"
 I <- file.path(D, "interventions_revised")
 ## the shared num_axis() passes the raw break vector to format(), which turns
 ## ggplot's floating-point zero into 1.1e-16; fix it locally
-num_axis <- function(digits = 1) function(x)
-  sub("-", MINUS, formatC(round(x, digits + 2), format = "f", digits = digits))
+num_axis <- num_axis_pad          # trailing zeros kept; see sciadv_theme.R
 
 R  <- read.delim(file.path(D, "revision_stats/fig6_contrasts_revised.tsv"))
 S  <- read.delim(file.path(I, "reprog_secretome_splicing.tsv"))

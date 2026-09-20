@@ -277,7 +277,7 @@ pSa <- ggplot(R9, aes(as.integer(tissue), slope, fill = tissue)) +
        caption = "SD: spread of the proliferation score in that tissue") +
   annotate("text", x = 1.55, y = Inf, hjust = 0, vjust = 1.08, family = FONT, size = pt(7),
            colour = INK2, lineheight = 1.15, label = vm_txt) +
-  theme_sa() + theme(plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0))
+  theme_sa() + theme(plot.caption = element_text(size = 7, colour = INK2, hjust = 0))
 
 ## ---- S10b. coupling before and after composition adjustment (post hoc)
 ## every value, n and marker list on this panel comes from composition_adjusted.tsv
@@ -317,7 +317,7 @@ pSb <- ggplot(CL, aes(rho, tissue, fill = k)) +
   theme_sa() + theme(legend.position = "top", legend.location = "plot", legend.justification = "right",
                      legend.margin = margin(b = -4), legend.key.size = unit(6, "pt"),
                      axis.text.y = element_text(size = 7.5, lineheight = 1.05),
-                     plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0, lineheight = 1.05),
+                     plot.caption = element_text(size = 7, colour = INK2, hjust = 0, lineheight = 1.05),
                      plot.margin = margin(3, 10, 3, 3))
 
 ## ---- S10c. culture erases the donor, and the control that shows the design can

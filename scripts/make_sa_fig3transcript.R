@@ -83,14 +83,17 @@ pA <- ggplot() +
   geom_text(data = JL[focus == TRUE & end == SKIP_END],
             aes(x = (start + end)/2, y = 1.02, label = sprintf("%.0f", n)),
             family = FONT, size = pt(7), colour = BLUE, vjust = 0) +
-  geom_text(data = JL[focus == TRUE & end == INCL_END],
-            aes(x = (start + end)/2 - 100, y = 0.40, label = sprintf("%.0f", n)),
-            family = FONT, size = pt(7), colour = RED, vjust = 0) +
+  ## the skip arc passes above the include arc everywhere they overlap, and at 177 reads it is
+  ## thick enough to swallow a count set above the include arc; the count goes inside its own bow
+  geom_label(data = JL[focus == TRUE & end == INCL_END],
+             aes(x = (start + end)/2, y = 0.235, label = sprintf("%.0f", n)),
+             family = FONT, size = pt(7), colour = RED, vjust = 0.5,
+             fill = "white", label.size = 0, label.padding = unit(0.6, "pt")) +
   scale_linewidth_continuous(range = c(0.2, 1.9), guide = "none") +
   facet_wrap(~ grp, ncol = 1) +
   geom_text(data = data.table(grp = factor("slowest third", levels = levels(JL$grp))),
             aes(x = INCL_END + 250, y = -0.30), label = "the 26 bp exon", family = FONT,
-            size = pt(6.5), colour = RED, hjust = 0, vjust = 0.5) +
+            size = pt(7), colour = RED, hjust = 0, vjust = 0.5) +
   geom_segment(data = data.table(grp = factor("slowest third", levels = levels(JL$grp))),
                aes(x = INCL_END + 210, xend = INCL_END + 30, y = -0.30, yend = -0.17),
                colour = RED, linewidth = 0.3) +
@@ -129,8 +132,11 @@ pC <- ggplot(CL, aes(abs(t_prolif), colour = cls)) +
   stat_ecdf(linewidth = 0.7) +
   scale_colour_manual(values = c(`all other genes` = GREY, `the 177 machinery genes` = BLUE),
                       name = NULL) +
-  scale_x_continuous("|t| for the event against the proliferation score", limits = c(0, 8),
-                     labels = num_axis(0)) +
+  ## the view stops at 8 but the distribution does not: a scale limit here would drop the 42
+  ## events above it before stat_ecdf ran, and the drawn curve would no longer be the ECDF the
+  ## printed medians come from. coord_cartesian truncates the view and leaves the statistic whole.
+  scale_x_continuous("|t| for the event against the proliferation score", labels = num_axis(0)) +
+  coord_cartesian(xlim = c(0, 8)) +
   scale_y_continuous("cumulative fraction of events", labels = num_axis(1)) +
   annotate("text", x = 7.9, y = 0.06, hjust = 1, vjust = 0, family = FONT, size = pt(7),
            colour = INK, lineheight = 1.05,
@@ -138,6 +144,9 @@ pC <- ggplot(CL, aes(abs(t_prolif), colour = cls)) +
                            num(median(abs(MMc$t_prolif))), num(median(abs(bgk$t_prolif))),
                            "events", 100*mean(MMc$FDR_prolif < 0.05), 100*mean(bgk$FDR_prolif < 0.05),
                            pfmt(wp))) +
+  annotate("text", x = 0.1, y = 0.99, hjust = 0, vjust = 1, family = FONT, size = pt(7),
+           colour = INK2, label = sprintf("%d events beyond the axis, all in other genes",
+                                          sum(abs(bgk$t_prolif) > 8))) +
   theme_sa(8) + theme(legend.position = "inside", legend.position.inside = c(0.62, 0.62), legend.key.height = unit(8, "pt"),
                       legend.text = element_text(size = 7))
 

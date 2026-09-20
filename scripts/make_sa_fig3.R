@@ -10,8 +10,7 @@ source("scripts/sciadv_theme.R")
 D <- "public_data_tierA/derived"
 ## the shared num_axis() passes the raw break vector to format(), which turns
 ## ggplot's floating-point zero into 1.1e-16; fix it locally
-num_axis <- function(digits = 1) function(x)
-  sub("-", MINUS, formatC(round(x, digits + 2), format = "f", digits = digits))
+num_axis <- num_axis_pad          # trailing zeros kept; see sciadv_theme.R
 R <- read.delim(file.path(D, "revision_stats/fig6_contrasts_revised.tsv"))
 R <- R[is.finite(R$spl) & is.finite(R$cc), ]
 CL <- read.delim(file.path(D, "revision_stats/fig6_class_residuals.tsv"))
@@ -104,7 +103,8 @@ pA <- ggplot(R, aes(cc, spl)) +
 keep <- names(which(table(R$class) >= 5))
 Rk <- R[R$class %in% keep, ]
 SHORT <- c(`metabolic / culture` = "metabolic,\nculture", `photoprotection / rescue` = "photo-\nprotection",
-           reprogramming = "reprogramming", secretome = "secretome", senescence = "senescence",
+           ## on one line this one is wider than its facet and runs into the neighbours
+           reprogramming = "repro-\ngramming", secretome = "secretome", senescence = "senescence",
            `UV injury` = "UV injury")
 st <- do.call(rbind, lapply(sort(unique(Rk$class)), function(k) { s <- Rk[Rk$class == k, ]
   ctk <- cor.test(s$cc, s$spl, method = "spearman", exact = FALSE)
@@ -170,8 +170,11 @@ pD <- ggplot(NL, aes(rho)) +
   annotate("text", x = 0.62, y = 96, hjust = 0.5, vjust = 0.5, family = FONT,
            size = pt(7), colour = INK2, lineheight = 1.05,
            label = sprintf("maximum\n%s", num(max(NL$rho)))) +
+  ## a scale limit dropped the two random sets below -0.5 out of the histogram; the view is
+  ## fixed by the coordinate system instead, so every one of the 1,000 sets is counted
   scale_x_continuous(sprintf("%s with the cell-cycle change", RHO),
-                     limits = c(-0.5, 1), breaks = seq(-0.4, 0.8, 0.4), labels = num_axis()) +
+                     breaks = seq(-0.4, 0.8, 0.4), labels = num_axis()) +
+  coord_cartesian(xlim = c(-0.5, 1)) +
   scale_y_continuous("random gene sets", expand = expansion(mult = c(0, 0.30))) +
   theme_sa()
 

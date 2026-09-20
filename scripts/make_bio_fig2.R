@@ -87,7 +87,7 @@ p2d <- ggplot(R, aes(rho_rate, gene, fill = hl)) +
                       axis.text.y = element_text(size = 7, face = "italic"),
                       legend.position = "bottom", legend.margin = margin(t = -5),
                       legend.text = element_text(size = 7),
-                      plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0))
+                      plot.caption = element_text(size = 7, colour = INK2, hjust = 0))
 
 ## ====== b. the same relationship without assuming a line ===================
 ## The counted rate split into deciles: no linear fit, no score-on-score regression, just
@@ -110,7 +110,7 @@ p2b <- ggplot(gd, aes(factor(dec), splice)) +
            label = sprintf("median rises in nine of the ten steps\npartial %s = %s at the same replicative age,\ndays in culture and cell line",
                            RHO, num(gv("partial rho given pdtot, days, line")))) +
   labs(x = "median counted division rate of each tenth", y = "pre-mRNA processing score") +
-  theme_sa(8) + theme(axis.text.x = element_text(size = 6.5))
+  theme_sa(8) + theme(axis.text.x = element_text(size = 7))
 
 ## ====== c. the 177 genes among every expressed gene ========================
 ## A set score can be carried by a few of its members. This panel leaves the score behind:
@@ -128,7 +128,7 @@ p2c <- ggplot(GV, aes(rho, fill = grp, colour = grp)) +
                                `the 177 splicing genes` = BLUE), name = NULL) +
   scale_colour_manual(values = c(`every other expressed gene` = GREY,
                                  `the 177 splicing genes` = BLUE), name = NULL, guide = "none") +
-  annotate("text", x = q95 + 0.04, y = 1.35, hjust = 0, vjust = 1, family = FONT, size = pt(6.5),
+  annotate("text", x = q95 + 0.04, y = 1.35, hjust = 0, vjust = 1, family = FONT, size = pt(7),
            colour = INK2, lineheight = 0.95, label = "95th percentile\nof the background") +
   annotate("text", x = -0.98, y = Inf, hjust = 0, vjust = 1.3, family = FONT, size = pt(7),
            colour = INK, lineheight = 1.08,

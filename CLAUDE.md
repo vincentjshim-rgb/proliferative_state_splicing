@@ -531,3 +531,22 @@ wet-lab 없이 절 사이 연결을 강화하는 세 가지. 전부 사후 분�
 **편집자가 명시적으로 면제한 것(하지 않는다).** GTEx 혈액·고회전 상피 추가(새 다운로드 필요), epiTOC2/RepliTali, 20개 marker 점수의 split-half 신뢰도, GTEx에서의 무작위 집합 1,000개, 근육 분산 맞춤, GSE179848 밖에서 더 나은 증식 측정치 도출, Cochran *Q*·*I*².
 
 **제목 확정:** *Splicing-factor expression in cultured human fibroblasts reports proliferative state and the coupling weakens in **skin**.* "in tissue"는 판별 가능한 조직이 하나뿐이라 지지되지 않는다.
+
+## 28. 그림 내부 점검 — 잘림·겹침·조용히 버려진 자료 (2026-09-20, 사용자 지적 "다 해결되지 않았어")
+
+바깥 여백은 §27의 `save_fig` 인셋으로 해결됐지만 **패널 안쪽**은 점검하지 않았었다. 16장을 한 장씩 열어 본 결과 여섯 건이 나왔고 전부 고쳤다. 앞의 셋은 보이는 결함, 뒤의 셋은 **눈에 안 띄는 정확성 결함**이다.
+
+1. **Fig. 6 패널 a의 caption이 패널 폭에서 잘렸다.** `plot.caption`은 `hjust = 0`이라 두 줄 중 긴 줄이 블록 폭을 정하고, 패널 a 폭(`rel_widths = c(0.9, 1.1)`)에서는 **38자**를 넘으면 잘린다. 41자였던 "† all measured genes are cell-cycle genes"가 마지막 글자를 잃고 있었다. "† all its genes are cell-cycle genes"(36자)로 줄였다. 정확한 문장은 원고 범례가 이미 갖고 있다.
+2. **Fig. 3a의 include junction 개수 "11"을 skip arc가 삼켰다.** 두 arc가 겹치는 구간에서 skip arc는 언제나 위를 지나고, 177 reads에서는 선 굵기가 1.9라 위에 놓인 숫자를 덮는다. 개수를 자기 arc 안쪽(y = 0.235)으로 내리고 sashimi 관례대로 흰 상자(`geom_label`, `label.size = 0`)에 넣었다.
+3. **Fig. 5b의 facet 이름 "reprogramming"이 facet 폭을 넘어 이웃을 침범했다.** 같은 칸의 "photo-\nprotection"처럼 "repro-\ngramming"으로 끊었다.
+4. **축 눈금이 다른 수로 인쇄되고 있었다.** `num_axis(1)`은 `formatC(0.25, digits = 1)` = `"0.2"`라서 Fig. 3c의 세로축이 0.25·0.75 자리에 **0.2·0.8**을 적고 있었다. `num_axis()`는 이제 `digits`를 **최솟값**으로만 쓰고, 라벨이 눈금값으로 되읽히지 않으면 자릿수를 올린다. 세 스크립트(`make_sa_fig3`·`make_sa_fighall`·`make_bio_fig6`)가 같은 결함이 있는 사본을 따로 정의하고 있어서 공용 `num_axis_pad()`(뒤 0 유지)로 통일했다. 이 셋의 그림은 픽셀 단위로 동일하다.
+5. **Fig. 3c에서 42개 event가 그림에서 조용히 빠졌다.** `scale_x_continuous(limits = c(0, 8))`은 stat이 돌기 **전에** 자료를 버리므로, 그려진 ECDF가 패널에 인쇄된 중앙값·비율의 분포가 아니게 된다. `coord_cartesian(xlim = ...)`으로 바꿔 통계는 전체로 계산하고 보기만 자른다. 빠진 42개가 전부 대조군이라는 사실도 패널에 적었다.
+6. **Fig. 5d에서 무작위 집합 2개가 histogram에서 빠졌다**(같은 원인, `limits = c(-0.5, 1)`). 역시 `coord_cartesian`으로 바꿔 1,000개가 모두 세어진다.
+
+**함께 한 것.** §9의 "최소 7 pt"를 어기고 있던 6.5 pt 텍스트 8곳(Fig. 2d·2b 눈금·2c 주석, Fig. 3a·3c 주석, Fig. 6a heatmap 값, Fig. S8a·S8b caption)을 7 pt로 올리고 각각 다시 열어 겹침이 없음을 확인했다.
+
+**규칙(추가).**
+- 그림을 고친 뒤에는 **바깥 여백 스캔만으로 끝내지 않는다.** 패널 안쪽은 열어서 본다. caption·facet strip·범례처럼 **패널 폭에 갇힌 텍스트**가 1순위다.
+- `scale_*_continuous(limits = ...)`는 자료를 버린다. 보기만 자르려면 언제나 **`coord_cartesian()`**을 쓴다. `limits`를 쓸 곳은 자료를 정말 제외할 때뿐이다.
+- 렌더할 때 나오는 `Removed N rows ...` 경고를 무시하지 않는다. 그 N개는 독자가 볼 수 없는 자료다. `options(warn = 1)`로 15개 스크립트를 한 번에 돌려 확인한다.
+- 축 라벨 포맷터는 눈금값을 **그 값 그대로** 인쇄해야 한다. 자릿수를 줄여 반올림하지 않는다.

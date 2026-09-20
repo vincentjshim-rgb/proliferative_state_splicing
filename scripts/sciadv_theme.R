@@ -24,9 +24,26 @@ sup <- function(s) { d <- c("0"="⁰","1"="¹","2"="²","3"="³","4"="⁴",
 num <- function(x, digits = 2) sub("-", MINUS, formatC(x, format = "f", digits = digits))
 ## axis labels with a real minus; rounds first so that ggplot's floating-point
 ## zero (1.11e-16) prints as 0 rather than in scientific notation
+## `digits` is a minimum, not a fixed width: a break must never be printed as a different
+## number. formatC(0.25, digits = 1) is "0.2", which put "0.2" and "0.8" on an axis whose
+## ticks stood at 0.25 and 0.75. Precision rises until every label reads back as its break.
 num_axis <- function(digits = 2) function(x) {
-  v <- formatC(round(x, digits + 2), format = "f", digits = digits, drop0trailing = TRUE)
-  sub("-", MINUS, trimws(v)) }
+  fmt <- function(d) formatC(round(x, d + 2), format = "f", digits = d, drop0trailing = TRUE)
+  exact <- function(d) { v <- suppressWarnings(as.numeric(trimws(fmt(d))))
+                         all(is.na(x) | (!is.na(v) & abs(v - x) <= 1e-8 * pmax(1, abs(x)))) }
+  d <- digits
+  while (d < digits + 4 && !exact(d)) d <- d + 1
+  sub("-", MINUS, trimws(fmt(d))) }
+## Same guarantee, but trailing zeros are kept: "-2.0", "-1.0", "0.0" read as one series in a
+## narrow facet where "-2", "-1", "0" run together. Three figure scripts used to define this
+## for themselves, each with the rounding fault above.
+num_axis_pad <- function(digits = 1) function(x) {
+  fmt <- function(d) formatC(round(x, d + 2), format = "f", digits = d)
+  exact <- function(d) { v <- suppressWarnings(as.numeric(trimws(fmt(d))))
+                         all(is.na(x) | (!is.na(v) & abs(v - x) <= 1e-8 * pmax(1, abs(x)))) }
+  d <- digits
+  while (d < digits + 4 && !exact(d)) d <- d + 1
+  sub("-", MINUS, fmt(d)) }
 sci <- function(x, digits = 0) {
   e <- floor(log10(abs(x))); m <- signif(x / 10^e, digits + 1)
   if (isTRUE(all.equal(m, 1))) sprintf("10%s", sup(as.character(e)))
@@ -84,6 +101,12 @@ lab_grid <- function(..., labels, ncol = 2, rel_heights = 1, rel_widths = 1,
             label_fontface = "bold", label_size = 10, label_colour = INK,
             hjust = 0, vjust = 1, label_x = 0.004, label_y = 0.998,
             rel_heights = rel_heights, rel_widths = rel_widths, align = align, axis = axis)
-save_fig <- function(plot, file, w, h) { ggsave(file.path(PUBDIR, file), plot,
-  width = mm(w), height = mm(h), units = "in", dpi = 600, bg = "white")
+## A composed figure is drawn edge to edge, so a panel letter at the top or an axis title at
+## the bottom lands on the canvas boundary and its ascender or descender is cut. The plot is
+## inset by a hair before it is written, which costs nothing visible and clears every edge.
+save_fig <- function(plot, file, w, h, pad = 1.4) {
+  framed <- cowplot::ggdraw(plot) + theme(plot.margin = margin(pad, pad, pad, pad, "mm"),
+                                          plot.background = element_rect(fill = "white", colour = NA))
+  ggsave(file.path(PUBDIR, file), framed,
+         width = mm(w), height = mm(h), units = "in", dpi = 600, bg = "white")
   cat(sprintf("  %s  %.0f x %.0f mm\n", file, w, h)) }

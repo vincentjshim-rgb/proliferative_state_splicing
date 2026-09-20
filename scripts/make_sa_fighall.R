@@ -24,8 +24,7 @@ z <- IN$z; d0 <- IN$meta; P <- IN$pathways
 NPRIM <- 107L
 ## the shared num_axis() passes the raw break vector to format(), which turns
 ## ggplot's floating-point zero into 1.1e-16; fix it locally
-num_axis <- function(digits = 1) function(x)
-  sub("-", MINUS, formatC(round(x, digits + 2), format = "f", digits = digits))
+num_axis <- num_axis_pad          # trailing zeros kept; see sciadv_theme.R
 
 CLASS <- c(
  `chromatin organisation`="RNA / chromatin", `cellular senescence`="composite",
@@ -70,7 +69,7 @@ JH$rho[JH$miss] <- NA
 LABCOL <- unname(PAL[as.character(J$class[match(levels(droplevels(J$short)), as.character(J$short))])])
 pA <- ggplot(JH, aes(col, short)) +
   geom_tile(aes(fill = pmax(pmin(rho, 1), -1)), colour = "white", linewidth = 0.5) +
-  geom_text(aes(label = lab), family = FONT, size = pt(6.5), colour = INK) +
+  geom_text(aes(label = lab), family = FONT, size = pt(7), colour = INK) +
   scale_fill_gradientn(colours = DIVERGE, limits = c(-1, 1), breaks = c(-1, 0, 1),
                        labels = c(paste0(MINUS, "1"), "0", "1"), na.value = "#E6E8EB",
                        name = sprintf("%s with measured division rate", RHO),
@@ -78,14 +77,16 @@ pA <- ggplot(JH, aes(col, short)) +
                                                barheight = unit(4, "pt"), ticks.colour = "white")) +
   scale_x_discrete(position = "top", expand = c(0, 0)) + scale_y_discrete(expand = c(0, 0)) +
   labs(x = NULL, y = NULL,
-       caption = "\u2020 all measured genes are cell-cycle genes\nrow colour: programme class (key in b)") +
+       ## the caption is left-aligned inside panel a, so the longer of its two lines sets the
+       ## block width; at the panel's width anything past ~38 characters is cut
+       caption = "\u2020 all its genes are cell-cycle genes\nrow colour: programme class (see b)") +
   theme_sa() + theme(axis.line = element_blank(), axis.ticks = element_blank(),
         axis.text.y = element_text(size = 7.2, colour = LABCOL),
         axis.text.x = element_text(size = 7, lineheight = 0.95),
         legend.position = "bottom", legend.key.height = unit(5, "pt"),
         legend.key.width = unit(28, "pt"), legend.title = element_text(size = 7),
         legend.text = element_text(size = 7), legend.margin = margin(t = 2),
-        plot.caption = element_text(size = 6.5, colour = INK2, hjust = 0, lineheight = 1.05),
+        plot.caption = element_text(size = 7, colour = INK2, hjust = 0, lineheight = 1.05),
         plot.margin = margin(3, 4, 3, 3))
 
 ## ---------------- b. division readout against donor-age readout -------------
