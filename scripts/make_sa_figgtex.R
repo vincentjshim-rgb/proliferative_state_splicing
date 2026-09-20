@@ -67,15 +67,19 @@ pB <- ggplot(SC, aes(x, y)) +
 
 ## ---------------- c. every programme in every tissue -----------------------------
 ## transposed relative to the published version so that no label falls below 7 pt
-M <- copy(S1)[, tk := factor(tissue, levels = TK)]
+## 2026-09-20: muscle is not drawn here either. Panel a shows culture and the two skin sites, and
+## a fourth row that the title does not claim and the text does not interpret read as a stray;
+## the muscle row stays in Supplementary Fig. S8 and Supplementary Tables 9 and 10, where the
+## preregistered H3 outcome is reported.
+TKH <- c("culture", "legskin", "pubskin")
+M <- copy(S1)[tissue %in% TKH][, tk := factor(tissue, levels = TKH)]
 ord <- M[tissue == "culture"][order(-rho_prolif)]$programme
 M[, pg := factor(nice(programme), levels = nice(ord))]
-HL <- data.table(tk = factor(c("culture","legskin","muscle","culture"), levels = TK),
-                 pg = factor(nice(c("splicing 96","splicing 96","splicing 96","collagen formation")),
-                             levels = nice(ord)))
-NPROG <- sapply(TK, function(tk) { n <- unique(S1[tissue == tk]$n); stopifnot(length(n) == 1); n })
+HL <- data.table(tk = factor(c("culture","legskin","culture"), levels = TKH),
+                 pg = factor(nice(c("splicing 96","splicing 96","collagen formation")), levels = nice(ord)))
+NPROG <- sapply(TKH, function(tk) { n <- unique(S1[tissue == tk]$n); stopifnot(length(n) == 1); n })
 YLAB <- setNames(sprintf("%s, n = %d donors", c("cultured fibroblasts", "skin, sun-exposed",
-                                                "skin, not exposed", "skeletal muscle"), NPROG), TK)
+                                                "skin, not exposed"), NPROG), TKH)
 pC0 <- ggplot(M, aes(pg, tk)) +
   geom_tile(aes(fill = pmax(pmin(rho_prolif, 1), -1)), colour = "white", linewidth = 0.4) +
   geom_tile(data = HL, fill = NA, colour = INK, linewidth = 0.6) +
@@ -84,7 +88,7 @@ pC0 <- ggplot(M, aes(pg, tk)) +
     name = sprintf("partial %s with\nproliferation", RHO),
     guide = guide_colourbar(barwidth = unit(5, "pt"), barheight = unit(42, "pt"),
                             title.position = "top", ticks.colour = "white", frame.colour = NA)) +
-  scale_y_discrete(limits = rev(TK), labels = YLAB, expand = c(0, 0)) +
+  scale_y_discrete(limits = rev(TKH), labels = YLAB, expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) + labs(x = NULL, y = NULL) +
   theme_sa() + theme(axis.line = element_blank(), axis.ticks = element_blank(),
     axis.text.x = element_text(size = 7, angle = 45, hjust = 1, colour = INK),
@@ -95,7 +99,7 @@ pC0 <- ggplot(M, aes(pg, tk)) +
 ## slanted programme names, instead of adding a row of its own below them
 LEGC <- get_plot_component(pC0 + theme(legend.position = "right"), "guide-box-right")
 pC <- ggdraw(pC0 + theme(legend.position = "none")) +
-  draw_grob(LEGC, x = 0.035, y = 0.08, width = 0.13, height = 0.44, hjust = 0, vjust = 0)
+  draw_grob(LEGC, x = 0.035, y = 0.06, width = 0.13, height = 0.50, hjust = 0, vjust = 0)
 
 ## ---------------- d. the raw age effect depends on how proliferation moves with age
 ## The fibroblast cohort is the redefined one (normal donors aged 20+, technical
@@ -248,7 +252,7 @@ cat("\nSupplementary Table 10 (preregistered scorecard) written\n")
 top <- lab_grid(pB, labels = "a", ncol = 1)
 save_fig(plot_grid(top, lab_grid(pC, labels = "b", ncol = 1),
                    lab_grid(pD, pF, labels = c("c", "d"), ncol = 2, rel_widths = c(0.95, 1.05)),
-                   ncol = 1, rel_heights = c(50, 53, 56)), "Fig7.png", 183, 165)
+                   ncol = 1, rel_heights = c(50, 47, 56)), "Fig7.png", 183, 159)
 
 ## ================= Supplementary Fig. S10: post hoc tissue analyses and donor concordance
 TN <- c(culture = "cultured\nfibroblasts", legskin = "skin,\nsun-exposed",

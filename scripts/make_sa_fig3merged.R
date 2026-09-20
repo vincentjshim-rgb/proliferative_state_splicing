@@ -1,36 +1,23 @@
-## Fig. 3  What proliferation accounts for (six-figure restructure, 2026-09-17).
-## Merges the parts of the former Fig. 3 (make_sa_fig5gene.R) and Fig. 4
-## (make_sa_fig4new.R) that carry the main claim, and adds the random-set null
-## as a panel of its own:
+## Fig. 4  What proliferation accounts for (six-figure restructure, 2026-09-17).
+## Revised 2026-09-20 (user request): the figure had six plots and proliferation itself was
+## hard to see in any of them. It now has three, each about proliferation:
 ##   a  pre-mRNA processing score against the proliferation score, 107 adult donors
-##   b  age effect per decade before and after adjusting for proliferation, under
-##      the four cohort definitions
-##   c  the same two models applied to 1,000 expression-matched random gene sets
-##      (scripts/revision/run_reviewer_sensitivities.R, part C): share of the age
-##      effect removed, and size of the unadjusted age effect
-##   d  number of genes keeping a decline after adjustment under the four cohort
-##      definitions, and the number common to all four
-## The gene-level panels of the former Fig. 3 are now Fig. S2 (make_sa_figS_gene.R),
-## the outcome index is Fig. S3 (make_sa_figS_outcome.R) and the age predictor is
-## Fig. S5 (make_sa_figS_agepred.R).
+##   b  the age decline itself, with the donors split by proliferation: the pooled slope
+##      against the slope within each third, and the model estimate with proliferation held
+##   c  the size of the age association against 1,000 expression-matched random gene sets
+## The cohort-definition bars, the share-removed histogram and the count of genes keeping a
+## decline moved to Supplementary Fig. S2 (make_sa_figS_gene.R, panels d-f).
 .libPaths(c(normalizePath("analysis_r_lib"), .libPaths()))
 source("scripts/sciadv_theme.R")
 D <- "public_data_tierA/derived"; CR <- file.path(D, "cohort_revised")
 M    <- read.delim(file.path(CR, "primary/sample_metrics.tsv"))     # 107 normal adults
 S    <- read.delim(file.path(CR, "sensitivity_metrics.tsv"))
-SENS <- read.delim(file.path(CR, "sensitivity_genes.tsv"))
 NL   <- read.delim(file.path(D, "reviewer_sensitivities/adjustment_negative_control.tsv"))
 QC   <- read.delim(file.path(D, "reviewer_sensitivities/qc_covariates.tsv"))
-NCORE <- length(readLines(file.path(D, "conserved_core/age_down_splicing_core_v2.txt")))
-EXPC <- "#B2182B"; OUTC <- "#2166AC"; BAR <- "#C3CBD4"
+MED  <- read.delim(file.path(D, "chain/mediation.tsv"))
+EXPC <- "#B2182B"; BAR <- "#C3CBD4"
 say <- function(...) cat(sprintf(...), "\n")
-
-COHORTS <- c("published", "normal", "primary", "adult2082")
-COHLAB  <- c(published = "deposited set\n(n = 142 samples)",
-             normal    = "all normal donors\n(n = 133)",
-             primary   = "normal adults 20+\n(primary, n = 107)",
-             adult2082 = "normal adults 20–82\n(n = 76)")
-stopifnot(all(S$n[match(COHORTS, S$cohort)] == c(142, 133, 107, 76)))
+stopifnot(nrow(M) == 107)
 
 ## =========== a. pre-mRNA processing score against proliferation ==============
 ct <- cor.test(M$prolif, M$machinery)
@@ -39,97 +26,74 @@ say("a  r = %.4f [%.4f, %.4f], P = %.3g, n = %d donors", ct$estimate, ct$conf.in
 pa <- ggplot(M, aes(prolif, machinery)) +
   geom_smooth(method = "lm", formula = y ~ x, se = TRUE, colour = EXPC, fill = EXPC,
               alpha = 0.16, linewidth = 0.6) +
-  geom_point(size = 1.4, colour = EXPC, alpha = 0.85) +
+  geom_point(size = 1.3, colour = EXPC, alpha = 0.85) +
   annotate("text", x = min(M$prolif), y = max(M$machinery), hjust = 0, vjust = 1, family = FONT,
            size = pt(7.5), colour = INK, lineheight = 1.05,
            label = rp(ct$estimate, ct$p.value, lab = "r")) +
   annotate("text", x = max(M$prolif), y = min(M$machinery), hjust = 1, vjust = 0, family = FONT,
            size = pt(7), colour = INK2, label = sprintf("n = %d donors", nrow(M))) +
   scale_x_continuous(labels = num_axis()) + scale_y_continuous(labels = num_axis()) +
-  labs(x = "proliferation score", y = "pre-mRNA processing score") +
-  theme_sa() + theme(plot.margin = margin(8, 8, 3, 3))
+  labs(x = "proliferation score (20 markers)", y = "pre-mRNA processing score") +
+  theme_sa() + theme(plot.margin = margin(8, 10, 3, 3))
 
-## =========== b. age effect per decade, before and after adjustment ===========
-K <- S[S$metric == "machinery", ]; K <- K[match(COHORTS, K$cohort), ]
-K$row <- rev(seq_along(COHORTS))                          # published on top
-FB <- rbind(
-  data.frame(cohort = K$cohort, row = K$row, k = "unadjusted", b = K$beta, lo = K$lo, hi = K$hi, p = K$p),
-  data.frame(cohort = K$cohort, row = K$row, k = "adjusted for proliferation", b = K$beta_adj,
-             lo = K$lo_adj, hi = K$hi_adj, p = K$p_adj))
-FB$k <- factor(FB$k, levels = c("unadjusted", "adjusted for proliferation"))
-FB$y <- FB$row + ifelse(FB$k == "unadjusted", 0.17, -0.17)
-FB$plab <- pfmt_v(FB$p)
-for (i in seq_len(nrow(K)))
-  say("b  %-10s n = %3d  unadjusted %.4f [%.4f, %.4f] P = %.3g | adjusted %.4f [%.4f, %.4f] P = %.3g | removed %.1f%%",
-      K$cohort[i], K$n[i], K$beta[i], K$lo[i], K$hi[i], K$p[i], K$beta_adj[i], K$lo_adj[i],
-      K$hi_adj[i], K$p_adj[i], K$pct_lost[i])
-## grouped bars with 95% CI (2026-09-19). The forest plot with its printed columns of
-## P values and percentages is gone; the share removed is printed once per cohort and
-## every estimate and P is in Supplementary Table 1.
-FB$cohort <- factor(FB$cohort, levels = K$cohort[order(K$row, decreasing = TRUE)])
-LABK <- K[order(K$row, decreasing = TRUE), ]
-LABK$cohort <- factor(LABK$cohort, levels = levels(FB$cohort))
-pb <- ggplot(FB, aes(cohort, b, fill = k)) +
-  geom_hline(yintercept = 0, colour = INK, linewidth = 0.35) +
-  geom_col(position = position_dodge(width = 0.72), width = 0.64, colour = NA) +
-  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.72), width = 0.22,
-                colour = INK2, linewidth = 0.4) +
-  geom_text(data = LABK, aes(cohort, y = 0.014, label = sprintf("%.0f%% removed", pct_lost)),
-            inherit.aes = FALSE, family = FONT, size = pt(7), colour = INK2, vjust = 0) +
-  scale_fill_manual(values = c(unadjusted = EXPC, `adjusted for proliferation` = GREY), name = NULL) +
-  scale_x_discrete(labels = COHLAB) +
-  scale_y_continuous(limits = c(-0.235, 0.06), breaks = c(-0.2, -0.1, 0), labels = num_axis(),
-                     expand = c(0, 0)) +
-  labs(x = NULL, y = "age effect per decade,\npre-mRNA processing score") +
-  theme_sa() + theme(legend.position = "top", legend.justification = "left",
-                     legend.margin = margin(b = -6), legend.key.size = unit(6, "pt"),
-                     axis.text.x = element_text(size = 7, lineheight = 0.95),
-                     plot.margin = margin(3, 4, 3, 6))
-
-## =========== c. the same two models on 1,000 random gene sets ================
-OBS <- K[K$cohort == "primary", ]
-## the splicing set's own row was written by the same run; it must agree with Fig. 3b
+## =========== b. the age decline, with proliferation held ======================
+K <- S[S$metric == "machinery" & S$cohort == "primary", ]
+stopifnot(nrow(K) == 1)
 q <- QC[QC$metric == "machinery" & QC$covariates == "cohort", ]
-stopifnot(isTRUE(all.equal(q$beta, OBS$beta)), isTRUE(all.equal(q$pct_lost, OBS$pct_lost)))
+stopifnot(isTRUE(all.equal(q$beta, K$beta)), isTRUE(all.equal(q$pct_lost, K$pct_lost)))
+M$third <- cut(M$prolif, quantile(M$prolif, c(0, 1/3, 2/3, 1)), include.lowest = TRUE,
+               labels = c("slowest third", "middle third", "fastest third"))
+TS <- do.call(rbind, lapply(levels(M$third), function(k) { s <- M[M$third == k, ]
+  f <- lm(machinery ~ I(age/10), s)
+  data.frame(third = k, n = nrow(s), slope = coef(f)[2], mean_prolif = mean(s$prolif)) }))
+pooled <- lm(machinery ~ I(age/10), M)
+say("b  pooled raw slope %.4f per decade; cohort model %.4f -> %.4f with proliferation (%.0f%% removed)",
+    coef(pooled)[2], K$beta, K$beta_adj, K$pct_lost)
+for (i in seq_len(nrow(TS))) say("b  %-14s n = %2d  slope %.4f per decade  mean proliferation score %+.2f",
+                                 TS$third[i], TS$n[i], TS$slope[i], TS$mean_prolif[i])
+prop <- MED[MED$quantity == "prop", ]
+say("b  mediation: proliferation carries %.0f%% [%.0f, %.0f] of the age effect", 100*prop$estimate, 100*prop$lo, 100*prop$hi)
+TCOL <- c(`slowest third` = "#8C6D4F", `middle third` = "#C9A27C", `fastest third` = "#2C6FAF")
+## each third's line is labelled at its right-hand end instead of in a key, which did not fit
+nd <- data.frame(age = seq(min(M$age), max(M$age), length.out = 50))
+nd$fit <- predict(pooled, data.frame(age = nd$age))
+END <- do.call(rbind, lapply(levels(M$third), function(k) { s <- M[M$third == k, ]
+  f <- lm(machinery ~ age, s)
+  sl <- TS$slope[TS$third == k]; if (abs(sl) < 5e-4) sl <- 0          # "-0.000" is not a number
+  data.frame(third = k, x = max(M$age) + 1.5, y = predict(f, data.frame(age = max(M$age))),
+             lab = sprintf("%s\n%s per decade", k, num(sl, 3))) }))
+## the middle and slowest labels would sit two lines apart; spread them a little
+END$y <- END$y + c(-0.04, 0.10, 0)[match(END$third, c("slowest third", "middle third", "fastest third"))]
+pb <- ggplot(M, aes(age, machinery)) +
+  geom_line(data = nd, aes(age, fit), inherit.aes = FALSE, colour = INK, linewidth = 0.55, linetype = "22") +
+  geom_smooth(aes(colour = third), method = "lm", formula = y ~ x, se = FALSE, linewidth = 0.8) +
+  geom_point(aes(colour = third), size = 1.3, alpha = 0.8) +
+  geom_text(data = END, aes(x, y, label = lab, colour = third), hjust = 0, vjust = 0.5, family = FONT,
+            size = pt(7), lineheight = 0.95) +
+  annotate("text", x = min(M$age), y = min(M$machinery), hjust = 0, vjust = 0, family = FONT, size = pt(7),
+           colour = INK, lineheight = 1.08,
+           label = sprintf("all donors (dashed): %s per decade\nproliferation in the model: %s per decade (%.0f%% removed)\nmediation: %.0f%% [%.0f, %.0f] of the age effect",
+                           num(K$beta, 3), num(K$beta_adj, 3), K$pct_lost, 100*prop$estimate, 100*prop$lo, 100*prop$hi)) +
+  scale_colour_manual(values = TCOL, guide = "none") +
+  scale_x_continuous(labels = num_axis(0), breaks = seq(20, 100, 20), limits = c(min(M$age), max(M$age) + 31)) +
+  scale_y_continuous(labels = num_axis(), expand = expansion(mult = c(0.30, 0.06))) +
+  labs(x = "donor age (years)", y = "pre-mRNA processing score",
+       subtitle = "donors split into thirds by proliferation score") +
+  theme_sa() + theme(plot.subtitle = element_text(size = 7.5, colour = INK2, hjust = 0, margin = margin(b = 2)),
+                     plot.margin = margin(3, 6, 3, 3))
+
+## =========== c. the size of the association against 1,000 random sets =======
+OBS <- K
 sig <- is.finite(NL$p) & NL$p < 0.05
 LS <- NL[sig, ]
 say("c  random sets: %d; with an unadjusted age association at P < 0.05: %d (%d negative, %d positive)",
     nrow(NL), sum(sig), sum(LS$beta < 0), sum(LS$beta > 0))
-say("c  %% removed among those %d: median %.1f, 2.5%% %.1f, 97.5%% %.1f, range %.1f to %.1f",
-    sum(sig), median(LS$lost), quantile(LS$lost, .025), quantile(LS$lost, .975), min(LS$lost), max(LS$lost))
-say("c  splicing set: %.1f%% removed; random sets with at least as much removed: %d of %d (%.3f)",
-    OBS$pct_lost, sum(LS$lost >= OBS$pct_lost), nrow(LS), mean(LS$lost >= OBS$pct_lost))
-say("c  unadjusted effect, random sets: %.4f to %.4f, median %.4f, largest |effect| %.4f; splicing set %.4f",
-    min(NL$beta), max(NL$beta), median(NL$beta), max(abs(NL$beta)), OBS$beta)
-say("c  random sets reaching |effect| >= %.4f: %d of %d; reaching unadjusted P <= %.3g: %d; adjusted P <= %.3g: %d",
-    abs(OBS$beta), sum(abs(NL$beta) >= abs(OBS$beta)), nrow(NL), OBS$p, sum(NL$p <= OBS$p),
-    OBS$p_adj, sum(NL$p_adj <= OBS$p_adj))
-say("c  adjusted effect, random sets: %.4f to %.4f; splicing set %.4f; random sets keeping adjusted P < 0.05: %d of %d",
-    min(NL$beta_adj), max(NL$beta_adj), OBS$beta_adj, sum(sig & NL$p_adj < 0.05), sum(sig))
-
-h1 <- hist(LS$lost, breaks = seq(-20, 120, 10), plot = FALSE); top1 <- max(h1$counts)
-pc1 <- ggplot(LS, aes(lost)) +
-  geom_histogram(breaks = seq(-20, 120, 10), fill = BAR, colour = "white", linewidth = 0.2) +
-  annotate("segment", x = median(LS$lost), xend = median(LS$lost), y = 0, yend = top1 * 1.10,
-           colour = INK2, linewidth = 0.45, linetype = "22") +
-  annotate("segment", x = OBS$pct_lost, xend = OBS$pct_lost, y = 0, yend = top1 * 1.10,
-           colour = EXPC, linewidth = 0.6) +
-  annotate("text", x = median(LS$lost) - 3, y = top1 * 1.12, hjust = 1, vjust = 0, family = FONT,
-           size = pt(7), colour = INK2, lineheight = 0.95,
-           label = sprintf("random sets\nmedian %.0f%%", median(LS$lost))) +
-  annotate("text", x = OBS$pct_lost + 3, y = top1 * 1.12, hjust = 0, vjust = 0, family = FONT,
-           size = pt(7), colour = EXPC, lineheight = 0.95,
-           label = sprintf("splicing set\n%.0f%%", OBS$pct_lost)) +
-  scale_x_continuous(breaks = c(0, 50, 100), limits = c(-20, 120)) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.04)), limits = c(0, top1 * 1.42)) +
-  labs(x = "age effect removed by adjustment (%)",
-       y = sprintf("random gene sets (n = %d of %s\nwith an age association)", nrow(LS),
-                   format(nrow(NL), big.mark = ","))) +
-  theme_sa() + theme(axis.title.y = element_text(lineheight = 0.95, margin = margin(r = 5)),
-                     plot.margin = margin(8, 6, 3, 3))
-
+say("c  %% removed among those %d: median %.1f, 2.5%% %.1f, 97.5%% %.1f", sum(sig), median(LS$lost),
+    quantile(LS$lost, .025), quantile(LS$lost, .975))
+say("c  unadjusted effect, random sets: %.4f to %.4f, largest |effect| %.4f; splicing set %.4f; random sets reaching it: %d",
+    min(NL$beta), max(NL$beta), max(abs(NL$beta)), OBS$beta, sum(abs(NL$beta) >= abs(OBS$beta)))
 h2 <- hist(NL$beta, breaks = seq(-0.02, 0.0325, 0.0025), plot = FALSE); top2 <- max(h2$counts)
-pc2 <- ggplot(NL, aes(beta)) +
+pc <- ggplot(NL, aes(beta)) +
   geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.4) +
   geom_histogram(breaks = seq(-0.02, 0.0325, 0.0025), fill = BAR, colour = NA) +
   annotate("segment", x = OBS$lo, xend = OBS$hi, y = top2 * 0.30, yend = top2 * 0.30,
@@ -144,45 +108,14 @@ pc2 <- ggplot(NL, aes(beta)) +
                            num(min(NL$beta), 3), num(max(NL$beta), 3))) +
   annotate("text", x = -0.19, y = top2 * 1.40, hjust = 0, vjust = 1, family = FONT, size = pt(7),
            colour = INK, lineheight = 0.95,
-           label = sprintf("%d of %s random sets reach\nthe size of the splicing set's effect",
+           label = sprintf("%d of %s random sets\nreach the splicing set's effect",
                            sum(abs(NL$beta) >= abs(OBS$beta)), format(nrow(NL), big.mark = ","))) +
-  scale_x_continuous(limits = c(-0.19, 0.04), breaks = c(-0.15, -0.1, -0.05, 0), labels = num_axis()) +
+  scale_x_continuous(breaks = c(-0.15, -0.1, -0.05, 0), labels = num_axis()) +
+  coord_cartesian(xlim = c(-0.19, 0.04)) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.04)), limits = c(0, top2 * 1.42)) +
   labs(x = "unadjusted age effect per decade", y = "random gene sets (n = 1,000)") +
   theme_sa() + theme(axis.title.y = element_text(margin = margin(r = 5)),
                      plot.margin = margin(8, 6, 3, 6))
-pc <- plot_grid(pc1, pc2, ncol = 2, rel_widths = c(1, 1.12))
 
-## =========== d. genes keeping a decline, by cohort definition ================
-KL <- setNames(lapply(COHORTS, function(k) readLines(file.path(CR, k, "genes_keeping_decline.txt"))), COHORTS)
-KL <- lapply(KL, function(x) x[nzchar(x)])
-stopifnot(all(lengths(KL) == SENS$decline_kept[match(COHORTS, SENS$cohort)]))
-common <- Reduce(intersect, KL)
-three <- Reduce(intersect, KL[c("published", "normal", "primary")])
-say("d  genes keeping a decline: %s; common to all four: %d",
-    paste(sprintf("%s %d", COHORTS, lengths(KL)), collapse = ", "), length(common))
-say("d  (for the record) published & normal %d, published & primary %d, normal & primary %d, all three non-empty cohorts %d%s",
-    length(intersect(KL$published, KL$normal)), length(intersect(KL$published, KL$primary)),
-    length(intersect(KL$normal, KL$primary)), length(three),
-    if (length(three)) paste0(": ", paste(sort(three), collapse = ", ")) else "")
-say("d  age-associated genes before adjustment: %s",
-    paste(sprintf("%s %d", SENS$cohort, SENS$age_assoc), collapse = ", "))
-DB <- data.frame(lab = c(COHLAB[COHORTS], "in all four\ncohort definitions"),
-                 n = c(lengths(KL), length(common)),
-                 kind = c("other", "other", "primary", "other", "common"))
-DB$lab <- factor(DB$lab, levels = rev(DB$lab))
-pd <- ggplot(DB, aes(n, lab, fill = kind)) +
-  geom_col(width = 0.62) +
-  geom_text(aes(label = n, x = n + 1.6), hjust = 0, size = pt(7), family = FONT, colour = INK) +
-  geom_hline(yintercept = 1.5, colour = GREY_L, linewidth = 0.3) +
-  scale_fill_manual(values = c(primary = OUTC, other = BAR, common = INK2), guide = "none") +
-  scale_x_continuous(limits = c(0, 66), breaks = c(0, 20, 40, 60), expand = expansion(mult = c(0, 0))) +
-  labs(x = sprintf("genes keeping a decline\nafter adjustment (of %d)", NCORE), y = NULL) +
-  theme_sa() + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank(),
-                     axis.text.y = element_text(size = 7, lineheight = 0.95),
-                     axis.title.x = element_text(hjust = 1, lineheight = 0.95),
-                     plot.margin = margin(8, 8, 3, 6))
-
-top <- lab_grid(pa, pb, labels = c("a", "b"), ncol = 2, rel_widths = c(0.78, 1.22))
-bot <- lab_grid(pc, pd, labels = c("c", "d"), ncol = 2, rel_widths = c(1.34, 0.66))
-save_fig(lab_grid(top, bot, labels = c("", ""), ncol = 1, rel_heights = c(1, 0.95)), "Fig4.png", 183, 128)
+save_fig(lab_grid(pa, pb, pc, labels = c("a", "b", "c"), ncol = 3, rel_widths = c(0.82, 1.32, 0.86)),
+         "Fig4.png", 183, 74)

@@ -107,7 +107,8 @@ p2b <- ggplot(gd, aes(factor(dec), splice)) +
   scale_y_continuous(labels = num_axis()) +
   annotate("text", x = 0.6, y = max(gd$splice), hjust = 0, vjust = 1, family = FONT,
            size = pt(7), colour = INK, lineheight = 1.05,
-           label = sprintf("median rises in nine of the ten steps\npartial %s = %s at the same replicative age,\ndays in culture and cell line",
+           ## two short lines; what the partial correlation holds constant is in the legend
+           label = sprintf("partial %s = %s\n(replicative age, days, line fixed)",
                            RHO, num(gv("partial rho given pdtot, days, line")))) +
   labs(x = "median counted division rate of each tenth", y = "pre-mRNA processing score") +
   theme_sa(8) + theme(axis.text.x = element_text(size = 7))
@@ -130,12 +131,13 @@ p2c <- ggplot(GV, aes(rho, fill = grp, colour = grp)) +
                                  `the 177 splicing genes` = BLUE), name = NULL, guide = "none") +
   annotate("text", x = q95 + 0.04, y = 1.35, hjust = 0, vjust = 1, family = FONT, size = pt(7),
            colour = INK2, lineheight = 0.95, label = "95th percentile\nof the background") +
+  ## two short lines in the empty top-left corner; the top-10-removed result is in the legend
   annotate("text", x = -0.98, y = Inf, hjust = 0, vjust = 1.3, family = FONT, size = pt(7),
            colour = INK, lineheight = 1.08,
-           label = sprintf("%.0f%% of the set is positive, against %.0f%% of the background\n%.0f%% of the set lies above the 95th percentile\nthe set score keeps %s of %s with its ten strongest genes removed",
-                           98, 44, gv("set above 95th pct (%)"),
-                           num(gv("set score, top 10 genes removed")), num(gv("set score vs rate")))) +
+           label = sprintf("%.0f%% of the set positive (background %.0f%%)\n%.0f%% above the 95th percentile",
+                           98, 44, gv("set above 95th pct (%)"))) +
   scale_x_continuous(limits = c(-1, 1), labels = num_axis(1)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.16))) +
   labs(x = "correlation of one gene with the counted division rate", y = "density") +
   theme_sa(8) + theme(legend.position = "bottom", legend.margin = margin(t = -5),
                       legend.text = element_text(size = 7))
@@ -175,7 +177,8 @@ p2f <- ggplot(LS, aes(rate, prolif)) +
   geom_smooth(method = "lm", formula = y ~ x, colour = INK, fill = GREY,
               alpha = 0.18, linewidth = 0.5) +
   geom_point(aes(colour = arm), size = 1.15, alpha = 0.85) +
-  scale_colour_manual(values = ARMCOL, name = NULL) +
+  ## the colours are treatment arms of the counted resource, not gene sets: say so in the key
+  scale_colour_manual(values = ARMCOL, name = "treatment arm") +
   scale_x_continuous("measured division rate (divisions per day)", labels = num_axis()) +
   scale_y_continuous("20-marker proliferation score", labels = num_axis()) +
   annotate("text", x = Inf, y = -Inf, hjust = 1.03, vjust = -0.5, family = FONT,
@@ -187,15 +190,19 @@ p2f <- ggplot(LS, aes(rate, prolif)) +
            colour = INK2, lineheight = 1.05,
            label = sprintf("1 SD of the score = %s divisions per day",
                            num(coef(lm(rate ~ prolif, LS))[2] * sd(LS$prolif), 2))) +
+  ## four arms and a title do not fit on one line of the panel; two rows do
+  guides(colour = guide_legend(nrow = 2, title.position = "left", override.aes = list(size = 1.6))) +
   theme_sa(8) + theme(legend.position = "bottom", legend.margin = margin(t = -5),
-                      legend.text = element_text(size = 7),
+                      legend.text = element_text(size = 7), legend.title = element_text(size = 7),
                       legend.key.height = unit(9, "pt"))
 cat(sprintf("\npanel f -- proxy vs counting: proliferation score rho = %.3f, splicing score rho = %.3f\n",
             rp_pro, rp_spl))
 cat(sprintf("   arms furthest above the fit: %s\n", paste(NAMED, collapse = ", ")))
 
-r1 <- lab_grid(p2a, p2b, labels = c("a", "b"), ncol = 2, rel_widths = c(1.12, 1))
-r2 <- lab_grid(p2c, p2d, labels = c("c", "d"), ncol = 2, rel_widths = c(1.30, 1))
-r3 <- lab_grid(p2e, p2f, labels = c("e", "f"), ncol = 2, rel_widths = c(1, 1.15))
+## the six panels sat edge to edge; each gets a gutter and the canvas grows to hold it
+GUT <- theme(plot.margin = margin(9, 12, 5, 6))
+r1 <- lab_grid(p2a + GUT, p2b + GUT, labels = c("a", "b"), ncol = 2, rel_widths = c(1.12, 1))
+r2 <- lab_grid(p2c + GUT, p2d + GUT, labels = c("c", "d"), ncol = 2, rel_widths = c(1.30, 1))
+r3 <- lab_grid(p2e + GUT, p2f + GUT, labels = c("e", "f"), ncol = 2, rel_widths = c(1, 1.15))
 save_fig(lab_grid(r1, r2, r3, labels = c("", "", ""), ncol = 1,
-                  rel_heights = c(1, 1.32, 0.95)), "Fig2.png", 183, 212)
+                  rel_heights = c(1, 1.32, 0.95)), "Fig2.png", 183, 226)

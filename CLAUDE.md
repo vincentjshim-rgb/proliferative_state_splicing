@@ -2,7 +2,7 @@
 
 이 파일은 이 프로젝트를 Claude에게 인계할 때 가장 먼저 읽는 지속 지침이다. 과거 작업 요약이 아니라, 이후 분석·해석·그림·원고 작성에서 지킬 연구 설계와 판단 기준을 기록한다.
 
-- 최종 갱신: 2026-09-20 (원고 v16. **헤드라인 수치에 배수 변화·유전자별 FDR을 붙이고 Fig. 7d 범례를 고쳤다**(§27). 그 앞은 v15. **척도 통일·매개 모형·조직 혼합 모형으로 절 사이 연결을 보강했다**(§26). 그 앞은 v14. **유전자 수준·용량–반응 검증을 Fig. 2에 넣고, 전사체(junction) 수준 증거를 Fig. 3으로 신설했다**(§25). 그 앞은 v13. **Fig. 7을 graphical abstract로 재작도(패널 b 삭제), 근육을 사전등록 결산 문단으로 재강등, 조직 패턴을 "배양에서 결합된 19개가 19개 모두 피부에서 약해진다 + 복제 4개만 71–75% 유지"로 확정**(§24). 그 앞은 2026-09-19 v12: 리뷰어 7명·검증자 7명 심사에서 확정된 52건 반영(§23). 그 앞은 v11. **개념 요약 Fig. 7 신설, 근육 강등, Results 절 사이 예측 문장으로 논리 사슬 보강**(§22). 그 앞은 2026-09-18 v10. **재심사 패널 4명 + 편집자 결정(Major revision)을 반영하기 시작했다**: 두 연구 역분산 결합 추정치 철회, GTEx 잔여를 suppression으로 명시, 피부 내부 양성 대조를 Fig. 6 패널 e로 승격, 대리 지표 품질을 Fig. 2 패널 f로 신설, 사전등록 스코어카드를 보충 표 9로 이동, 제목을 *weakens in skin*으로 확정(§19). 그 앞은 v9. **로컬 자료를 전부 내리고 공개 자료 재분석으로 확정**했고, 선행 연구는 고찰의 인용으로 잇는다(§4·§18). 그 앞은 v8의 **본문 그림 8 → 6장 일직선 재편**: 관찰 → 측정된 분열 속도 → 증식이 설명하는 몫 → 63개 대비 → 23개 프로그램 → 사전등록 조직 경계. 곁가지 분석은 전문을 보충 Results 1–8로 옮기고 본문에는 결과를 밝힌 짧은 포인터만 남겼다. 제목 변경. 재편 과정에서 나온 오류 다수 수정(§8 끝의 '2026-09-17 수정 기록'))
+- 최종 갱신: 2026-09-20 (원고 v17. **그림 재정비: 옛 Fig. 8 삭제, Fig. 1a 질문 도식, Fig. 3 event 분류(SRSF3 exon은 456 bp NMD-only), Fig. 4 증식 3분위, Fig. 6a 짝 막대, Fig. 7b 근육 제거**(§29). 그 앞은 v16. **헤드라인 수치에 배수 변화·유전자별 FDR을 붙이고 Fig. 7d 범례를 고쳤다**(§27). 그 앞은 v15. **척도 통일·매개 모형·조직 혼합 모형으로 절 사이 연결을 보강했다**(§26). 그 앞은 v14. **유전자 수준·용량–반응 검증을 Fig. 2에 넣고, 전사체(junction) 수준 증거를 Fig. 3으로 신설했다**(§25). 그 앞은 v13. **Fig. 7을 graphical abstract로 재작도(패널 b 삭제), 근육을 사전등록 결산 문단으로 재강등, 조직 패턴을 "배양에서 결합된 19개가 19개 모두 피부에서 약해진다 + 복제 4개만 71–75% 유지"로 확정**(§24). 그 앞은 2026-09-19 v12: 리뷰어 7명·검증자 7명 심사에서 확정된 52건 반영(§23). 그 앞은 v11. **개념 요약 Fig. 7 신설, 근육 강등, Results 절 사이 예측 문장으로 논리 사슬 보강**(§22). 그 앞은 2026-09-18 v10. **재심사 패널 4명 + 편집자 결정(Major revision)을 반영하기 시작했다**: 두 연구 역분산 결합 추정치 철회, GTEx 잔여를 suppression으로 명시, 피부 내부 양성 대조를 Fig. 6 패널 e로 승격, 대리 지표 품질을 Fig. 2 패널 f로 신설, 사전등록 스코어카드를 보충 표 9로 이동, 제목을 *weakens in skin*으로 확정(§19). 그 앞은 v9. **로컬 자료를 전부 내리고 공개 자료 재분석으로 확정**했고, 선행 연구는 고찰의 인용으로 잇는다(§4·§18). 그 앞은 v8의 **본문 그림 8 → 6장 일직선 재편**: 관찰 → 측정된 분열 속도 → 증식이 설명하는 몫 → 63개 대비 → 23개 프로그램 → 사전등록 조직 경계. 곁가지 분석은 전문을 보충 Results 1–8로 옮기고 본문에는 결과를 밝힌 짧은 포인터만 남겼다. 제목 변경. 재편 과정에서 나온 오류 다수 수정(§8 끝의 '2026-09-17 수정 기록'))
 - 직전 상태(v7, 그림 8장): `archive/2026-09-17_before_six_figure_restructure/`
 - 직전 판(v5, 2026-09-14): `archive/2026-09-15_before_cohort_redefinition/CLAUDE_2026-09-15_v5.md`. 그림과 원고 사본도 같은 디렉터리에 있다.
 - 그 이전 판(Repro-CM stress–senescence decoupling 방향, 2026-09-11): `archive/CLAUDE_2026-09-11_repro_cm_decoupling.md`.
@@ -219,16 +219,15 @@ else:
 
 | Fig. | 질문 | 스크립트 |
 |---|---|---|
-| 1 | splicing 기계가 공여자 연령·배양 시간에 따라 감소하는가 | `make_sa_fig1.R` |
+| 1 | splicing 기계가 공여자 연령·배양 시간에 따라 감소하는가(**a: 두 프로그램의 적합선으로 그린 질문 도식, b: 농축, c: 공여자 + 세포주 4개 한 줄**) | `make_sa_fig1.R` |
 | 2 | 측정된 분열 속도를 따라가는가(**b: 10분위 용량-반응 + 복제 나이 고정 편상관, c: 유전자 수준 배경 분포, f: 20개 marker 대리 지표의 품질**) | `make_bio_fig2.R` |
-| 3 | 기계 유전자 자신의 전사체가 증식에 따라 다른 junction을 쓰는가(SRSF3 sashimi; 2026-09-20 신설, §25) | `make_sa_fig3transcript.R` |
-| 4 | 증식이 연령 연관의 얼마를 설명하고 무엇이 남는가(무작위 집합 대조 포함) | `make_sa_fig3merged.R` |
+| 3 | 기계 유전자 자신의 전사체가 증식에 따라 다른 junction을 쓰는가(a: SRSF3 sashimi, b: FDR < 0.05 event 16개 목록, c: 거명 인자 넷의 산점도, d: event 종류 구성, e: 집합 수준 null; §25·§29) | `make_sa_fig3transcript.R` (+ `scripts/revision/run_machinery_events.R`) |
+| 4 | 증식이 연령 연관의 얼마를 설명하는가(a: 공선성, **b: 증식 3분위별 연령 산점도**, c: 무작위 집합 효과 크기; 코호트 정의·감쇠 분포·유지 유전자는 S2 d–f로) | `make_sa_fig3merged.R` |
 | 5 | 63개 대비에서 결합이 일반화되는가 | `make_sa_fig3.R` |
 | 6 | 어떤 노화 프로그램이 분열 읽기값인가 | `make_sa_fighall.R` |
 | 7 | 결합은 조직에서도 성립하는가(사전등록 GTEx, **패널 a: 배양·하지 피부·치골상부 피부**(근육은 b의 heatmap에만), **패널 d: 구성 보정의 프로그램별 비교**) | `make_sa_figgtex.R` (Fig7.png·FigS8.png·보충 표 9 스코어카드를 함께 쓴다) |
-| 8 | graphical abstract: 배양 접시·공여자·피부 그림 + 각 대상에서 한 측정의 실제 산점도(§24) | `make_sa_fig7summary.R` (파일명은 Fig8.png) |
 | S1 | 처리로 증식을 섭동해도 결합이 유지되는가 | `make_sa_figpert.R` |
-| S2 | 어떤 유전자가 연령 연관을 유지하는가 | `make_sa_figS_gene.R` |
+| S2 | 어떤 유전자가 연령 연관을 유지하는가(+ d–f: 옛 Fig. 4의 코호트 정의 막대·감쇠 histogram·유지 유전자 수) | `make_sa_figS_gene.R` |
 | S3 | splicing outcome 지표와 event 수준 splicing(2026-09-18 병합, 5패널) | `make_sa_figS_outcome.R` |
 | S4 | 개입(표본 외 예측) | `make_bio_fig6.R` |
 | S5 | 결합이 splicing에 특이적인가 | `make_sa_figspec.R` |
@@ -550,3 +549,31 @@ wet-lab 없이 절 사이 연결을 강화하는 세 가지. 전부 사후 분�
 - `scale_*_continuous(limits = ...)`는 자료를 버린다. 보기만 자르려면 언제나 **`coord_cartesian()`**을 쓴다. `limits`를 쓸 곳은 자료를 정말 제외할 때뿐이다.
 - 렌더할 때 나오는 `Removed N rows ...` 경고를 무시하지 않는다. 그 N개는 독자가 볼 수 없는 자료다. `options(warn = 1)`로 15개 스크립트를 한 번에 돌려 확인한다.
 - 축 라벨 포맷터는 눈금값을 **그 값 그대로** 인쇄해야 한다. 자릿수를 줄여 반올림하지 않는다.
+
+## 29. 그림 재정비 — 사용자 그림 평가 11건에 대한 판정과 처리 (2026-09-20; 원고 v17)
+
+사용자가 그림 전체를 항목별로 평가했다. 판정부터 적는다.
+
+| 지적 | 판정 | 처리 |
+|---|---|---|
+| Fig. 1b·c를 한 그래프로 | **부분 동의** — x축 단위가 다르므로(년/일) 한 산점도는 안 되지만 한 줄의 small multiples는 된다 | 공여자 산점도 + 세포주 4개 facet을 y축 하나로 한 줄(패널 c) |
+| Fig. 1 첫 자리에 graphical abstract | **동의** | 패널 a: 177개 집합과 세포주기 marker 20개를 표준화해 공여자 연령·배양 일수에 대해 적합한 선(95% 띠). **점은 안 찍고 선만** — 같은 시료가 c와 Fig. 2에 점으로 나온다. 밑에 질문 한 줄 |
+| Fig. 2b·c 주석이 길어 그래프를 가림 | **동의** | b 두 줄, c 두 줄로 줄이고 나머지 문장은 범례·본문으로 |
+| Fig. 2 패널 간격 | **동의** | 패널마다 gutter, 212 → 226 mm |
+| Fig. 2f의 DEX·Oligomycin+DEX가 splicing인가 | **오해가 생길 만했다** | 그 색은 splicing이 아니라 **세포를 센 자료의 처리 팔**이다(y축은 20개 marker 증식 점수). 20개 marker 목록은 다섯 스크립트에서 동일함을 확인했고, 범례 제목을 "treatment arm"으로 붙이고 두 줄로 |
+| Fig. 3에 SRSF3 말고 다른 SRSF·RBP와 event 유형 | **동의** | 새 분류 스크립트 `run_machinery_events.R`. FDR < 0.05 event **16개/유전자 11개**(HNRNPA1·HNRNPA2B1·HNRNPH1·HNRNPK·PCBP2·PTBP1·RBM39·SEC13·SNRNP200·SNRPB·SRSF3): cassette 12, alt 5′ 1, 미주석 3. 패널 b 목록, c 거명 인자 넷 산점도, d 종류 구성, e 집합 null |
+| Fig. 4는 증식이 안 보이고 패널이 많다 | **동의** | 6개 plot → 3개: a 공선성, **b 공여자를 증식 점수 3분위로 나눈 연령 산점도**(전체 −0.133/10년, 3분위 안 −0.053·−0.065·0.000), c 무작위 집합 효과 크기. 코호트 정의 막대·감쇠 histogram·유지 유전자 수는 **S2 d–f**로 옮김(음성 결과 삭제 아님) |
+| Fig. 5c x축이 좁아 상자가 안 보임 | **동의** | 잔차가 0.01이라 막대는 어차피 안 보인다 → **점 + 95% CI**, 패널 폭 확대 |
+| Fig. 6a heatmap에 숫자 인쇄가 이상 | **동의** | 25 × 2 heatmap은 색칠한 표였다 → 짝지은 가로 막대(진한 = 전체, 옅은 = 세포주기 유전자 제거), 값은 보충 표 6 |
+| Fig. 7b에 근육이 있어 a와 어긋남 | **동의** | 근육 행 제거. 사전등록 H3 보고 의무는 S8a·b와 보충 표 9·10이 진다 |
+| Fig. 8은 못 그려서 방해 | **동의** | 삭제. `make_sa_fig7summary.R`에 stop 가드, Fig8.png git rm. 원고 2·Methods·Discussion·빌더·README·템플릿·길잡이에서 Fig. 8 인용 전부 제거 |
+
+**Fig. 3에서 잡은 사실 오류.** 옛 sashimi의 "26 bp exon"은 틀렸다. exon 모델에서 "다른 exon을 포함하는 exon을 지운다"는 규칙이 진짜 cassette exon(36,599,821–36,600,276, **456 bp**)을 지우고 그 안의 25 bp 변이형(ENST00000613941)만 남겼다. read가 쓰는 하류 junction(36,600,277→)은 456 bp exon의 끝에서 나온다. 이 exon은 GENCODE v41에서 **nonsense_mediated_decay 전사체(ENST00000477442)에만** 주석된 poison exon이고, 포함률은 빠른 세포에서 12.6 → 6.1%로 떨어진다. **exon 모델은 단백질 부호 전사체(Ensembl_canonical)를 그리고, 대체 exon은 분류표에서 가져온다.** 포함 junction은 둘(상류 10→11, 하류 11→11)이며 둘 다 빨강.
+
+**event 분류 규칙**(`run_machinery_events.R`). event 표는 junction을 게놈 좌표로 묶으므로("alternative acceptor" = 같은 start) **strand를 보고 생물학적 site를 정한다**. 근위 site의 junction이 원위 site 앞에서 끝나는 주석 exon에 닿으면 cassette, 두 site가 한 exon 안이면 alt 5′/3′ SS, 어느 site가 exon 경계가 아니면 unannotated. 요소를 지닌 GENCODE 전사체의 transcript_type을 모아 NMD에만 있으면 "NMD-only exon". junction 셋 이상인 묶음은 **우세 경로에서 갈라지는 junction으로 각 event를 잰다**(우세 junction으로 재면 다른 event 둘이 같은 측정값을 갖는다). cassette는 양쪽 junction에서 보이므로 P가 작은 쪽으로 한 번만 센다. 그래서 옛 "39 rows/12 genes"가 "16 events/11 genes"가 됐다(ACIN1은 우세 junction만 유의해 빠진다). 산출물: `machinery_transcript/events_classified_*.tsv`, `event_type_summary.tsv`, `named_events_psi.rds`, **보충 데이터 14**. GTF는 외부(`/home/shim/Downloads/project/project_shim/RNA_seq/gencode.v41...gtf`)라 event 유전자 762개의 exon 추출본(`gencode_v41_exons_event_genes.tsv`)을 derived에 둔다.
+
+**Fig. 1a 규칙.** 자료 없는 도식은 안 그린다는 §21의 원칙은 유지한다 — 1a의 선은 실제 적합(공여자 107명; 21% O₂ 무처리 HC1–HC4 배양 70개)이고 r을 스크립트가 인쇄한다. 점을 찍지 않는 이유는 중복(c·Fig. 2)이다.
+
+**본문에서 함께 고친 것.** Fig. 4 절의 "(Fig. 2e)"는 대리 지표 패널이 f라 **Fig. 2f**의 오기였다. Methods 통계 절의 "Fig. 8 redraws…" 문장, Discussion의 (Fig. 8) 두 곳 삭제. Fig. 7b 범례에 근육이 S8·표 10에 있음을 명시. 보충 데이터 13 → **14개**(README·Data availability·빌더).
+
+**규칙(추가).** 그림 번호를 지우면 원고 2 + 보충 Results 2 + Note + 빌더 + README + 템플릿 머리말 + 길잡이 페이지까지 `grep "Fig\. N"`으로 0건을 확인한다. 이번엔 Methods에 하나 숨어 있었다.

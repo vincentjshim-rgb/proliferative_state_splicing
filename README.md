@@ -12,8 +12,8 @@ accessions listed in Supplementary Table 4 of the manuscript.
 | Path | Contents |
 |---|---|
 | `scripts/` | All analysis and figure code. `scripts/revision/` holds the current analyses; `scripts/artifact_build/` builds the manuscript, the supplementary PDF and the reading artifacts. |
-| `supplementary_data/` | The thirteen machine-readable Supplementary Data tables cited in the manuscript. |
-| `public_data_tierA/derived/figures_sciadv/` | The rendered figures (Fig. 1–8, Supplementary Fig. S1–S8), 600 dpi PNG. |
+| `supplementary_data/` | The fourteen machine-readable Supplementary Data tables cited in the manuscript. |
+| `public_data_tierA/derived/figures_sciadv/` | The rendered figures (Fig. 1–7, Supplementary Fig. S1–S8), 600 dpi PNG. |
 | `manuscript_splicing_v2.md`, `manuscript_splicing_v2_ko.md` | The manuscript, English and Korean. |
 | `supplementary_results_en.md`, `supplementary_results_ko.md` | Supplementary Results 1–8 in full. |
 | `preregistration_*.md`, `supplementary_note*_en.md` | The two preregistrations as locked, their English translations, outcomes and recorded deviations. |
@@ -51,7 +51,6 @@ Rscript scripts/make_sa_fig3merged.R  # Fig. 4
 Rscript scripts/make_sa_fig3.R        # Fig. 5
 Rscript scripts/make_sa_fighall.R     # Fig. 6
 Rscript scripts/make_sa_figgtex.R     # Fig. 7, Supplementary Fig. S8, Supplementary Table 9
-Rscript scripts/make_sa_fig7summary.R # Fig. 8 (summary; every value read from the tables above)
 
 # documents
 bash scripts/artifact_build/build_supplementary_pdf.sh

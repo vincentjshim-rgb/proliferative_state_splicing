@@ -55,39 +55,35 @@ N <- nrow(J)
 ## the two programmes whose gene sets are entirely inside the cell-cycle union
 ## cannot be scored after removal; they are marked rather than dropped
 J$noCC_missing <- !is.finite(J$rho_rate_noCC)
-## two-column heatmap (2026-09-19) in place of the dumbbell plot: the programme x
-## condition matrix with printed values is the form used for programme-level
-## summaries in the ageing transcriptome literature
-if (!exists("DIVERGE")) DIVERGE <- c(BLUE, "#F7F7F7", RED)
-JH <- rbind(data.frame(short = J$short, class = J$class, col = "all genes",
+## paired bars (2026-09-20) in place of the two-column heatmap with printed values, which read
+## as a coloured table: one bar per programme with all its genes, a lighter bar beside it with
+## the cell-cycle genes removed, rows coloured by class as in panel b
+JH <- rbind(data.frame(short = J$short, class = J$class, series = "all genes",
                        rho = J$rho_rate, miss = FALSE),
-            data.frame(short = J$short, class = J$class, col = "without\ncell-cycle genes",
+            data.frame(short = J$short, class = J$class, series = "without cell-cycle genes",
                        rho = J$rho_rate_noCC, miss = J$noCC_missing))
-JH$col <- factor(JH$col, levels = c("all genes", "without\ncell-cycle genes"))
-JH$lab <- ifelse(JH$miss, "\u2020", ifelse(is.finite(JH$rho), sub("-", MINUS, sprintf("%.2f", JH$rho)), ""))
-JH$rho[JH$miss] <- NA
+JH$series <- factor(JH$series, levels = c("all genes", "without cell-cycle genes"))
+JH$rho[JH$miss] <- 0
+DAG <- JH[JH$miss & JH$series == "without cell-cycle genes", ]
 LABCOL <- unname(PAL[as.character(J$class[match(levels(droplevels(J$short)), as.character(J$short))])])
-pA <- ggplot(JH, aes(col, short)) +
-  geom_tile(aes(fill = pmax(pmin(rho, 1), -1)), colour = "white", linewidth = 0.5) +
-  geom_text(aes(label = lab), family = FONT, size = pt(7), colour = INK) +
-  scale_fill_gradientn(colours = DIVERGE, limits = c(-1, 1), breaks = c(-1, 0, 1),
-                       labels = c(paste0(MINUS, "1"), "0", "1"), na.value = "#E6E8EB",
-                       name = sprintf("%s with measured division rate", RHO),
-                       guide = guide_colourbar(title.position = "top", barwidth = unit(48, "pt"),
-                                               barheight = unit(4, "pt"), ticks.colour = "white")) +
-  scale_x_discrete(position = "top", expand = c(0, 0)) + scale_y_discrete(expand = c(0, 0)) +
-  labs(x = NULL, y = NULL,
-       ## the caption is left-aligned inside panel a, so the longer of its two lines sets the
-       ## block width; at the panel's width anything past ~38 characters is cut
-       caption = "\u2020 all its genes are cell-cycle genes\nrow colour: programme class (see b)") +
-  theme_sa() + theme(axis.line = element_blank(), axis.ticks = element_blank(),
+pA <- ggplot(JH, aes(rho, short, fill = class, alpha = series)) +
+  geom_vline(xintercept = 0, colour = INK, linewidth = 0.3) +
+  geom_col(position = position_dodge(width = 0.74), width = 0.66, orientation = "y", colour = NA) +
+  geom_text(data = DAG, aes(x = 0.015, y = as.numeric(short) - 0.19, label = "\u2020"), inherit.aes = FALSE,
+            hjust = 0, vjust = 0.5, family = FONT, size = pt(8), colour = INK2) +
+  scale_fill_manual(values = PAL, guide = "none") +
+  scale_alpha_manual(values = c(`all genes` = 1, `without cell-cycle genes` = 0.42), name = NULL) +
+  scale_x_continuous(sprintf("%s with measured division rate", RHO),
+                     limits = c(-0.42, 0.78), breaks = seq(-0.25, 0.75, 0.25), labels = num_axis()) +
+  scale_y_discrete(NULL, expand = expansion(add = 0.6)) +
+  labs(caption = "\u2020 all its genes are cell-cycle genes\nrow colour: programme class (see b)") +
+  guides(alpha = guide_legend(override.aes = list(fill = INK2), nrow = 1)) +
+  theme_sa() + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank(),
         axis.text.y = element_text(size = 7.2, colour = LABCOL),
-        axis.text.x = element_text(size = 7, lineheight = 0.95),
-        legend.position = "bottom", legend.key.height = unit(5, "pt"),
-        legend.key.width = unit(28, "pt"), legend.title = element_text(size = 7),
-        legend.text = element_text(size = 7), legend.margin = margin(t = 2),
+        legend.position = "top", legend.justification = "center", legend.key.size = unit(7, "pt"),
+        legend.text = element_text(size = 7), legend.margin = margin(b = -3),
         plot.caption = element_text(size = 7, colour = INK2, hjust = 0, lineheight = 1.05),
-        plot.margin = margin(3, 4, 3, 3))
+        plot.margin = margin(3, 6, 3, 3))
 
 ## ---------------- b. division readout against donor-age readout -------------
 J$sig <- J$FDR_age < 0.05

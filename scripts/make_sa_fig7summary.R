@@ -1,3 +1,10 @@
+## RETIRED 2026-09-20 (user decision): the drawn summary figure was judged to get in the way of
+## the paper rather than help it, and Fig. 8 was removed. The problem statement now opens Fig. 1
+## (make_sa_fig1.R, panel a). This script is kept for the record and must not be run: it would
+## write Fig8.png, which no longer exists in the manuscript.
+FIGURES_WRITTEN <- "Fig8.png"
+if (!nzchar(Sys.getenv("ALLOW_RETIRED_FIGURE_SCRIPT")))
+  stop("retired figure script (", FIGURES_WRITTEN, "); set ALLOW_RETIRED_FIGURE_SCRIPT=1 to run it on purpose")
 ## Fig. 7. Graphical abstract (2026-09-20; replaces the text-box schematic of 2026-09-19).
 ## One panel drawn to scale on a 180 x 112 mm canvas. Three columns, each an object of the
 ## study drawn as a picture with the measurement made on it plotted underneath from the

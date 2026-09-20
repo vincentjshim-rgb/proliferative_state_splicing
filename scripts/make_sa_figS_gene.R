@@ -63,14 +63,14 @@ pa <- ggplot(lg, aes(si, gi, fill = v)) + geom_raster() +
   annotate("text", x = ncol(Mc) + 9.5, y = LB$ly, label = LB$gene, hjust = 0,
            size = pt(7), family = FONT, fontface = "italic",
            colour = ifelse(LB$ret, OUTC, INK2)) +
-  annotate("text", x = ncol(Mc)/2, y = -15, size = pt(7), family = FONT, colour = INK2,
+  annotate("text", x = ncol(Mc)/2, y = -17, size = pt(7), family = FONT, colour = INK2,
            lineheight = 1.05,
            label = sprintf("labelled: the %d named factors in the set;\n%s",
                            nrow(LB),
                            if (any(LB$ret)) "blue, keeps a decline after adjustment"
                            else "none keeps a decline after adjustment")) +
   scale_x_continuous(expand = c(0,0), limits = c(-42, ncol(Mc) + 58)) +
-  scale_y_continuous(expand = c(0,0), limits = c(-22, nrow(Mc) + 14)) +
+  scale_y_continuous(expand = c(0,0), limits = c(-25, nrow(Mc) + 14)) +
   labs(x = NULL, y = NULL) + coord_cartesian(clip = "off") +
   theme_sa(8) + theme(axis.line = element_blank(), axis.ticks = element_blank(),
     axis.text = element_blank(), legend.position = "bottom",
@@ -132,6 +132,107 @@ pd <- ggplot(RL, aes(b, gene, fill = k)) +
         plot.subtitle = element_text(size = 7, colour = INK2, lineheight = 1.05),
         plot.margin = margin(3, 7, 3, 3))
 
+## ============ d-f. moved here from main Fig. 4 on 2026-09-20 =============
+## The cohort-definition bars, the share-removed histogram and the count of genes keeping a
+## decline under each definition left the main figure, which now shows proliferation alone.
+## Every number is unchanged; the code is that of the former Fig. 4 panels b, c (left) and d.
+S    <- read.delim(file.path(C, "sensitivity_metrics.tsv"))
+SENS <- read.delim(file.path(C, "sensitivity_genes.tsv"))
+NL   <- read.delim(file.path(D, "reviewer_sensitivities/adjustment_negative_control.tsv"))
+QC   <- read.delim(file.path(D, "reviewer_sensitivities/qc_covariates.tsv"))
+NCORE <- length(readLines(file.path(D, "conserved_core/age_down_splicing_core_v2.txt")))
+COHORTS <- c("published", "normal", "primary", "adult2082")
+COHLAB  <- c(published = "deposited set\nn = 142",
+             normal    = "all normal\nn = 133",
+             primary   = "adults 20+\nn = 107, primary",
+             adult2082 = "adults 20\u201382\nn = 76")
+stopifnot(all(S$n[match(COHORTS, S$cohort)] == c(142, 133, 107, 76)))
+K <- S[S$metric == "machinery", ]; K <- K[match(COHORTS, K$cohort), ]
+K$row <- rev(seq_along(COHORTS))
+FB <- rbind(
+  data.frame(cohort = K$cohort, row = K$row, k = "unadjusted", b = K$beta, lo = K$lo, hi = K$hi, p = K$p),
+  data.frame(cohort = K$cohort, row = K$row, k = "adjusted for proliferation", b = K$beta_adj,
+             lo = K$lo_adj, hi = K$hi_adj, p = K$p_adj))
+FB$k <- factor(FB$k, levels = c("unadjusted", "adjusted for proliferation"))
+for (i in seq_len(nrow(K)))
+  say("d  %-10s n = %3d  unadjusted %.4f [%.4f, %.4f] P = %.3g | adjusted %.4f [%.4f, %.4f] P = %.3g | removed %.1f%%",
+      K$cohort[i], K$n[i], K$beta[i], K$lo[i], K$hi[i], K$p[i], K$beta_adj[i], K$lo_adj[i],
+      K$hi_adj[i], K$p_adj[i], K$pct_lost[i])
+FB$cohort <- factor(FB$cohort, levels = K$cohort[order(K$row, decreasing = TRUE)])
+LABK <- K[order(K$row, decreasing = TRUE), ]
+LABK$cohort <- factor(LABK$cohort, levels = levels(FB$cohort))
+pe <- ggplot(FB, aes(cohort, b, fill = k)) +
+  geom_hline(yintercept = 0, colour = INK, linewidth = 0.35) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.64, colour = NA) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.72), width = 0.22,
+                colour = INK2, linewidth = 0.4) +
+  geom_text(data = LABK, aes(cohort, y = 0.014, label = sprintf("%.0f%%", pct_lost)),
+            inherit.aes = FALSE, family = FONT, size = pt(7), colour = INK2, vjust = 0) +
+  scale_fill_manual(values = c(unadjusted = EXPC, `adjusted for proliferation` = GREY), name = NULL) +
+  scale_x_discrete(labels = COHLAB) +
+  scale_y_continuous(limits = c(-0.235, 0.06), breaks = c(-0.2, -0.1, 0), labels = num_axis(),
+                     expand = c(0, 0)) +
+  labs(x = NULL, y = "age effect per decade,\npre-mRNA processing score",
+       subtitle = "share removed printed above each pair") +
+  theme_sa() + theme(legend.position = "top", legend.justification = "left",
+                     plot.subtitle = element_text(size = 7, colour = INK2, hjust = 0),
+                     legend.margin = margin(b = -6), legend.key.size = unit(6, "pt"),
+                     axis.text.x = element_text(size = 7, lineheight = 0.95),
+                     plot.margin = margin(3, 4, 3, 6))
+
+OBS <- K[K$cohort == "primary", ]
+q <- QC[QC$metric == "machinery" & QC$covariates == "cohort", ]
+stopifnot(isTRUE(all.equal(q$beta, OBS$beta)), isTRUE(all.equal(q$pct_lost, OBS$pct_lost)))
+sig <- is.finite(NL$p) & NL$p < 0.05
+LS <- NL[sig, ]
+say("e  %% removed among the %d random sets with an age association: median %.1f; splicing set %.1f%%; at least as much removed: %d of %d",
+    sum(sig), median(LS$lost), OBS$pct_lost, sum(LS$lost >= OBS$pct_lost), nrow(LS))
+h1 <- hist(LS$lost, breaks = seq(-20, 120, 10), plot = FALSE); top1 <- max(h1$counts)
+pf <- ggplot(LS, aes(lost)) +
+  geom_histogram(breaks = seq(-20, 120, 10), fill = "#C3CBD4", colour = "white", linewidth = 0.2) +
+  annotate("segment", x = median(LS$lost), xend = median(LS$lost), y = 0, yend = top1 * 1.10,
+           colour = INK2, linewidth = 0.45, linetype = "22") +
+  annotate("segment", x = OBS$pct_lost, xend = OBS$pct_lost, y = 0, yend = top1 * 1.10,
+           colour = EXPC, linewidth = 0.6) +
+  annotate("text", x = median(LS$lost) - 3, y = top1 * 1.12, hjust = 1, vjust = 0, family = FONT,
+           size = pt(7), colour = INK2, lineheight = 0.95,
+           label = sprintf("random sets\nmedian %.0f%%", median(LS$lost))) +
+  annotate("text", x = OBS$pct_lost + 3, y = top1 * 1.12, hjust = 0, vjust = 0, family = FONT,
+           size = pt(7), colour = EXPC, lineheight = 0.95,
+           label = sprintf("splicing set\n%.0f%%", OBS$pct_lost)) +
+  scale_x_continuous(breaks = c(0, 50, 100)) +
+  coord_cartesian(xlim = c(-20, 120)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.04)), limits = c(0, top1 * 1.42)) +
+  labs(x = "age effect removed (%)",
+       y = sprintf("random gene sets (n = %d of %s\nwith an age association)", nrow(LS),
+                   format(nrow(NL), big.mark = ","))) +
+  theme_sa() + theme(axis.title.y = element_text(lineheight = 0.95, margin = margin(r = 5)),
+                     plot.margin = margin(8, 6, 3, 3))
+
+KL <- setNames(lapply(COHORTS, function(k) readLines(file.path(C, k, "genes_keeping_decline.txt"))), COHORTS)
+KL <- lapply(KL, function(x) x[nzchar(x)])
+stopifnot(all(lengths(KL) == SENS$decline_kept[match(COHORTS, SENS$cohort)]))
+common <- Reduce(intersect, KL)
+say("f  genes keeping a decline: %s; common to all four: %d",
+    paste(sprintf("%s %d", COHORTS, lengths(KL)), collapse = ", "), length(common))
+DB <- data.frame(lab = c(COHLAB[COHORTS], "in all four\ncohort definitions"),
+                 n = c(lengths(KL), length(common)),
+                 kind = c("other", "other", "primary", "other", "common"))
+DB$lab <- factor(DB$lab, levels = rev(DB$lab))
+pg <- ggplot(DB, aes(n, lab, fill = kind)) +
+  geom_col(width = 0.62) +
+  geom_text(aes(label = n, x = n + 1.6), hjust = 0, size = pt(7), family = FONT, colour = INK) +
+  geom_hline(yintercept = 1.5, colour = GREY_L, linewidth = 0.3) +
+  scale_fill_manual(values = c(primary = OUTC, other = "#C3CBD4", common = INK2), guide = "none") +
+  scale_x_continuous(limits = c(0, 74), breaks = c(0, 30, 60), expand = expansion(mult = c(0, 0))) +
+  labs(x = sprintf("genes keeping a decline\nafter adjustment (of %d)", NCORE), y = NULL) +
+  theme_sa() + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank(),
+                     axis.text.y = element_text(size = 7, lineheight = 0.95),
+                     axis.title.x = element_text(hjust = 1, lineheight = 0.95),
+                     plot.margin = margin(8, 8, 3, 6))
+
 right <- lab_grid(pb, pd, labels = c("b", "c"), ncol = 1, rel_heights = c(0.62, 1.38))
-save_fig(lab_grid(pa, right, labels = c("a", ""), ncol = 2, rel_widths = c(1.2, 1)),
-         "FigS2.png", 183, 128)
+top <- lab_grid(pa, right, labels = c("a", ""), ncol = 2, rel_widths = c(1.2, 1))
+bot <- lab_grid(pe, pf, pg, labels = c("d", "e", "f"), ncol = 3, rel_widths = c(1.35, 0.85, 0.8))
+save_fig(lab_grid(top, bot, labels = c("", ""), ncol = 1, rel_heights = c(1.36, 0.72)),
+         "FigS2.png", 183, 186)

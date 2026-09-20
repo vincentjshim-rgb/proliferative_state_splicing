@@ -134,12 +134,14 @@ CL$lab <- factor(sprintf("%s (n = %d)", CL$class, CL$n),
 ## pfmt() takes one value at a time
 CL$ptxt <- vapply(CL$p_raw, pfmt, character(1))
 CL$clab <- sprintf("%s (n = %d)", CL$class, CL$n)
-## bars with 95% CI (2026-09-19); the per-class P values are in Supplementary Table 4
-pC <- ggplot(CL, aes(mean, lab, fill = class)) +
+## estimate and 95% CI (2026-09-20): a residual of a hundredth drawn as a bar is a sliver
+## the eye cannot find, so each class is a point with its interval; the per-class P values
+## are in Supplementary Table 4
+pC <- ggplot(CL, aes(mean, lab, colour = class)) +
   geom_vline(xintercept = 0, colour = INK, linewidth = 0.35) +
-  geom_col(width = 0.62, colour = NA) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.22, colour = INK2, linewidth = 0.4) +
-  scale_fill_manual(values = CC, guide = "none") +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.28, linewidth = 0.5) +
+  geom_point(size = 2.4) +
+  scale_colour_manual(values = CC, guide = "none") +
   scale_x_continuous("residual (class mean, 95% CI)",
                      limits = c(-0.2, 0.2), breaks = seq(-0.2, 0.2, 0.1), labels = num_axis()) +
   scale_y_discrete(expand = expansion(add = c(0.75, 0.75))) +
@@ -178,6 +180,6 @@ pD <- ggplot(NL, aes(rho)) +
   scale_y_continuous("random gene sets", expand = expansion(mult = c(0, 0.30))) +
   theme_sa()
 
-top <- lab_grid(pA, pC, labels = c("a", "c"), ncol = 2, rel_widths = c(1.12, 1))
+top <- lab_grid(pA, pC, labels = c("a", "c"), ncol = 2, rel_widths = c(1, 1))
 bot <- lab_grid(pB, pD, labels = c("b", "d"), ncol = 2, rel_widths = c(2.3, 1))
 save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.42, 1)), "Fig5.png", 183, 138)
