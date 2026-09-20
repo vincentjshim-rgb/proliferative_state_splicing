@@ -182,6 +182,11 @@ p2f <- ggplot(LS, aes(rate, prolif)) +
            size = pt(7), colour = INK, lineheight = 1.05,
            label = sprintf("proliferation score %s = %s\nsplicing score %s = %s\nn = %d libraries",
                            RHO, num(rp_pro), RHO, num(rp_spl), nrow(LS))) +
+  ## the exchange rate between the two measures, used wherever counting is unavailable
+  annotate("text", x = -Inf, y = Inf, hjust = -0.05, vjust = 1.4, family = FONT, size = pt(7),
+           colour = INK2, lineheight = 1.05,
+           label = sprintf("1 SD of the score = %s divisions per day",
+                           num(coef(lm(rate ~ prolif, LS))[2] * sd(LS$prolif), 2))) +
   theme_sa(8) + theme(legend.position = "bottom", legend.margin = margin(t = -5),
                       legend.text = element_text(size = 7),
                       legend.key.height = unit(9, "pt"))

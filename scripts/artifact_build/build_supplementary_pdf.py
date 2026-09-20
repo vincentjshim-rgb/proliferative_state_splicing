@@ -493,6 +493,23 @@ terms overlap: {hiseq_note(D / "cohort_revised/primary/sample_metrics.tsv")}.
           "beta_adj": lambda v: num(v, 3), "p": lambda v: sig(v),
           "pct_removed": lambda v: f"{v:.0f}"})}
 
+
+**(f) The age effect as a mediation model (post hoc).** Age as the exposure, the proliferation
+score as the mediator, the cohort's technical covariates in every equation, and a percentile
+bootstrap over donors. The mediator is a proxy for the counted division rate, so the indirect
+path is attenuated by its reliability; the second table gives the proportion mediated under a
+range of reliabilities.
+
+{tsv(D / "chain/mediation.tsv",
+     cols=["quantity", "estimate", "lo", "hi"],
+     rename={"lo": "95% CI lower", "hi": "95% CI upper"},
+     fmt={"estimate": lambda v: num(v, 4), "lo": lambda v: num(v, 4), "hi": lambda v: num(v, 4)})}
+
+{tsv(D / "chain/mediation_measurement_error.tsv",
+     cols=["reliability", "prop_mediated"],
+     rename={"prop_mediated": "proportion mediated"},
+     fmt={"reliability": lambda v: num(v, 2), "prop_mediated": lambda v: num(v, 2)})}
+
 ## Supplementary Table 4. Datasets and contrasts
 
 All 63 contrasts, with the class assigned by experimental manipulation, the change in
@@ -620,6 +637,19 @@ pooled, since they are not independent of one another.
              "hi_adj": "95% CI upper", "p_adj": "P"},
      fmt={"beta_adj": lambda v: num(v, 3), "lo_adj": lambda v: num(v, 3),
           "hi_adj": lambda v: num(v, 3), "p_adj": lambda v: sig(v)})}
+
+
+**(f) Every sample-level step in one unit (post hoc).** The 20-marker proliferation score
+calibrated against the counted division rate in the counted libraries, so that each dataset's
+slope can be read in divisions per day. Score-based slopes are multiplied by 0.51, the factor by
+which the naive conversion overstates the effect where counting is available.
+
+{tsv(D / "chain/common_unit.tsv",
+     cols=["dataset", "n", "per_sd", "per_div_day", "rho"],
+     rename={"per_sd": "per SD of proliferation", "per_div_day": "per div. per day",
+             "rho": "rho"},
+     fmt={"per_sd": lambda v: num(v, 3), "per_div_day": lambda v: num(v, 2),
+          "rho": lambda v: num(v, 3)})}
 
 ## Supplementary Table 6. Ageing programmes against measured division rate and donor age
 
@@ -806,6 +836,20 @@ contains COL1A1 and COL1A2, so collagen formation is not an independent check.
      derive={"tissue": lambda x: TISSUE_NAME[x["tissue"]]},
      fmt={"rho_tech": lambda v: num(v, 3), "rho_tech_comp": lambda v: num(v, 3),
           "drop_abs": lambda v: num(v, 3)})}
+
+**(g) What a two-compartment tissue should show (post hoc).** Between-donor variation in each
+score written as a part that follows the fraction of cycling cells and a part that does not. The
+proliferation score and the mitotic cell-cycle programme are both read from cycling cells, so
+their correlation fixes how well the design sees that fraction; if a share w of the splicing
+score's variation followed it, the expected correlation would be w times that value. The row
+without a w is the observed pair.
+
+{tsv(D / "chain/mixture_model.tsv",
+     cols=["w", "expected_splicing_rho", "expected_cellcycle_rho"],
+     rename={"w": "share w", "expected_splicing_rho": "expected splicing rho",
+             "expected_cellcycle_rho": "expected cell-cycle rho"},
+     fmt={"w": lambda v: num(v, 2), "expected_splicing_rho": lambda v: num(v, 3),
+          "expected_cellcycle_rho": lambda v: num(v, 3)})}
 
 """]
 
