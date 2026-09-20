@@ -873,8 +873,9 @@ Machine-readable tables accompany this file.
 | Supplementary Data 8 | `SupplementaryData8_intervention_prediction.tsv` | Out-of-sample prediction of the intervention classes: contrasts, series, median change and residual under each prediction scheme (Supplementary Fig. S4, Supplementary Results 5) |
 | Supplementary Data 9 | `SupplementaryData9_senescence_panels.tsv` | The seven senescence panels: gene counts, cell-cycle content, correlation with the counted division rate with and without cell-cycle genes, and the age effect before and after adjustment (Supplementary Fig. S6, Supplementary Table 7) |
 | Supplementary Data 10 | `SupplementaryData10_methylation_tests.tsv` | The four preregistered methylation clock tests with their correlations, *P* values, BH-FDR and verdicts (Supplementary Table 8) |
-| Supplementary Data 11 | `SupplementaryData11_gene_vs_counted_rate.tsv` | Every expressed gene of the counted resource with its correlation to the counted division rate, its mean expression, and whether it belongs to the 177-gene set or to the twenty named factors (Fig. 2c) |
+| Supplementary Data 11 | `SupplementaryData11_gene_vs_counted_rate.tsv` | Every expressed gene of the counted resource with its correlation to the counted division rate, its mean expression, and whether it belongs to the 177-gene set or to the twenty named factors; for the 177, the fold change per division per day with its *P* and FDR (Fig. 2c) |
 | Supplementary Data 12 | `SupplementaryData12_junction_psi_vs_proliferation.tsv` | Every testable splicing event of the donor cohort with its inclusion level and its association with the proliferation score and with donor age, before and after adjustment (Fig. 3) |
+| Supplementary Data 13 | `SupplementaryData13_gene_age_effects.tsv` | Each of the 177 genes in the donor cohort: the age effect in log₂ counts per million per decade with its *P* and FDR, before and after adjustment for proliferation |
 """)
 
 (OUT / "supplementary.md").write_text("\n".join(parts))

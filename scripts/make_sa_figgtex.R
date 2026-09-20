@@ -229,8 +229,11 @@ pF <- ggplot(CF, aes(rho, pgf, fill = adj)) +
   theme(axis.line.y = element_blank(), axis.ticks.y = element_blank(),
         axis.text.y = element_text(size = 7.5, colour = INK),
         strip.text = element_text(size = 7.5, colour = INK),
-        legend.position = "top", legend.text = element_text(size = 7),
-        legend.margin = margin(0, 0, 0, 0), legend.box.spacing = unit(2, "pt"),
+        ## the legend sat above the two facet strips, so its two keys read as though each
+        ## belonged to the skin site beneath it; below the axis it belongs to both facets
+        legend.position = "bottom", legend.text = element_text(size = 7),
+        legend.margin = margin(t = -2), legend.box.spacing = unit(2, "pt"),
+        legend.key.size = unit(7, "pt"),
         plot.margin = margin(3, 6, 3, 3))
 cat("\npanel f -- composition adjustment by programme:\n")
 print(dcast(CF, set ~ tkf + adj, value.var = "rho"), digits = 3)
