@@ -5,6 +5,7 @@
 ##   b  the age decline itself, with the donors split by proliferation: the pooled slope
 ##      against the slope within each third, and the model estimate with proliferation held
 ##   c  the size of the age association against 1,000 expression-matched random gene sets
+##   d  every gene: its age effect in the donor cohort against its coupling to the counted rate
 ## The cohort-definition bars, the share-removed histogram and the count of genes keeping a
 ## decline moved to Supplementary Fig. S2 (make_sa_figS_gene.R, panels d-f).
 .libPaths(c(normalizePath("analysis_r_lib"), .libPaths()))
@@ -117,5 +118,56 @@ pc <- ggplot(NL, aes(beta)) +
   theme_sa() + theme(axis.title.y = element_text(margin = margin(r = 5)),
                      plot.margin = margin(8, 6, 3, 6))
 
-save_fig(lab_grid(pa, pb, pc, labels = c("a", "b", "c"), ncol = 3, rel_widths = c(0.82, 1.32, 0.86)),
-         "Fig4.png", 183, 74)
+## =========== d. every gene: age effect against coupling to the counted rate ============
+## post hoc (2026-09-21). One point per gene measured in both datasets: the per-decade age
+## effect in the donor cohort (limma, cohort covariates) against the gene's correlation with
+## the counted division rate in the Cellular Lifespan Study.
+DE <- read.delim(file.path(D, "revision_stats/GSE113957_primary_cohort_per_decade_DE.tsv"))
+GV <- read.delim(file.path(D, "gene_level/gene_vs_counted_rate.tsv"))
+NAMED <- readLines("scripts/revision/named_splicing_factors.txt")
+CORE <- readLines(file.path(D, "conserved_core/age_down_splicing_core_v2.txt"))
+GMTD <- tempfile("reactome"); dir.create(GMTD)
+unzip("public_data_tierA/network/ReactomePathways.gmt.zip", exdir = GMTD)
+GMT <- strsplit(readLines(list.files(GMTD, pattern = "\\.gmt$", full.names = TRUE)[1]), "\t")
+CCG <- unique(unlist(lapply(GMT[grepl("^Cell Cycle, Mitotic|^DNA Replication|^M Phase", vapply(GMT, `[`, "", 1))],
+                            function(v) v[-(1:2)])))
+DE$gene <- toupper(DE$gene)
+J <- merge(DE[, c("gene", "logFC", "FDR")], GV[, c("gene", "rho")], by = "gene")
+J$grp <- ifelse(J$gene %in% CORE, "177 splicing genes", ifelse(J$gene %in% CCG, "cell-cycle union", "other"))
+J$grp <- factor(J$grp, levels = c("other", "cell-cycle union", "177 splicing genes"))
+J <- J[order(J$grp), ]
+ct4 <- cor.test(J$rho, J$logFC, method = "spearman", exact = FALSE)
+in177 <- J$grp == "177 splicing genes"
+ct4s <- cor.test(J$rho[in177], J$logFC[in177], method = "spearman", exact = FALSE)
+say("d  %d genes in both datasets: rho(coupling, age effect) = %.3f (P = %.2g); within the 177: %.3f (P = %.2g)",
+    nrow(J), ct4$estimate, ct4$p.value, ct4s$estimate, ct4s$p.value)
+say("d  splicing genes: %d of %d fall with age (FDR < 0.05); cell-cycle union %d of %d",
+    sum(in177 & J$FDR < 0.05 & J$logFC < 0), sum(in177), sum(J$grp == "cell-cycle union" & J$FDR < 0.05 & J$logFC < 0),
+    sum(J$grp == "cell-cycle union"))
+GCOL <- c(other = "#D5DAE0", `cell-cycle union` = EXPC, `177 splicing genes` = "#2C6FAF")
+SHOW <- c("SRSF1", "SRSF2", "SRSF3", "HNRNPK")
+LB2 <- J[J$gene %in% SHOW, ]; LB2$ny <- c(SRSF1 = 0.055, SRSF2 = 0.085, SRSF3 = -0.075, HNRNPK = -0.105)[LB2$gene]
+pd <- ggplot(J, aes(rho, logFC, colour = grp)) +
+  geom_hline(yintercept = 0, colour = GREY, linewidth = 0.3) + geom_vline(xintercept = 0, colour = GREY, linewidth = 0.3) +
+  geom_point(aes(size = grp, alpha = grp)) +
+  geom_smooth(data = J, aes(rho, logFC), inherit.aes = FALSE, method = "lm", formula = y ~ x, colour = INK,
+              linewidth = 0.5, se = FALSE, linetype = "22") +
+  geom_segment(data = LB2, aes(x = rho, xend = rho, y = logFC, yend = logFC + ny * 0.85), colour = GREY, linewidth = 0.25) +
+  geom_text(data = LB2, aes(y = logFC + ny, label = gene), family = FONT, size = pt(7), fontface = "italic",
+            colour = INK, hjust = 0.5, show.legend = FALSE) +
+  scale_colour_manual(values = GCOL, name = NULL) +
+  scale_size_manual(values = c(other = 0.45, `cell-cycle union` = 0.9, `177 splicing genes` = 1.1), guide = "none") +
+  scale_alpha_manual(values = c(other = 0.5, `cell-cycle union` = 0.85, `177 splicing genes` = 0.95), guide = "none") +
+  annotate("text", x = min(J$rho), y = max(J$logFC), hjust = 0, vjust = 1, family = FONT, size = pt(7), colour = INK,
+           lineheight = 1.05, label = sprintf("all genes: %s = %s\n%s\nn = %s genes in both datasets", RHO, num(ct4$estimate),
+                                              pfmt(ct4$p.value), format(nrow(J), big.mark = ","))) +
+  scale_x_continuous(sprintf("%s with the counted division rate (328 libraries)", RHO), labels = num_axis()) +
+  scale_y_continuous("age effect in the donor cohort (log\u2082 CPM per decade)", labels = num_axis()) +
+  guides(colour = guide_legend(override.aes = list(size = 1.8, alpha = 1), nrow = 1)) +
+  theme_sa() + theme(legend.position = "top", legend.justification = "left", legend.margin = margin(b = -4),
+                     legend.key.size = unit(7, "pt"), legend.text = element_text(size = 7),
+                     plot.margin = margin(3, 6, 3, 3))
+
+top <- lab_grid(pa, pb, labels = c("a", "b"), ncol = 2, rel_widths = c(0.82, 1.32))
+bot <- lab_grid(pc, pd, labels = c("c", "d"), ncol = 2, rel_widths = c(0.86, 1.28))
+save_fig(lab_grid(top, bot, labels = c("", ""), ncol = 1, rel_heights = c(1, 1.02)), "Fig4.png", 183, 150)

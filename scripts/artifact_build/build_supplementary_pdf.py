@@ -727,7 +727,7 @@ Note 1.
 
 **(a) Partial correlation with proliferation.** Partial Spearman correlation of each of
 the twenty-five programme scores with the proliferation score in each tissue, after
-regressing out RNA integrity, ischaemic time and library size (the values of Fig. 7b).
+regressing out RNA integrity, ischaemic time and library size (the values of Fig. 8b).
 
 {pivot(D / "gtex_boundary/programme_by_tissue.tsv")}
 
@@ -825,7 +825,7 @@ sets alone, block (d) cannot distinguish an adjustment that removes splicing's c
 from one that flattens the proliferation signal. Repeated for the mitotic cell-cycle
 positive control, collagen formation and the two unselected Reactome splicing definitions,
 the two separate: the cell-cycle programme and collagen formation do not move, while every
-definition of the splicing set falls (the values of Fig. 7d). The fibroblast marker score
+definition of the splicing set falls (the values of Fig. 8d). The fibroblast marker score
 contains COL1A1 and COL1A2, so collagen formation is not an independent check.
 
 {tsv(D / "gtex_posthoc/composition_adjusted_all_programmes.tsv",
@@ -868,8 +868,8 @@ Machine-readable tables accompany this file.
 | Supplementary Data 3 | `SupplementaryData3_gene_level_by_cohort.tsv` | For each of the four cohort definitions: the proliferation–age correlation, the machinery–proliferation correlation, and the number of genes with an age association before and after adjustment for proliferation |
 | Supplementary Data 4 | `SupplementaryData4_programme_division_rate.tsv` | Division-rate correlations for every programme, with and without cell-cycle genes |
 | Supplementary Data 5 | `SupplementaryData5_residual_specification.tsv` | The residual age effect under every model specification — splicing definition, comparator programme and covariate set (Supplementary Table 5) |
-| Supplementary Data 6 | `SupplementaryData6_composition_adjusted.tsv` | Partial correlation with proliferation before and after cell-composition marker scores, for six sets in four tissues (Fig. 7d, Supplementary Fig. S8b) |
-| Supplementary Data 7 | `SupplementaryData7_library_scores_vs_counted_rate.tsv` | Counted division rate, 20-marker proliferation score and the 177- and 96-gene splicing scores for the 328 counted libraries (Figs 2 and 6a) |
+| Supplementary Data 6 | `SupplementaryData6_composition_adjusted.tsv` | Partial correlation with proliferation before and after cell-composition marker scores, for six sets in four tissues (Fig. 8d, Supplementary Fig. S8b) |
+| Supplementary Data 7 | `SupplementaryData7_library_scores_vs_counted_rate.tsv` | Counted division rate, 20-marker proliferation score and the 177- and 96-gene splicing scores for the 328 counted libraries (Figs 2 and 7a) |
 | Supplementary Data 8 | `SupplementaryData8_intervention_prediction.tsv` | Out-of-sample prediction of the intervention classes: contrasts, series, median change and residual under each prediction scheme (Supplementary Fig. S4, Supplementary Results 5) |
 | Supplementary Data 9 | `SupplementaryData9_senescence_panels.tsv` | The seven senescence panels: gene counts, cell-cycle content, correlation with the counted division rate with and without cell-cycle genes, and the age effect before and after adjustment (Supplementary Fig. S6, Supplementary Table 7) |
 | Supplementary Data 10 | `SupplementaryData10_methylation_tests.tsv` | The four preregistered methylation clock tests with their correlations, *P* values, BH-FDR and verdicts (Supplementary Table 8) |

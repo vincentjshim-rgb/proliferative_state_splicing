@@ -99,33 +99,96 @@ pA <- ggplot(R, aes(cc, spl)) +
   theme_sa() + theme(legend.position = "bottom", legend.margin = margin(t = -4),
                      legend.text = element_text(size = 7))
 
-## ====== b. the same within each class ======================================
-keep <- names(which(table(R$class) >= 5))
-Rk <- R[R$class %in% keep, ]
-SHORT <- c(`metabolic / culture` = "metabolic,\nculture", `photoprotection / rescue` = "photo-\nprotection",
-           ## on one line this one is wider than its facet and runs into the neighbours
-           reprogramming = "repro-\ngramming", secretome = "secretome", senescence = "senescence",
-           `UV injury` = "UV injury")
-st <- do.call(rbind, lapply(sort(unique(Rk$class)), function(k) { s <- Rk[Rk$class == k, ]
-  ctk <- cor.test(s$cc, s$spl, method = "spearman", exact = FALSE)
-  data.frame(class = k, lab = SHORT[k],
-             txt = sprintf("%s = %s\nn = %d", RHO, num(ctk$estimate), nrow(s))) }))
-st$lab <- factor(st$lab, levels = SHORT[sort(unique(Rk$class))])
-Rk$lab <- factor(SHORT[Rk$class], levels = levels(st$lab))
-pB <- ggplot(Rk, aes(cc, spl)) +
-  geom_hline(yintercept = 0, colour = GREY_L, linewidth = 0.25) +
-  geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.25) +
-  geom_abline(slope = coef(f)[2], intercept = coef(f)[1], colour = GREY, linewidth = 0.4,
-              linetype = "22") +
-  geom_point(aes(colour = class), size = 1.4) +
-  geom_text(data = st, aes(x = Inf, y = -Inf, label = txt), hjust = 1.1, vjust = -0.35,
-            size = pt(7), family = FONT, colour = INK, lineheight = 1.0, inherit.aes = FALSE) +
-  facet_wrap(~lab, nrow = 1) +
-  scale_colour_manual(values = CC, guide = "none") +
-  ## whole-number ticks: "−2.0", "−1.0", "0.0" ran together in the narrow facets
-  scale_x_continuous(XLAB, breaks = c(-2, -1, 0), labels = num_axis(0)) +
-  scale_y_continuous("change in pre-mRNA\nprocessing genes", labels = num_axis()) +
-  theme_sa() + theme(strip.text = element_text(size = 7.2, lineheight = 0.95))
+## ====== b. every gene in every contrast (2026-09-21) ==========================
+## The meta-analysis form -- gene x study heatmap of effect sizes -- in place of the six
+## per-class facets, which moved to Supplementary Fig. S4a. Rows are the 177 genes ordered by
+## their correlation with the counted division rate; columns the 63 contrasts ordered by the
+## change in cell-cycle genes; a cell is the gene's log2 fold change against the contrast's own
+## transcriptome mean, the same centring the set score uses.
+GV <- read.delim(file.path(D, "gene_level/gene_vs_counted_rate.tsv"))
+NAMED <- readLines("scripts/revision/named_splicing_factors.txt")
+N <- read.delim(file.path(D, "secretome_class/secretome_signatures.tsv"))
+vec <- lapply(split(N, N$id), function(x) setNames(x$logFC, toupper(x$gene)))
+for (f0 in list.files(file.path(D, "compendium/signatures"), full.names = TRUE)) {
+  x <- read.delim(f0); vec[[sub("\\.tsv$", "", basename(f0))]] <- setNames(x$logFC, toupper(x$gene)) }
+lgf <- list(GSE109700_deep = "figure2_public_aging/GSE109700_deep_vs_proliferating_DE.tsv",
+            GSE179848_late = "figure2_public_aging/GSE179848_late_vs_early_donor_level_DE.tsv",
+            GSE93535_SIPS  = "figure2_public_aging/GSE93535_SIPS_vs_Q_DE.tsv",
+            GSE191055_P27  = "figure2_public_aging/GSE191055_P27_vs_P4_DE.tsv",
+            GSE109700_early = "figure2_public_aging/GSE109700_early_vs_proliferating_DE.tsv")
+for (id in names(lgf)) { f0 <- file.path(D, lgf[[id]]); if (file.exists(f0)) {
+  x <- read.delim(f0); vec[[id]] <- setNames(x$logFC, toupper(x$gene)) } }
+DE <- read.delim(file.path(D, "revision_stats/GSE113957_primary_cohort_per_decade_DE.tsv"))
+vec[["GSE113957_age"]] <- setNames(DE$logFC, toupper(DE$gene))
+stopifnot(all(R$id %in% names(vec)))
+vec <- vec[R$id]
+## the set mean recomputed here must equal the stored contrast score (same definition)
+dlt <- function(v, set) { bg <- v[is.finite(v)]; mean(bg[names(bg) %in% set]) - mean(bg) }
+stopifnot(max(abs(sapply(vec, dlt, set = CORE) - R$spl)) < 1e-6)
+M <- sapply(vec, function(v) { bg <- v[is.finite(v)]; (v - mean(bg))[CORE] }); rownames(M) <- CORE
+M <- M[order(GV$rho[match(CORE, GV$gene)], decreasing = TRUE), ]
+cord <- order(R$cc); M <- M[, cord]; Cc <- R[cord, ]
+cat(sprintf("  panel b: %d genes x %d contrasts, %.1f%% of cells measured\n", nrow(M), ncol(M), 100 * mean(is.finite(M))))
+## gene-wise summary quoted in the Results: each gene's Spearman correlation with the
+## cell-cycle change across the contrasts, and how it relates to the gene's coupling to
+## the counted division rate (the row order)
+g_rho <- apply(M, 1, function(r) { ok <- is.finite(r); cor(r[ok], Cc$cc[ok], method = "spearman") })
+rc <- GV$rho[match(rownames(M), GV$gene)]
+ctg <- cor.test(rc, g_rho, method = "spearman", exact = FALSE)
+cat(sprintf("  panel b: per-gene rho with the cell-cycle change across %d contrasts: median %.2f, %d of %d positive; rho of that with the gene's coupling to the counted rate = %.2f (P = %.1e)\n",
+            ncol(M), median(g_rho), sum(g_rho > 0), nrow(M), ctg$estimate, ctg$p.value))
+LIM <- 1.5
+H <- as.data.frame(as.table(M)); names(H) <- c("gene", "id", "lfc")
+H$gi <- match(H$gene, rownames(M)); H$ci <- match(H$id, colnames(M)); H$v <- pmax(pmin(H$lfc, LIM), -LIM)
+NG <- nrow(M); NC <- ncol(M)
+acc <- sub("^(GSE[0-9]+).*$", "\\1", Cc$id); acc[!grepl("^GSE", acc)] <- "secretome"
+CT <- data.frame(ci = seq_len(NC), cc = Cc$cc, spl = Cc$spl, class = Cc$class, acc = acc)
+LB <- data.frame(gene = intersect(NAMED, rownames(M))); LB$gi <- match(LB$gene, rownames(M))
+LB <- LB[order(LB$gi), ]; LB$ly <- seq(4, NG - 3, length.out = nrow(LB))
+## the landmark contrasts of panel a, marked under their columns. Two of them sit in
+## adjacent columns, so the labels fan out along leader lines to evenly spaced anchors.
+LMK <- data.frame(id = names(NAMES), lab = c("deep replicative senescence", "stress-induced senescence",
+                                             "contact inhibition", "donor age", "OSK induction, day 4",
+                                             "naive medium, day 13", "UVA, 3 days"))
+LMK$ci <- match(LMK$id, colnames(M)); stopifnot(!anyNA(LMK$ci), !is.unsorted(LMK$ci))
+LMK$lx <- seq(14, NC - 1, length.out = nrow(LMK))
+XL <- c(0.5, NC + 15); LABZ <- 92                      # rows of the label zone under the heatmap
+H$y <- NG + 1 - H$gi; LB$y <- NG + 1 - LB$gi; LB$ly <- NG + 1 - LB$ly
+pH <- ggplot(H, aes(ci, y)) +
+  geom_tile(aes(fill = v), colour = NA) +
+  scale_fill_gradientn(colours = c(BLUE, "#F7F7F7", RED), limits = c(-LIM, LIM), breaks = c(-LIM, 0, LIM),
+                       labels = c(paste0(MINUS, LIM), "0", LIM), na.value = "#E3E6EA",
+                       name = "log\u2082 fold change of the gene, relative to the transcriptome",
+                       guide = guide_colourbar(barwidth = unit(44, "pt"), barheight = unit(4, "pt"),
+                                               title.position = "top", ticks.colour = "white")) +
+  scale_x_continuous(sprintf("%d contrasts, ordered by the change in cell-cycle genes", NC), breaks = NULL, expand = c(0, 0)) +
+  scale_y_continuous(sprintf("the 177 genes, ordered by\n%s with the counted rate", RHO), breaks = NULL, expand = c(0, 0)) +
+  annotate("segment", x = NC + 0.6, xend = NC + 3.2, y = LB$y, yend = LB$ly, colour = GREY_L, linewidth = 0.25) +
+  annotate("text", x = NC + 3.8, y = LB$ly, label = LB$gene, hjust = 0, family = FONT, size = pt(7),
+           fontface = "italic", colour = INK2) +
+  annotate("segment", x = LMK$ci, xend = LMK$lx, y = 0.3, yend = -7, colour = GREY, linewidth = 0.3) +
+  annotate("text", x = LMK$lx, y = -9, label = LMK$lab, angle = 45, hjust = 1, vjust = 1, family = FONT,
+           size = pt(7), colour = INK2) +
+  coord_cartesian(xlim = XL, ylim = c(-LABZ, NG + 0.5), clip = "off") +
+  theme_sa(8) + theme(axis.line = element_blank(), axis.ticks = element_blank(),
+                      axis.title.x = element_text(size = 7.5, margin = margin(t = 1)),
+                      axis.title.y = element_text(size = 7.5, lineheight = 0.95, hjust = 0.68),
+                      legend.position = "bottom", legend.title = element_text(size = 7),
+                      legend.text = element_text(size = 7), legend.margin = margin(t = 0),
+                      plot.margin = margin(1, 3, 3, 3))
+pT <- ggplot(CT, aes(ci, cc)) +
+  geom_hline(yintercept = 0, colour = GREY, linewidth = 0.3) +
+  geom_col(aes(fill = class), width = 0.85) +
+  geom_point(aes(y = spl), size = 0.7, colour = INK) +
+  scale_fill_manual(values = CC, guide = "none") +
+  scale_x_continuous(NULL, breaks = NULL, expand = c(0, 0)) +
+  scale_y_continuous("log\u2082 FC", breaks = c(-1, 0), labels = num_axis(0)) +
+  coord_cartesian(xlim = XL) +
+  labs(subtitle = "bars: cell-cycle genes (mean log\u2082 FC vs background), class colours as in a;  points: the 177, set mean") +
+  theme_sa(8) + theme(axis.line.x = element_blank(), axis.ticks.x = element_blank(),
+                      axis.title.y = element_text(size = 7.5), plot.margin = margin(10, 3, 0, 3),
+                      plot.subtitle = element_text(size = 7, colour = INK2, margin = margin(b = 2)))
+pB <- plot_grid(pT, pH, ncol = 1, align = "v", axis = "lr", rel_heights = c(0.30, 1))
 
 ## ====== c. what is left once the cell-cycle change is accounted for ========
 CL <- CL[order(CL$mean), ]
@@ -181,5 +244,5 @@ pD <- ggplot(NL, aes(rho)) +
   theme_sa()
 
 top <- lab_grid(pA, pC, labels = c("a", "c"), ncol = 2, rel_widths = c(1, 1))
-bot <- lab_grid(pB, pD, labels = c("b", "d"), ncol = 2, rel_widths = c(2.3, 1))
-save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1.42, 1)), "Fig5.png", 183, 138)
+bot <- lab_grid(pB, pD, labels = c("b", "d"), ncol = 2, rel_widths = c(2.45, 1))
+save_fig(plot_grid(top, bot, ncol = 1, rel_heights = c(1, 1.06)), "Fig6.png", 183, 198)

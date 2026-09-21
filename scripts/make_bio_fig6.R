@@ -40,8 +40,36 @@ SHORTNM <- c(GSE149694_t2iLGoYD13 = "naive (t2iLGoY)", GSE149694_NHSMD13 = "NHSM
              GSE297233_O4YRSK = "OCT4YR + SK")
 S$label <- ifelse(S$id %in% names(NM), NM[S$id], sub(" vs .*", "", S$name))
 
-## ====== a. observed against what the cell-cycle effect predicts =============
-## the prediction for a class comes from the regression of Fig. 4a refitted without
+## ====== a. the coupling within each class of perturbation (from main Fig. 6b, 2026-09-21)
+## the per-class facets that main Fig. 6b carried until the gene x contrast heatmap replaced them
+f63 <- lm(spl ~ cc, R)
+keep <- names(which(table(R$class) >= 5))
+Rk <- R[R$class %in% keep, ]
+SHORT <- c(`metabolic / culture` = "metabolic,\nculture", `photoprotection / rescue` = "photo-\nprotection",
+           reprogramming = "repro-\ngramming", secretome = "secretome", senescence = "senescence",
+           `UV injury` = "UV injury")
+stk <- do.call(rbind, lapply(sort(unique(Rk$class)), function(k) { s <- Rk[Rk$class == k, ]
+  ctk <- cor.test(s$cc, s$spl, method = "spearman", exact = FALSE)
+  data.frame(class = k, lab = SHORT[k], txt = sprintf("%s = %s\nn = %d", RHO, num(ctk$estimate), nrow(s))) }))
+stk$lab <- factor(stk$lab, levels = SHORT[sort(unique(Rk$class))])
+Rk$lab <- factor(SHORT[Rk$class], levels = levels(stk$lab))
+CC6 <- c(senescence = RED, `donor age` = BROWN, secretome = TEAL, `photoprotection / rescue` = ORANGE,
+         `UV injury` = PURPLE, `metabolic / culture` = GREY, reprogramming = REPC)
+pF <- ggplot(Rk, aes(cc, spl)) +
+  geom_hline(yintercept = 0, colour = GREY_L, linewidth = 0.25) +
+  geom_vline(xintercept = 0, colour = GREY_L, linewidth = 0.25) +
+  geom_abline(slope = coef(f63)[2], intercept = coef(f63)[1], colour = GREY, linewidth = 0.4, linetype = "22") +
+  geom_point(aes(colour = class), size = 1.5, show.legend = FALSE) +
+  geom_text(data = stk, aes(x = Inf, y = -Inf, label = txt), hjust = 1.1, vjust = -0.3, size = pt(7),
+            family = FONT, colour = INK, lineheight = 1.05, inherit.aes = FALSE) +
+  facet_wrap(~lab, nrow = 1) +
+  scale_colour_manual(values = CC6) +
+  scale_x_continuous("change in cell-cycle genes (mean log\u2082 FC vs background)", breaks = c(-2, -1, 0), labels = num_axis(0)) +
+  scale_y_continuous("change in pre-mRNA\nprocessing genes", labels = num_axis(1)) +
+  theme_sa() + theme(strip.text = element_text(size = 7.2, lineheight = 0.95))
+
+## ====== b. observed against what the cell-cycle effect predicts =============
+## the prediction for a class comes from the regression of Fig. 6a refitted without
 ## that class, so no intervention contributes to its own prediction
 S$grp <- ifelse(S$class == "reprogramming", "reprogramming medium", "secretome preparation")
 S$grp <- factor(S$grp, levels = c("reprogramming medium", "secretome preparation"))
@@ -104,7 +132,7 @@ pA <- ggplot(S, aes(px, spl)) +
        y = "observed change in\npre-mRNA processing genes") +
   theme_sa() + theme(legend.position = "bottom", legend.margin = margin(t = -5))
 
-## ====== b. the coupling within each intervention class =====================
+## ====== c. the coupling within each intervention class =====================
 ## solid line: regression within the class. Dashed grey: the regression across the
 ## contrasts outside the class, which is what panel a predicts from.
 sub <- R[R$class %in% c("reprogramming", "secretome"), ]
@@ -140,7 +168,7 @@ pB <- ggplot(sub, aes(cc, spl)) +
   labs(x = "change in cell-cycle genes", y = "change in pre-mRNA\nprocessing genes") +
   theme_sa() + theme(strip.text = element_text(lineheight = 1.0))
 
-## ====== c. named splicing factors across the reprogramming contrasts =======
+## ====== d. named splicing factors across the reprogramming contrasts =======
 pick <- intersect(names(SHORTNM), names(NS))
 L <- do.call(rbind, lapply(pick, function(k)
   data.frame(gene = NS$gene, v = NS[[k]], set = SHORTNM[k], stringsAsFactors = FALSE)))
@@ -177,6 +205,7 @@ pC <- ggplot(L, aes(set, gene, fill = pmax(pmin(v, 1.2), -1.2))) +
     legend.text = element_text(size = 7), legend.key.size = unit(8, "pt"),
     plot.margin = margin(3, 34, 3, 3))
 
-left <- lab_grid(pA, pB, labels = c("a", "b"), ncol = 1, rel_heights = c(1.30, 1))
-save_fig(lab_grid(left, pC, labels = c("", "c"), ncol = 2, rel_widths = c(1.38, 1)),
-         "FigS4.png", 183, 136)
+left <- lab_grid(pA, pB, labels = c("b", "c"), ncol = 1, rel_heights = c(1.30, 1))
+save_fig(lab_grid(lab_grid(pF, labels = "a", ncol = 1),
+                  lab_grid(left, pC, labels = c("", "d"), ncol = 2, rel_widths = c(1.38, 1)),
+                  labels = c("", ""), ncol = 1, rel_heights = c(0.42, 1)), "FigS4.png", 183, 192)
